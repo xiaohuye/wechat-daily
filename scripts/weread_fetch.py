@@ -112,7 +112,7 @@ def main():
         if isinstance(chk, dict) and chk.get("errCode") == -2010:
             print("!! 登录已失效，请先运行: python scripts/weread_login.py")
             ctx.close()
-            sys.exit(2)
+            sys.exit(3)   # 3 = 登录态失效，供 run_daily.sh / 定时任务识别
 
         for i, a in enumerate(accounts, 1):
             got, err = [], None

@@ -5,6 +5,11 @@
 # 用法：
 #   bash scripts/run_daily.sh              # 默认：最近 1 天，推荐 30 篇，抓前 25 篇正文
 #   DAYS=3 TOP=30 FULL=20 bash scripts/run_daily.sh
+#
+# 退出码：
+#   0  成功
+#   2  抓取失败
+#   3  登录态失效（需重新扫码：python scripts/weread_login.py）
 set -u
 cd "$(dirname "$0")/.."
 
@@ -13,30 +18,103 @@ DAYS="${DAYS:-1}"
 TOP="${TOP:-30}"
 FULL="${FULL:-25}"
 
-echo "=== [1/5] 抓取公众号更新（最近 ${DAYS} 天）==="
-"$PY" scripts/weread_fetch.py --days "$DAYS" || exit 2
+log(){ echo "[$(date '+%H:%M:%S')] $*"; }
 
-ART=$(ls -t data/articles-weread-*.json | head -1)
-echo "→ $ART"
+# ---------- 前置：登录态体检 ----------
+# 抓取脚本在登录失效时会以退出码 2 结束；这里先做一次轻量探测，
+# 让定时任务能在「一开始」就明确报出「需要重新扫码」，而不是跑一半才断。
+if [ "${SKIP_LOGIN_CHECK:-0}" != "1" ]; then
+  log "登录态检查…"
+  if ! "$PY" - <<'PYEOF'
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath("scripts")), "scripts"))
+try:
+    from playwright.sync_api import sync_playwright
+except Exception:
+    sys.exit(0)   # 没有 playwright 就跳过体检，交给正式抓取去报错
+ROOT = os.path.abspath(".")
+PROFILE = os.path.join(ROOT, "data", "weread_profile")
+EXE = None
+for c in (r"C:\Users\Administrator\AppData\Local\ms-playwright\chromium-1228\chrome-win64\chrome.exe",
+          r"C:\Users\Administrator\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe"):
+    if os.path.exists(c):
+        EXE = c; break
+if not EXE or not os.path.isdir(PROFILE):
+    sys.exit(1)   # 从未登录过
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/149.0 Safari/537.36")
+JS = """async () => {
+  try {
+    const r = await fetch('/web/mp/articles?bookId=MP_WXS_2398602260&offset=0', {credentials:'include'});
+    const j = await r.json();
+    return j.errCode === -2010 ? 'OUT' : 'IN';
+  } catch(e) { return 'ERR'; }
+}"""
+try:
+    with sync_playwright() as p:
+        ctx = p.chromium.launch_persistent_context(PROFILE, executable_path=EXE, headless=True,
+              viewport={"width":1280,"height":800}, user_agent=UA, locale="zh-CN")
+        pg = ctx.pages[0] if ctx.pages else ctx.new_page()
+        pg.goto("https://weread.qq.com/", timeout=45000)
+        pg.wait_for_timeout(1200)
+        st = pg.evaluate(JS)
+        ctx.close()
+    sys.exit(0 if st in ("IN", "ERR") else 1)
+except Exception:
+    sys.exit(0)   # 探测本身出错就不拦，交给正式抓取
+PYEOF
+  then
+    echo ""
+    echo "!!! 登录态已失效，需要重新扫码 !!!"
+    echo "    请运行： $PY scripts/weread_login.py"
+    echo "    然后用微信扫描 output/weread_qr.png"
+    echo ""
+    exit 3
+  fi
+  log "登录态正常"
+fi
 
-echo "=== [2/5] 推荐排序 ==="
-"$PY" scripts/wx_rank.py --days "$DAYS" --top "$TOP"
+# ---------- 1/5 抓取 ----------
+log "=== [1/5] 抓取公众号更新（最近 ${DAYS} 天）==="
+if ! "$PY" scripts/weread_fetch.py --days "$DAYS"; then
+  rc=$?
+  if [ "$rc" = "3" ] || [ "$rc" = "2" ]; then
+    echo ""
+    echo "!!! 抓取失败（退出码 $rc）——很可能是登录态失效 !!!"
+    echo "    请运行： $PY scripts/weread_login.py"
+    echo ""
+    exit 3
+  fi
+  exit 2
+fi
 
-echo "=== [3/5] 生成分析（概览/主题/推荐）==="
-"$PY" scripts/wx_insight.py --top "$TOP"
+ART=$(ls -t data/articles-weread-*.json 2>/dev/null | head -1)
+[ -n "$ART" ] || { echo "未生成抓取结果"; exit 2; }
+log "→ $ART"
 
-echo "=== [4/5] 抓取推荐篇目正文（前 ${FULL} 篇，免跳转阅读用）==="
-"$PY" scripts/weread_content.py --top "$FULL"
+# ---------- 2/5 排序 ----------
+log "=== [2/5] 推荐排序 ==="
+"$PY" scripts/wx_rank.py --days "$DAYS" --top "$TOP" || exit 2
 
-FULLJSON=$(ls -t data/articles-full-weread-*.json | head -1)
-echo "→ $FULLJSON"
+# ---------- 3/5 分析 ----------
+log "=== [3/5] 生成分析（概览/主题/推荐）==="
+"$PY" scripts/wx_insight.py --top "$TOP" || exit 2
 
-echo "=== [5/5] 生成精读版日报 ==="
-"$PY" scripts/wx_reader.py --top "$FULL"
+# ---------- 4/5 抓正文 ----------
+log "=== [4/5] 抓取推荐篇目正文（前 ${FULL} 篇，免跳转阅读用）==="
+"$PY" scripts/weread_content.py --top "$FULL" || exit 2
+
+FULLJSON=$(ls -t data/articles-full-weread-*.json 2>/dev/null | head -1)
+[ -n "$FULLJSON" ] || { echo "未生成正文结果"; exit 2; }
+log "→ $FULLJSON"
+
+# ---------- 5/5 生成日报 ----------
+log "=== [5/5] 生成精读版日报 ==="
+"$PY" scripts/wx_reader.py --top "$FULL" || exit 2
 
 echo
-echo "=== 完成 ==="
-ls -t output/公众号日报-精读版-*.html | head -1
+log "=== 完成 ==="
+ls -t output/公众号日报-精读版-*.html 2>/dev/null | head -1
 echo
-echo "旧版清单日报（无正文）："
+log "附带生成旧版清单日报（无正文）："
 "$PY" scripts/wx_report.py "$ART" || true
