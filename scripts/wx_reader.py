@@ -337,12 +337,20 @@ body.mode-all #allView{display:block}
 .accbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0 18px;
      background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
      padding:11px 14px;box-shadow:var(--shadow-sm)}
-.accbar select{flex:1;min-width:180px;font:13.5px/1 var(--ff);border:1px solid var(--line);
+.accbar select{flex:0 1 auto;min-width:118px;font:13.5px/1 var(--ff);border:1px solid var(--line);
      border-radius:var(--r-sm);padding:9px 11px;background:#fafbfc;color:var(--ink);
      cursor:pointer;transition:.15s}
 .accbar select:focus{outline:none;border-color:var(--blue);background:#fff;
      box-shadow:0 0 0 3px rgba(47,111,237,.12)}
 .accbar .cinfo{font-size:12.5px;color:var(--sub);margin-left:auto}
+.accbar .flabel{font-size:12px;color:var(--sub);margin-right:-3px}
+/* 反馈按钮（推荐/全部共用） */
+.fb{font:600 12.5px/1 inherit;border:1px solid var(--line);background:#fff;border-radius:8px;
+    padding:7px 11px;cursor:pointer;color:var(--sub);transition:.16s}
+.fb:hover{border-color:var(--blue);color:var(--blue)}
+.fb.on-like{background:#e9f9ee;border-color:#2fa05a;color:#1e7a40}
+.fb.on-dislike{background:#fdeeee;border-color:#d4574e;color:#b03a32}
+article .acts .fb{padding:9px 14px;font-size:13px}
 .alist{margin:0;padding:0;list-style:none}
 .alist li{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
      padding:14px 17px;margin-bottom:9px;transition:all .18s;box-shadow:var(--shadow-sm)}
@@ -676,6 +684,61 @@ function askExplain(text, akey, start, end){
   copyText(prompt, '已复制「解释请求」，粘贴到对话框发给我即可');
 }
 
+/* ---------------- 阅读反馈（迭代推荐算法用） ---------------- */
+/* localStorage key: wxfb::<account|title> -> {mark:'like'|'dislike', ts} */
+function fbKey(k){ return 'wxfb::' + k; }
+function fbGet(k){ try{ return JSON.parse(localStorage.getItem(fbKey(k)) || 'null'); }catch(e){ return null; } }
+function fbAll(){
+  const out = [];
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k.indexOf('wxfb::')===0){
+      try{ const v = JSON.parse(localStorage.getItem(k));
+           if(v && v.mark) out.push({key:k.slice(6), account:v.account||'', title:v.title||'', mark:v.mark, ts:v.ts});
+      }catch(e){}
+    }
+  }
+  return out.sort((a,b)=>a.ts-b.ts);
+}
+function fbMark(btn, mark){
+  const unit = btn.closest('article[data-key], #alist > li[data-key]'); if(!unit) return;
+  const k = unit.dataset.key;
+  const cur = fbGet(k);
+  if(cur && cur.mark === mark){            // 再点一次 = 取消标记
+    localStorage.removeItem(fbKey(k));
+    paintFb(k, null);
+    toast('已取消标记');
+  }else{
+    localStorage.setItem(fbKey(k), JSON.stringify({
+      mark:mark, ts:Date.now(), account:unit.dataset.account||'', title:unit.dataset.title||''}));
+    paintFb(k, mark);
+    toast(mark==='like' ? '👍 已标记感兴趣，后续会加权推荐同类' : '👎 已标记不感兴趣，后续会降权');
+  }
+}
+function paintFb(k, mark){
+  /* 同一篇文章在推荐视图与全部视图的按钮同步上色 */
+  $$('article[data-key], #alist > li[data-key]').forEach(function(u){
+    if(u.dataset.key !== k) return;
+    $$('.fb', u).forEach(function(b){
+      const m = b.dataset.fb;
+      b.classList.toggle('on-like', mark==='like' && m==='like');
+      b.classList.toggle('on-dislike', mark==='dislike' && m==='dislike');
+    });
+  });
+}
+function paintFbAll(){ fbAll().forEach(function(f){ paintFb(f.key, f.mark); }); }
+function exportFeedback(){
+  const list = fbAll();
+  if(!list.length){ toast('还没有任何反馈标记'); return; }
+  const payload = JSON.stringify({generated_at:new Date().toISOString(), feedback:list}, null, 1);
+  const b = new Blob([payload], {type:'application/json;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'feedback-' + new Date().toLocaleDateString('zh-CN').replace(/\//g,'-') + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('已导出 ' + list.length + ' 条反馈，存到 wechat-daily/data/feedback.json 后重跑管线即可生效');
+}
+
 /* ---------------- 导出 ---------------- */
 function collect(){
   const items = []; const seen = {};
@@ -798,14 +861,41 @@ function toggleAllInline(){
 }
 function filterAll(){
   const v = $('#accFilter').value;
+  const typ = ($('#typeFilter') && $('#typeFilter').value) || '';
+  const minScore = parseFloat(($('#scoreFilter') && $('#scoreFilter').value) || '0') || 0;
+  const minRead = parseInt(($('#readFilter') && $('#readFilter').value) || '0', 10) || 0;
+  const sortBy = ($('#sortBy') && $('#sortBy').value) || '';
+  const lis = $$('#alist > li');
+  /* 排序（DOM 重排，默认 = 原始顺序即时间倒序） */
+  if(sortBy){
+    const ul = $('#alist');
+    const num = {score:'score', read:'rn', like:'lk'}[sortBy];
+    lis.slice().sort(function(a,b){
+      return (parseFloat(b.dataset[num]||'0')||0) - (parseFloat(a.dataset[num]||'0')||0);
+    }).forEach(function(li){ ul.appendChild(li); });
+  }
   let shown = 0;
-  $$('#alist > li').forEach(function(li){
-    const hit = !v || li.dataset.acc === v;
+  lis.forEach(function(li){
+    const hit = (!v || li.dataset.acc === v)
+             && (!typ || li.dataset.type === typ)
+             && (parseFloat(li.dataset.score||'0')||0) >= minScore
+             && (parseInt(li.dataset.rn||'0',10)||0) >= minRead;
     li.style.display = hit ? '' : 'none';
     if(hit) shown++;
   });
   const info = $('#acInfo');
-  if(info) info.textContent = v ? (v + '：' + shown + ' 篇') : ('共 ' + shown + ' 篇');
+  const parts = [];
+  if(v) parts.push(v);
+  if(typ) parts.push(typ);
+  if(minScore) parts.push('评分≥' + minScore);
+  if(minRead) parts.push('阅读≥' + minRead);
+  if(info) info.textContent = (parts.length ? parts.join(' · ') + '：' : '共 ') + shown + ' 篇';
+}
+function resetFilters(){
+  ['accFilter','typeFilter','scoreFilter','readFilter','sortBy'].forEach(function(id){
+    const el = $('#'+id); if(el) el.value = '';
+  });
+  filterAll();
 }
 
 /* ---------------- 事件 ---------------- */
@@ -908,6 +998,7 @@ document.addEventListener('DOMContentLoaded', function(){
   $$('#recView article[data-key]').forEach(a=>renderPanel(a.dataset.key));
   renderDrawer('');
   applyAll();
+  paintFbAll();
   const v = localStorage.getItem('wxview');
   if(v === 'all') setView('all');
 });
@@ -989,6 +1080,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<button data-d="-40">窄</button><button data-d="40">宽</button></span>'
              '<button class="pri" onclick="copyAll()">📋 复制全部批注</button>'
              '<button onclick="exportNotes()">📤 导出 .md</button>'
+             '<button onclick="exportFeedback()" title="导出 👍/👎 标记，供推荐算法迭代">🎯 导出反馈</button>'
              '<span class="tip"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 存批注 · <kbd>Esc</kbd> 关闭</span>'
              '</div>')
 
@@ -1063,6 +1155,8 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         W.append('<div class="acts">'
                  '<button class="tg" onclick="toggleBody(this)">📖 展开正文</button>'
                  '<button class="hlbtn" onclick="openDrawer()">🖍 批注 <span class="hlcnt">0</span></button>'
+                 '<button class="fb" data-fb="like" onclick="fbMark(this,\'like\')">👍 感兴趣</button>'
+                 '<button class="fb" data-fb="dislike" onclick="fbMark(this,\'dislike\')">👎 不感兴趣</button>'
                  '</div>')
         W.append('<div class="read"><div class="paper">')
         W.append(body)
@@ -1076,12 +1170,30 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
     W.append('</div>')  # /recView
 
     # ---------- 全部视图 ----------
+    all_types = sorted({(meta.get(f'{a.get("account","")}|{a.get("title","")}', {}) or {}).get("_type", "")
+                        for a in listing} - {""})
     W.append('<div id="allView">')
     W.append('<div class="accbar">'
              '<select id="accFilter" onchange="filterAll()"><option value="">全部公众号（' + str(len(set(a.get("account","") for a in listing))) + '）</option>'
              + "".join(f'<option value="{esc(x)}">{esc(x)}</option>'
                        for x in sorted(set(a.get("account", "") for a in listing), key=str))
              + '</select>'
+             '<select id="typeFilter" onchange="filterAll()"><option value="">全部分类</option>'
+             + "".join(f'<option value="{esc(t)}">{esc(t)}</option>' for t in all_types)
+             + '</select>'
+             '<select id="scoreFilter" onchange="filterAll()">'
+             '<option value="">全部评分</option><option value="3.5">评分 ≥ 3.5</option>'
+             '<option value="3.8">评分 ≥ 3.8</option><option value="4.0">评分 ≥ 4.0</option></select>'
+             '<select id="readFilter" onchange="filterAll()">'
+             '<option value="">全部阅读量</option><option value="1000">阅读 ≥ 1k</option>'
+             '<option value="5000">阅读 ≥ 5k</option><option value="10000">阅读 ≥ 1w</option>'
+             '<option value="50000">阅读 ≥ 5w</option></select>'
+             '<select id="sortBy" onchange="filterAll()">'
+             '<option value="">按时间</option><option value="score">按评分</option>'
+             '<option value="read">按阅读量</option><option value="like">按点赞</option></select>'
+             '<button onclick="resetFilters()" title="清空全部筛选" style="border:1px solid var(--line);'
+             'background:#fff;border-radius:9px;padding:9px 12px;cursor:pointer;font:600 13px/1 inherit;'
+             'color:var(--sub)">⟲ 重置</button>'
              '<button class="tg" style="border:1px solid var(--line);background:#fff;border-radius:9px;'
              'padding:9px 14px;cursor:pointer;font:600 13px/1 inherit;color:var(--ink-2)" '
              'onclick="toggleAllInline()">展开/折叠全部正文</button>'
@@ -1093,14 +1205,24 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         fv = a.get("_full") or {}
         has = bool(fv.get("content_html"))
         star = ' ⭐' if k in rec_keys else ''
+        am = meta.get(k, {}) or {}
+        atype = am.get("_type", "")
+        ascore = am.get("_score") or 0
+        arn = a.get("read_num") or 0
+        alk = a.get("like_num") or 0
         stat_bits = [esc(a.get("time", ""))]
+        if atype:
+            stat_bits.append(esc(atype))
         if a.get("read_num"):
             stat_bits.append(f'阅读 {a["read_num"]}')
         if a.get("like_num"):
             stat_bits.append(f'赞 {a["like_num"]}')
+        if ascore:
+            stat_bits.append(f'评分 {ascore}')
         W.append(f'<li data-acc="{esc(a.get("account",""))}" data-key="{esc(k)}" '
                  f'data-account="{esc(a.get("account",""))}" data-title="{esc(a.get("title",""))}" '
-                 f'data-time="{esc(a.get("time",""))}" '
+                 f'data-time="{esc(a.get("time",""))}" data-type="{esc(atype)}" '
+                 f'data-score="{ascore}" data-rn="{arn}" data-lk="{alk}" '
                  f'data-read="{esc(("阅读 "+str(a["read_num"])) if a.get("read_num") else "")}" '
                  f'data-url="{esc(fv.get("real_url") or "")}">')
         W.append(f'<span class="at">{esc(a.get("title"))}{star}</span>')
@@ -1115,6 +1237,8 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
             W.append('<button onclick="openDrawer()">🖍 批注</button>')
         else:
             W.append('<span class="no">正文未取到</span>')
+        W.append('<button class="fb" data-fb="like" onclick="fbMark(this,\'like\')">👍 感兴趣</button>'
+                 '<button class="fb" data-fb="dislike" onclick="fbMark(this,\'dislike\')">👎 不感兴趣</button>')
         W.append('</div>')
         if has:
             W.append('<div class="inline-read"><div class="paper">' + fv["content_html"] + '</div></div>')

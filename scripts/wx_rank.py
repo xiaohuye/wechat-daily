@@ -41,13 +41,44 @@ KW_BAD = ["倒闭潮","ipo","房价","股市","涨停","跑鞋","社交法则","
 
 W_TYPE, W_HEAT, W_FRESH, W_KW = 1.0, 1.6, 1.1, 0.9
 
+# ---- 阅读反馈（来自精读页 👍/👎 导出到 data/feedback.json）----
+FB_FILE = os.path.join(ROOT, "data", "feedback.json")
+W_FB_LIKE, W_FB_DISLIKE = 0.6, -1.2          # 单篇直接加/降权
+W_FB_ACC_LIKE, W_FB_ACC_DISLIKE = 0.15, -0.3  # 同号累计 ≥2 次后的账号级调整
+
+
+def load_feedback():
+    """返回 (篇级 {key: mark}, 号级 {account: 净加分}, 类型级 {type: 净加分})"""
+    if not os.path.exists(FB_FILE):
+        return {}, {}, {}
+    try:
+        d = json.load(open(FB_FILE, encoding="utf-8"))
+    except Exception:
+        return {}, {}, {}
+    items = d.get("feedback", []) if isinstance(d, dict) else d
+    art_fb, acc_cnt = {}, {}
+    for f in items:
+        if not isinstance(f, dict) or f.get("mark") not in ("like", "dislike"):
+            continue
+        art_fb[f.get("key", "")] = f["mark"]
+        acc = f.get("account") or f.get("key", "").split("|")[0]
+        acc_cnt.setdefault(acc, {"like": 0, "dislike": 0})
+        acc_cnt[acc][f["mark"]] += 1
+    acc_adj = {}
+    for acc, c in acc_cnt.items():
+        if c["like"] >= 2:
+            acc_adj[acc] = W_FB_ACC_LIKE
+        elif c["dislike"] >= 2:
+            acc_adj[acc] = W_FB_ACC_DISLIKE
+    return art_fb, acc_adj, acc_cnt
+
 
 def latest(pattern):
     fs = sorted(glob.glob(os.path.join(ROOT, "data", pattern)))
     return fs[-1] if fs else None
 
 
-def score_one(a, type_map, now):
+def score_one(a, type_map, now, art_fb=None, acc_adj=None):
     reasons = []
     t = type_map.get(a["account"], "")
     s_type = TYPE_W.get(t, 0.4)
@@ -74,6 +105,23 @@ def score_one(a, type_map, now):
         reasons.append("命中噪声词：" + "、".join(bad[:2]))
 
     total = W_TYPE * s_type + W_HEAT * s_heat + W_FRESH * s_fresh + W_KW * s_kw
+
+    # ---- 你的阅读反馈 ----
+    if art_fb or acc_adj:
+        art_fb, acc_adj = art_fb or {}, acc_adj or {}
+        k = f'{a.get("account","")}|{a.get("title","")}'
+        mark = art_fb.get(k)
+        if mark == "like":
+            total += W_FB_LIKE
+            reasons.append("你标记过 👍 感兴趣")
+        elif mark == "dislike":
+            total += W_FB_DISLIKE
+            reasons.append("你标记过 👎 不感兴趣")
+        adj = acc_adj.get(a.get("account", ""))
+        if adj and mark is None:      # 账号级调整不与单篇重复叠加
+            total += adj
+            reasons.append(f"{'常读' if adj > 0 else '少推'}该号（历史反馈累计）")
+
     return round(total, 3), reasons
 
 
@@ -95,10 +143,17 @@ def main():
     cutoff = now - args.days * 86400
     arts = [a for a in d["articles"] if a["ts"] >= cutoff]
 
+    # 阅读反馈（data/feedback.json，由精读页「🎯 导出反馈」生成）
+    art_fb, acc_adj, acc_cnt = load_feedback()
+    n_like = sum(1 for m in art_fb.values() if m == "like")
+    n_dis = sum(1 for m in art_fb.values() if m == "dislike")
+    if art_fb:
+        print(f"已加载阅读反馈：{n_like} 条 👍 / {n_dis} 条 👎（{len(acc_adj)} 个号触发账号级调整）\n")
+
     # 同号同主题去重：标题前 12 字相同的只留最高分
     seen_title, deduped = {}, []
     for a in arts:
-        a["_score"], a["_reasons"] = score_one(a, type_map, now)
+        a["_score"], a["_reasons"] = score_one(a, type_map, now, art_fb, acc_adj)
         a["_type"] = type_map.get(a["account"], "")
     arts.sort(key=lambda x: -x["_score"])
     for a in arts:
