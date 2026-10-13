@@ -53,7 +53,7 @@ def call(api_path, body):
     cid, key = creds()
     if not cid or not key:
         return False, ("未配置 ima 凭证。请先到 https://ima.qq.com/agent-interface 获取，"
-                       "并写入 ~/.config/ima/client_id 与 client_id。")
+                       "并写入 ~/.config/ima/client_id 与 ~/.config/ima/api_key。")
     node = NODE if os.path.exists(NODE) else "node"
     opts = json.dumps({"clientId": cid, "apiKey": key})
     r = subprocess.run([node, API, api_path, json.dumps(body, ensure_ascii=False), opts],
@@ -228,7 +228,7 @@ def main():
         if args.dry_run or not have_cred:
             print(f"[{i:2}] ({tag}) {title}")
             continue
-        ok, data = call("openapi/import_doc",
+        ok, data = call("openapi/note/v1/import_doc",
                         {"title": title, "content": content, "content_format": 1})
         if ok:
             ok_n += 1
