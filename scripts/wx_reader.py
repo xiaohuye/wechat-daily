@@ -787,6 +787,38 @@ function exportFeedback(){
   toast('已导出 ' + list.length + ' 条反馈，存到 wechat-daily/data/feedback.json 后重跑管线即可生效');
 }
 
+/* ---------------- 直存 ima（本地同步服务转发，绕开 file:// 的 CORS 限制） ---------------- */
+function saveToIma(){
+  const items = [];
+  collect().forEach(function(o){
+    /* 同步防重：划线数量与上次入库时一致 → 跳过；加了新划线 → 重存 */
+    const k = 'wximsaved::' + o.art.dataset.key;
+    const cnt = o.list.length;
+    const saved = (function(){ try{ return JSON.parse(localStorage.getItem(k) || 'null'); }catch(e){ return null; } })();
+    if(saved && saved.cnt === cnt){ return; }
+    items.push({
+      title: o.art.dataset.title, account: o.art.dataset.account,
+      time: o.art.dataset.time, read: o.art.dataset.read, url: o.art.dataset.url,
+      note: '', highlights: o.list.map(h=>({text: h.text, note: h.note || ''}))
+    });
+  });
+  if(!items.length){ toast('没有需要新增入库的批注（或已全部存过）'); return; }
+  toast('正在写入 ima…');
+  fetch('http://127.0.0.1:8931/save', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({items: items})
+  }).then(function(r){ return r.json(); }).then(function(d){
+    items.forEach(function(it){
+      localStorage.setItem('wximsaved::' + it.account + '|' + it.title,
+        JSON.stringify({cnt: (it.highlights||[]).length, ts: Date.now()}));
+    });
+    if(d.fail){ toast('入库 ' + d.ok + ' 篇，失败 ' + d.fail + ' 篇：' + (d.errors[0]||'').slice(0,60)); }
+    else{ toast('已存入 ima 知识库：' + d.ok + ' 篇'); }
+  }).catch(function(){
+    toast('连不上本地同步服务，请先运行: python scripts/ima_sync.py');
+  });
+}
+
 /* ---------------- 导出 ---------------- */
 function collect(){
   const items = []; const seen = {};
@@ -1209,6 +1241,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<button data-d="-40">窄</button><button data-d="40">宽</button></span>'
              '<button class="pri" onclick="copyAll()">📋 复制全部批注</button>'
              '<button onclick="exportNotes()">📤 导出 .md</button>'
+             '<button onclick="saveToIma()" title="把有批注的文章直接写入 ima 知识库（需本地同步服务在跑）">☁ 存入 ima</button>'
              '<button onclick="exportFeedback()" title="导出 👍/👎 标记，供推荐算法迭代">🎯 导出反馈</button>'
              '<span class="tip"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 存批注 · <kbd>Esc</kbd> 关闭</span>'
              '</div>')

@@ -129,3 +129,12 @@ ls -t output/公众号日报-精读版-*.html 2>/dev/null | head -1
 echo
 log "附带生成旧版清单日报（无正文）："
 "$PY" scripts/wx_report.py "$ART" || true
+
+# ---------- 顺带拉起 ima 同步服务（日报页「☁ 存入 ima」按钮的后端） ----------
+if "$PY" -c "import socket;s=socket.socket();s.settimeout(1);raise SystemExit(0 if s.connect_ex(('127.0.0.1',8931))==0 else 1)" 2>/dev/null; then
+  log "ima 同步服务已在运行 (127.0.0.1:8931)"
+else
+  nohup "$PY" scripts/ima_sync.py >/dev/null 2>&1 &
+  sleep 1
+  log "ima 同步服务已后台启动 (127.0.0.1:8931) —— 日报页「☁ 存入 ima」按钮可用"
+fi
