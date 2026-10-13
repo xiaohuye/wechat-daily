@@ -3,7 +3,8 @@
 # 抓取 → 排序 → 分析 → 抓正文 → 生成精读版日报（正文内嵌，免跳转）
 #
 # 用法：
-#   bash scripts/run_daily.sh              # 默认：最近 1 天，推荐 30 篇，抓前 25 篇正文
+#   bash scripts/run_daily.sh                    # 默认：最近 1 天，推荐 30 篇，抓前 25 篇正文
+#   FULL=0 TOP=30 bash scripts/run_daily.sh      # 全量：抓「今日全部更新」的正文（推荐+其它）
 #   DAYS=3 TOP=30 FULL=20 bash scripts/run_daily.sh
 #
 # 退出码：
@@ -101,8 +102,14 @@ log "=== [3/5] 生成分析（概览/主题/推荐）==="
 "$PY" scripts/wx_insight.py --top "$TOP" || exit 2
 
 # ---------- 4/5 抓正文 ----------
-log "=== [4/5] 抓取推荐篇目正文（前 ${FULL} 篇，免跳转阅读用）==="
-"$PY" scripts/weread_content.py --top "$FULL" || exit 2
+# FULL=0 表示全量抓取（推荐 + 其它全部更新），配合 --reuse 避免重复下载
+if [ "$FULL" = "0" ]; then
+  log "=== [4/5] 抓取全部更新正文（复用已抓过的）==="
+  "$PY" scripts/weread_content.py --all --reuse || exit 2
+else
+  log "=== [4/5] 抓取推荐篇目正文（前 ${FULL} 篇，复用已抓过的）==="
+  "$PY" scripts/weread_content.py --top "$FULL" --reuse || exit 2
+fi
 
 FULLJSON=$(ls -t data/articles-full-weread-*.json 2>/dev/null | head -1)
 [ -n "$FULLJSON" ] || { echo "未生成正文结果"; exit 2; }
@@ -110,7 +117,11 @@ log "→ $FULLJSON"
 
 # ---------- 5/5 生成日报 ----------
 log "=== [5/5] 生成精读版日报 ==="
-"$PY" scripts/wx_reader.py --top "$FULL" || exit 2
+if [ "$FULL" = "0" ]; then
+  "$PY" scripts/wx_reader.py --top "$TOP" --full "$FULLJSON" --articles "$ART" || exit 2
+else
+  "$PY" scripts/wx_reader.py --top "$FULL" --full "$FULLJSON" --articles "$ART" || exit 2
+fi
 
 echo
 log "=== 完成 ==="

@@ -152,14 +152,40 @@ def meta_of(full_html):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--src", default=None, help="ranked JSON")
+    ap.add_argument("--src", default=None, help="ranked JSON（默认取最新 ranked 的 top）")
+    ap.add_argument("--all", action="store_true",
+                    help="全量模式：抓 articles-weread-*.json 里的每一篇（不限于推荐）")
+    ap.add_argument("--articles", default=None, help="配合 --all 指定 articles-weread-*.json")
     ap.add_argument("--ids", default=None, help="直接指定 [{review_id,account,title}]")
     ap.add_argument("--top", type=int, default=30)
     ap.add_argument("--sleep", type=float, default=0.2)
+    ap.add_argument("--reuse", action="store_true",
+                    help="复用已有 articles-full-weread-*.json 里抓过的正文，只补缺的（加 --all 时有用）")
     args = ap.parse_args()
+
+    reused = {}
+    if args.reuse:
+        prev = sorted(glob.glob(os.path.join(DATA, "articles-full-weread-*.json")))
+        for f in prev:
+            try:
+                reused.update(json.load(open(f, encoding="utf-8")).get("articles", {}))
+            except Exception:
+                pass
+        if reused:
+            print(f"复用已有正文 {len(reused)} 篇")
 
     if args.ids:
         items = json.load(open(args.ids, encoding="utf-8"))
+    elif args.all:
+        af = args.articles
+        if not af:
+            fs = sorted(glob.glob(os.path.join(DATA, "articles-weread-*.json")))
+            if not fs:
+                raise SystemExit("找不到 articles-weread-*.json")
+            af = fs[-1]
+        d = json.load(open(af, encoding="utf-8"))
+        items = d["articles"]
+        print(f"源: {os.path.basename(af)}（全量）→ 共 {len(items)} 篇")
     else:
         src = args.src
         if not src:
@@ -171,9 +197,20 @@ def main():
         items = rk["top"][: args.top]
         print(f"源: {os.path.basename(src)} → 取前 {len(items)} 篇")
 
-    from playwright.sync_api import sync_playwright
-
+    # 复用：过滤掉已抓过的
     out, failed = {}, []
+    todo = []
+    for a in items:
+        k = f"{a.get('account','')}|{a.get('title','')}"
+        if args.reuse and k in reused and reused[k].get("content_html"):
+            out[k] = reused[k]
+        else:
+            todo.append(a)
+    if args.reuse and out:
+        print(f"跳过已抓 {len(out)} 篇，待抓 {len(todo)} 篇")
+    items = todo
+
+    from playwright.sync_api import sync_playwright
     t0 = time.time()
     with sync_playwright() as p:
         ctx = p.chromium.launch_persistent_context(
