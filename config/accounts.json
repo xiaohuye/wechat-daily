@@ -1,0 +1,184 @@
+[
+ {
+  "name": "机器之心",
+  "tag": "AI",
+  "source": "wechat2rss",
+  "feed_id": "51e92aad2728acdd1fda7314be32b16639353001",
+  "url": "https://wechat2rss.xlab.app/feed/51e92aad2728acdd1fda7314be32b16639353001.json"
+ },
+ {
+  "name": "量子位",
+  "tag": "AI",
+  "source": "wechat2rss",
+  "feed_id": "7131b577c61365cb47e81000738c10d872685908",
+  "url": "https://wechat2rss.xlab.app/feed/7131b577c61365cb47e81000738c10d872685908.json"
+ },
+ {
+  "name": "新智元",
+  "tag": "AI",
+  "source": "wechat2rss",
+  "feed_id": "ede30346413ea70dbef5d485ea5cbb95cca446e7",
+  "url": "https://wechat2rss.xlab.app/feed/ede30346413ea70dbef5d485ea5cbb95cca446e7.json"
+ },
+ {
+  "name": "PaperWeekly",
+  "tag": "AI",
+  "source": "wechat2rss",
+  "feed_id": "3be891c2f4e526629ab055a297cc2cd6c1f0a563",
+  "url": "https://wechat2rss.xlab.app/feed/3be891c2f4e526629ab055a297cc2cd6c1f0a563.json"
+ },
+ {
+  "name": "夕小瑶科技说",
+  "tag": "AI",
+  "source": "wechat2rss",
+  "feed_id": "a1cd365aa14ed7d64cabfc8aa086da40ecaba34d",
+  "url": "https://wechat2rss.xlab.app/feed/a1cd365aa14ed7d64cabfc8aa086da40ecaba34d.json"
+ },
+ {
+  "name": "集智俱乐部",
+  "tag": "AI",
+  "source": "wechat2rss",
+  "feed_id": "8540570d27c0bfe0a219173cf1ace83ae79445cb",
+  "url": "https://wechat2rss.xlab.app/feed/8540570d27c0bfe0a219173cf1ace83ae79445cb.json"
+ },
+ {
+  "name": "机器学习初学者",
+  "tag": "AI",
+  "source": "wechat2rss",
+  "feed_id": "c5f385197ef56f9345db0daf1e46419af8c7d664",
+  "url": "https://wechat2rss.xlab.app/feed/c5f385197ef56f9345db0daf1e46419af8c7d664.json"
+ },
+ {
+  "name": "我爱计算机视觉",
+  "tag": "AI",
+  "source": "wechat2rss",
+  "feed_id": "b81ffcfff1107b5265cd7e39de610dc7ca72caf4",
+  "url": "https://wechat2rss.xlab.app/feed/b81ffcfff1107b5265cd7e39de610dc7ca72caf4.json"
+ },
+ {
+  "name": "Datawhale",
+  "tag": "AI",
+  "source": "wechat2rss",
+  "feed_id": "4d620d988cb21cfeefd2263207221f0dc70df9ff",
+  "url": "https://wechat2rss.xlab.app/feed/4d620d988cb21cfeefd2263207221f0dc70df9ff.json"
+ },
+ {
+  "name": "腾讯技术工程",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "9685937b45fe9c7a526dbc32e4f24ba879a65b9a",
+  "url": "https://wechat2rss.xlab.app/feed/9685937b45fe9c7a526dbc32e4f24ba879a65b9a.json"
+ },
+ {
+  "name": "阿里技术",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "6e1f9b775f7a5841ac1a94310f0478b45a02ec01",
+  "url": "https://wechat2rss.xlab.app/feed/6e1f9b775f7a5841ac1a94310f0478b45a02ec01.json"
+ },
+ {
+  "name": "阿里云开发者",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "c74ed6db00cfbf16f2a048a165b4453f982681f0",
+  "url": "https://wechat2rss.xlab.app/feed/c74ed6db00cfbf16f2a048a165b4453f982681f0.json"
+ },
+ {
+  "name": "阿里巴巴中间件",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "ede34e7a9aff5e93ad159ebfd27075710a963f54",
+  "url": "https://wechat2rss.xlab.app/feed/ede34e7a9aff5e93ad159ebfd27075710a963f54.json"
+ },
+ {
+  "name": "哔哩哔哩技术",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "434235d4815fdb8447ff3127fc053ceb8b3aada6",
+  "url": "https://wechat2rss.xlab.app/feed/434235d4815fdb8447ff3127fc053ceb8b3aada6.json"
+ },
+ {
+  "name": "爱奇艺技术产品团队",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "16a4ec12a83a52e1f6e941bce030a4d64ee26c47",
+  "url": "https://wechat2rss.xlab.app/feed/16a4ec12a83a52e1f6e941bce030a4d64ee26c47.json"
+ },
+ {
+  "name": "小米技术",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "20bc9c3251b3c4f73d3b53aa1f1ab853d05d4cbc",
+  "url": "https://wechat2rss.xlab.app/feed/20bc9c3251b3c4f73d3b53aa1f1ab853d05d4cbc.json"
+ },
+ {
+  "name": "得物技术",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "f3a42bd249ec6e8834ae761d8d0f85a949950944",
+  "url": "https://wechat2rss.xlab.app/feed/f3a42bd249ec6e8834ae761d8d0f85a949950944.json"
+ },
+ {
+  "name": "未闻Code",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "a148ed0a542de4be305ffa1b93e8663ad252e22c",
+  "url": "https://wechat2rss.xlab.app/feed/a148ed0a542de4be305ffa1b93e8663ad252e22c.json"
+ },
+ {
+  "name": "寒雁Talk",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "bbbe847b63f498801792fb7a08d67d0fbf167a04",
+  "url": "https://wechat2rss.xlab.app/feed/bbbe847b63f498801792fb7a08d67d0fbf167a04.json"
+ },
+ {
+  "name": "觉学社",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "238759eb3e9d042d4e1ef515cfc3686c977c6ddd",
+  "url": "https://wechat2rss.xlab.app/feed/238759eb3e9d042d4e1ef515cfc3686c977c6ddd.json"
+ },
+ {
+  "name": "42章经",
+  "tag": "商业",
+  "source": "wechat2rss",
+  "feed_id": "31436fcc3bba8c2c2a9337a163afcb3b5a57a0a0",
+  "url": "https://wechat2rss.xlab.app/feed/31436fcc3bba8c2c2a9337a163afcb3b5a57a0a0.json"
+ },
+ {
+  "name": "浅黑科技",
+  "tag": "商业",
+  "source": "wechat2rss",
+  "feed_id": "6111a6d5ecf28cfdd4fc9b664244c05ddacef15c",
+  "url": "https://wechat2rss.xlab.app/feed/6111a6d5ecf28cfdd4fc9b664244c05ddacef15c.json"
+ },
+ {
+  "name": "老高的互联网杂谈",
+  "tag": "商业",
+  "source": "wechat2rss",
+  "feed_id": "574587b13c6f60617fc74605702258ddf4aefac6",
+  "url": "https://wechat2rss.xlab.app/feed/574587b13c6f60617fc74605702258ddf4aefac6.json"
+ },
+ {
+  "name": "小众软件",
+  "tag": "工具",
+  "source": "wechat2rss",
+  "feed_id": "3261d5a75cfef238650a2cabd4bbf99669c2f334",
+  "url": "https://wechat2rss.xlab.app/feed/3261d5a75cfef238650a2cabd4bbf99669c2f334.json"
+ },
+ {
+  "name": "傅盛",
+  "tag": "商业",
+  "source": "wechat2rss",
+  "feed_id": "71257003d43d39b91ff9d38b6f3330c883dc8e0c",
+  "url": "https://wechat2rss.xlab.app/feed/71257003d43d39b91ff9d38b6f3330c883dc8e0c.json"
+ },
+ {
+  "name": "dbaplus社群",
+  "tag": "技术",
+  "source": "wechat2rss",
+  "feed_id": "3b9cc8887fccb80d3f083cd6eb8c344628d101b6",
+  "url": "https://wechat2rss.xlab.app/feed/3b9cc8887fccb80d3f083cd6eb8c344628d101b6.json"
+ }
+]

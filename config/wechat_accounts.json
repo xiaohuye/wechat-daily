@@ -1,0 +1,999 @@
+{
+ "source": "微信读书 /shelf/sync",
+ "fetched_at": "2026-10-13 10:24",
+ "count": 124,
+ "accounts": [
+  {
+   "name": "腾讯研究院",
+   "book_id": "MP_WXS_2399148061",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM4ncIptakylCGk0iaAhmlVA2ibDuePF2oibiaibItTQu2kEgxw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/25d42b8224d505f5758535f32333939313438303631d07",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "腾讯混元",
+   "book_id": "MP_WXS_3908569425",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6C610wmzPf9Il8ORjibpeUfG1xXJu3Bck3qicsVuF9MhRA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/b624223224d505f5758535f33393038353639343235e15",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "架构师",
+   "book_id": "MP_WXS_3006407565",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM4UU1ibnbILqRDX8TY0D9Da9ABYrrn94boLe9vS1nYUKEw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/30b42f5224d505f5758535f33303036343037353635d31",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "大淘宝技术",
+   "book_id": "MP_WXS_3014106999",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM43bDZER83F5JMkjWMDCGbyIuuV8K17HHrVticqutPY9Rw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/9ef4287224d505f5758535f3330313431303639393925b",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "AI大模型应用实践",
+   "book_id": "MP_WXS_3957458995",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/OUicWJdJoz3H3krculiaPJTgJQefv0HmUeqLWq6lpEXic8sQbNvSFCibia0no5MtjaYQ6ZjEia4VWia624/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/3ce42e4224d505f5758535f33393537343538393935313",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "腾讯技术工程",
+   "book_id": "MP_WXS_2398602260",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Iic9WLWEQMg2jTKicld7jhiagcz7jJxuYcpjicxAAiaVaNpdIiabCLIxOHIZFVsWH3cRNQjLF1TBznTJc/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/cf84262224d505f5758535f323339383630323236302a2",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "腾讯云开发者",
+   "book_id": "MP_WXS_3264589119",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM4VrfJGRic9cMlydQkzsTsDFptqtib3k4CxI3TOVia4Nmicpw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/1554281224d505f5758535f33323634353839313139bf4",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "摸鱼小李",
+   "book_id": "MP_WXS_3099231158",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/X4XEGYefSBTfCBiazdWJibtzjgzLQs2yaz7NYR6yfM71GX0qNxEhtL35F3huZzU53DIIFusowv2v4/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/de04251224d505f5758535f33303939323331313538762",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "太阳照常升起",
+   "book_id": "MP_WXS_3248194593",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7GsTENzaxCCW1WB5WGDRVfyS0MMVIj8qXUhf7lyJel2w/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/04b4250224d505f5758535f33323438313934353933e74",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "虎嗅APP",
+   "book_id": "MP_WXS_1432156401",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7C9HhFFFnhtWDyWZ5NbqCYILXgjgIGLr7oSOkH9lVceg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/24642dd224d505f5758535f313433323135363430314fd",
+   "last_read": "2026-10-11"
+  },
+  {
+   "name": "AI产品白皮书",
+   "book_id": "MP_WXS_3975127805",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/ciaIftfPzwlr4c3dsJSAMTtbG0vyOSOce82TysVyWgfTGwmRSItSVPY8hTOH0gWPIbqwwC0Z9Bzo/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/0d04253224d505f5758535f33393735313237383035c26",
+   "last_read": "2026-10-10"
+  },
+  {
+   "name": "PaperAgent",
+   "book_id": "MP_WXS_3941633310",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/bVy2VQVTWzYFuicgJ9TpdkurRPKI43rjS5BPChxjksiawoBk6G65yVkoOV945VpXJ6WXFNLHuCuWg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/d5042bc224d505f5758535f33393431363333333130b19",
+   "last_read": "2026-10-10"
+  },
+  {
+   "name": "刘聪NLP",
+   "book_id": "MP_WXS_3891555159",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/JiavaWZxX4YtuonHKajwDkVricB4lTjQef1Qv17JzgIxibR75vibCQiahK0l9TFmhnReRl0NuiclJko28/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/17d4211224d505f5758535f33383931353535313539918",
+   "last_read": "2026-10-10"
+  },
+  {
+   "name": "云舒的AI实践笔记",
+   "book_id": "MP_WXS_3225155038",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/hzVGicX27IG1gzGH23icpfDewMXGN6f11XxnqF2UUe1K5LiatfEkuMI8B9YkCsgM3KW26ibLPf0Ww0s/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/26842d6224d505f5758535f3332323531353530333860a",
+   "last_read": "2026-10-10"
+  },
+  {
+   "name": "橙哥出海",
+   "book_id": "MP_WXS_3012524498",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/vPjficwtgTJAvwITH5Qn3oEcsiatsWMsVhkyo6GZeBJwesfmBaR6re8GhTSmLkCNVYLuq2iaMicqINg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/fef42c5224d505f5758535f333031323532343439388c9",
+   "last_read": "2026-10-10"
+  },
+  {
+   "name": "架构师带你玩转AI",
+   "book_id": "MP_WXS_3931133296",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/k947icPboBqB0BX9pa5130UqmwbzxrGb9lLRbeYC0FkpmN4nKD2AibRicxggT0K8LiaWBzN6mq4uBias/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/ff5425f224d505f5758535f3339333131333332393698b",
+   "last_read": "2026-10-10"
+  },
+  {
+   "name": "管三",
+   "book_id": "MP_WXS_3284647188",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7xDZfkeibmicHsMqHRicDic22V67w9EZNSG8s9yejlFNQwIg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/ea542a3224d505f5758535f33323834363437313838dc8",
+   "last_read": "2026-10-07"
+  },
+  {
+   "name": "Founder Park",
+   "book_id": "MP_WXS_3698401914",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/a18XcQ1EBBghDPZlwKralfQ1LFYoXMcsk6A8AYFpXznU0VbMVo3LTG1D3ghxciaS2tG3U0VzQDyk/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/f6f426f224d505f5758535f333639383430313931349a5",
+   "last_read": "2026-09-26"
+  },
+  {
+   "name": "哥飞",
+   "book_id": "MP_WXS_2399233620",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6u6a36ghl8lcc5YXLpXWICu7nibJzagjEibbhQJH5zP0KA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/d5442a0224d505f5758535f323339393233333632301a9",
+   "last_read": "2026-09-26"
+  },
+  {
+   "name": "看图学",
+   "book_id": "MP_WXS_3529099702",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6dondI6INKUYyN72L8FZ60CVy38SB2PLCOSakqrOPpiaw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/f4842b3224d505f5758535f33353239303939373032e41",
+   "last_read": "2026-09-26"
+  },
+  {
+   "name": "抖音精选App",
+   "book_id": "MP_WXS_3515996681",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/ufVMVgCvafLhWHWIhYeTIc9gBsnEibjt06uonwffb2yDZZAtzzjsK9veoB9ya8LjPHExZ38u7E6s/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/aea42f8224d505f5758535f3335313539393636383149c",
+   "last_read": "2026-09-25"
+  },
+  {
+   "name": "APPSO",
+   "book_id": "MP_WXS_2392024520",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM5nbURBZYkjq2GO3z9seWGPZolkwO4ROvphqbAksKqUSw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/188428f224d505f5758535f32333932303234353230026",
+   "last_read": "2026-08-10"
+  },
+  {
+   "name": "力哥",
+   "book_id": "MP_WXS_3908497252",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6GpmsrtEp4DibnLLkl1vqe2gSlfiaXaPpJHOzeRPfUdcdg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/2ff420c224d505f5758535f333930383439373235321fa",
+   "last_read": "2026-07-28"
+  },
+  {
+   "name": "格隆",
+   "book_id": "MP_WXS_3258282951",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6lBIoV05H2BAiaKCQJjjLojIWWFlX2SUeuticfibAUu3Yeg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/7cd4207224d505f5758535f33323538323832393531055",
+   "last_read": "2026-07-26"
+  },
+  {
+   "name": "AI产品阿颖",
+   "book_id": "MP_WXS_3892772220",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/j8JSzC6ialBY5uG7aR4MAx7MWhQRJ1Pz8cPDo7ABrleibLFyCRZicFRLzWtxJqHgo1e5Ov4GTl6Bsc/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/9ee42e5224d505f5758535f333839323737323232302bc",
+   "last_read": "2026-07-25"
+  },
+  {
+   "name": "逛逛GitHub",
+   "book_id": "MP_WXS_3516884134",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6BUb11yK6iaP4lic3LfqT3B2bqNO6fiaiaJ0QDaJBz3SLq5Q/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/16a42bd224d505f5758535f33353136383834313334c11",
+   "last_read": "2026-07-23"
+  },
+  {
+   "name": "数字生命卡兹克",
+   "book_id": "MP_WXS_3223096120",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6xX9TAfJUfoCtdV2WB75PBMoDwp1vWyUIq8dp1iak8yMQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/43e4258224d505f5758535f33323233303936313230dd4",
+   "last_read": "2026-07-23"
+  },
+  {
+   "name": "赛博禅心",
+   "book_id": "MP_WXS_3934419561",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6cS8BhfkxfxCTLogo01MKDLNrkib14kKoV5sV3NgeYAIA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/ca7427e224d505f5758535f33393334343139353631ea3",
+   "last_read": "2026-07-22"
+  },
+  {
+   "name": "崔鹏的二手经济学",
+   "book_id": "MP_WXS_3201681250",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM56IFoRdEibuFl2EEjia8p5TFmVjKDKfCgSxuOWwHBE5gsA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/2ab4230224d505f5758535f33323031363831323530b87",
+   "last_read": "2026-07-22"
+  },
+  {
+   "name": "新智元",
+   "book_id": "MP_WXS_3271041950",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM5Ge0ZibsJqTzd6HdTSHcydlic4TnsmpJicUrIlicD1L9ficFw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/706425c224d505f5758535f33323731303431393530eba",
+   "last_read": "2026-07-16"
+  },
+  {
+   "name": "卡尔的AI沃茨",
+   "book_id": "MP_WXS_3871977637",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6UfZc0V4s5MQJt6DJicDiakfEGlNk5IuDjudHlDy4yBEJg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/ca94279224d505f5758535f33383731393737363337417",
+   "last_read": "2026-07-06"
+  },
+  {
+   "name": "饼干哥哥AGI",
+   "book_id": "MP_WXS_2394281674",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM5kFOVkjpWIQEMIjkgGu5R5AibRicQmJbpR6xlc2faFWC7g/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/8c24200224d505f5758535f32333934323831363734827",
+   "last_read": "2026-07-02"
+  },
+  {
+   "name": "吴师兄学大模型",
+   "book_id": "MP_WXS_3930203853",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/rLpHsVF9HCUBmib81ftFmnCnwLcqCrFLaMSnIHLlEf78fRIT0cO3DvtaslurxfPBzrrLyZnmZ388/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/6854268224d505f5758535f33393330323033383533a72",
+   "last_read": "2026-06-30"
+  },
+  {
+   "name": "天下网商",
+   "book_id": "MP_WXS_3905515146",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Ib5852jAyb9X0ArTfqBK6xJsKwedRKSjTJSulZdKuWabWtvI3RSloKYBWvanic2Q9FqYpkOClZLs/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/7274201224d505f5758535f333930353531353134365a7",
+   "last_read": "2026-06-30"
+  },
+  {
+   "name": "生财有术",
+   "book_id": "MP_WXS_3891906515",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM4DV11YmdwKJ2UPHdqfyXHia3UyHJka860zzkeMSgXYUew/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/b2d4267224d505f5758535f3338393139303635313557a",
+   "last_read": "2026-06-30"
+  },
+  {
+   "name": "AGI Hunt",
+   "book_id": "MP_WXS_3087832081",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/VzQsdzsGScOb9a2075GwOQXfN5Wn6guYMq34FDYxgViakhWEwBclzsf7me3CAkwj8Q5puSlVQ0uM/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/6df42ed224d505f5758535f3330383738333230383172a",
+   "last_read": "2026-06-29"
+  },
+  {
+   "name": "阿伦AI学习笔记",
+   "book_id": "MP_WXS_3957475902",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/VNDQtnw16icLVbpeI3e5daBrHSBsCDXpdY1s1dhp5xaO4HQGqRqosKd5oibEjGnOVQba52pJRlujw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/db542c2224d505f5758535f33393537343735393032b14",
+   "last_read": "2026-06-29"
+  },
+  {
+   "name": "刘小排r",
+   "book_id": "MP_WXS_3251517810",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/oLU121BePGntbE4dhMH43H53rybJ9Bu7Schd9uZXWtKMIHXbax64X3gS0HsmibIImguibap01BJ2M/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/dc4422e224d505f5758535f333235313531373831301bd",
+   "last_read": "2026-06-24"
+  },
+  {
+   "name": "AIGCRank",
+   "book_id": "MP_WXS_3927697367",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/00GYaClAoOr1pr3ZeibtPGUUhwWeJxMogs9nYOFjUqnG5ibibb5tGdLibzllzMBF4MJq3jHOjiabWCmM/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/2ff42a3224d505f5758535f33393237363937333637d70",
+   "last_read": "2026-06-22"
+  },
+  {
+   "name": "AI信息Gap",
+   "book_id": "MP_WXS_3903631794",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/ibhzWy4ibIEpASdIGJek0zla60ue65jnYnoEOTE47iaBYIng9eqZTibwjA9hBpr16UWczBxUnib7XZpI/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/ad242ed224d505f5758535f3339303336333137393447c",
+   "last_read": "2026-06-15"
+  },
+  {
+   "name": "杰克船长的AIGC",
+   "book_id": "MP_WXS_3923699919",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/SXryYH6DzyaIEcPsJonmcY8bHv0gFPYvx31QgXApMkDQOp8A3ibFMCzQMp81FjNCQ92trvoWibeq8/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/50342cf224d505f5758535f33393233363939393139bab",
+   "last_read": "2026-06-01"
+  },
+  {
+   "name": "千问AI平台",
+   "book_id": "MP_WXS_3239545440",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/ylRhrSjQb8hgLeJ2HmFwFP3XibWic8f52rRNA2lHV42KeefxW3K1VMicq7ExDyuFa8V0334Oiakb6pM/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/5c642b8224d505f5758535f33323339353435343430ab5",
+   "last_read": "2026-05-29"
+  },
+  {
+   "name": "袋鼠帝",
+   "book_id": "MP_WXS_3903186594",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/A7sq8BD8oewAM4wHwXVnNRxIVX3MHuiaJxp3Jun0iaCkToicNkNTgap4P5PMg86gz5gyCcrL5wccKE/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/2f94280224d505f5758535f33393033313836353934bf1",
+   "last_read": "2026-05-28"
+  },
+  {
+   "name": "孤独大脑",
+   "book_id": "MP_WXS_2398022876",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM5N6CZnc12ScgwkAr0k4qSSLfMEnprW0DuxcTa83ZU50w/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/b724236224d505f5758535f32333938303232383736efd",
+   "last_read": "2026-05-26"
+  },
+  {
+   "name": "技术极简主义",
+   "book_id": "MP_WXS_2397057329",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/jJSbu4Te5ibicZGjjTHEQbJMmSqSpzTr34GTA5cCSZl8gtiaxCzFVsTzurJ2afsahsxGNtn7mOMSMA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/1c2428c224d505f5758535f32333937303537333239a2a",
+   "last_read": "2026-05-11"
+  },
+  {
+   "name": "硅星人Pro",
+   "book_id": "MP_WXS_3926568365",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7iamnM2Tia6iaW8SzIZo5wn0kJmBcwkU9o0hDVNBFJEHVxA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/70e42bf224d505f5758535f33393236353638333635fa8",
+   "last_read": "2026-05-11"
+  },
+  {
+   "name": "橘AI",
+   "book_id": "MP_WXS_3903697567",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/FiaIW3HsXzg6lIAIupFllN3Rfn3wmDzZjgbZG5qZlLicZWsmFFDPVqSZsGORsbymDHLiaNtaKUKKick/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/d37420e224d505f5758535f333930333639373536377c8",
+   "last_read": "2026-05-11"
+  },
+  {
+   "name": "AIML实验室",
+   "book_id": "MP_WXS_3198210976",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/EWo3hwIVSD2ah1VsfxqLP9HobyGLR7RZE2tAaPBciarJEm6VXZicibAFW4WF7icCvIxgnibXa6Wj0ic7o/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/a8c4237224d505f5758535f3331393832313039373609e",
+   "last_read": "2026-05-08"
+  },
+  {
+   "name": "HelloGitHub",
+   "book_id": "MP_WXS_3093627441",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM75XvJ2HoFYv2UnAujjg7bwTMxibxxBfAYQMoxHUaJ1hTw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/231426c224d505f5758535f33303933363237343431a91",
+   "last_read": "2026-05-07"
+  },
+  {
+   "name": "赵晗",
+   "book_id": "MP_WXS_3097736620",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/v6XbW38nFOSIshibRibic5ADzvJCCtPSclISJ8Gq0JbTjeiaM8OQL3enj7SBicc3EfLiay4pRU61c4Lz8/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/85342a8224d505f5758535f333039373733363632304ec",
+   "last_read": "2026-05-07"
+  },
+  {
+   "name": "Z Finance",
+   "book_id": "MP_WXS_3077513391",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/IJdPq631CVG0B3V5IXeVUgVfRNL7FNrw0aRNdb8n4KETHw9tMGVaEhk80hQbAkl2C0KbKHc6Via8/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/6ea42cd224d505f5758535f33303737353133333931e72",
+   "last_read": "2026-05-06"
+  },
+  {
+   "name": "TRAE.ai",
+   "book_id": "MP_WXS_3911685025",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/KetjXWSVppuqV9iahrSDn3PVdrwukgkcLwbEbHm4yFwHdXCibaIQFSRysKOjjfcSh19MLwic0MAhdU/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/9ac42b0224d505f5758535f33393131363835303235fda",
+   "last_read": "2026-05-05"
+  },
+  {
+   "name": "机器之心",
+   "book_id": "MP_WXS_3073282833",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM75UiawQgcdqOcmtYS7Jibug9J7dskxkNicGiadtdKl7mLyiaw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/e7442e4224d505f5758535f333037333238323833335e1",
+   "last_read": "2026-04-10"
+  },
+  {
+   "name": "Draco正在VibeCoding",
+   "book_id": "MP_WXS_3267381402",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/wcib2GksmGOl7iclXg5dMdnic1FKlBkzI1tL0nmibu7Fy2l43ewynzjf77AM9FOCR6GDhd8CCf1TicvQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/35442d4224d505f5758535f3332363733383134303265e",
+   "last_read": "2026-04-07"
+  },
+  {
+   "name": "量子位",
+   "book_id": "MP_WXS_3236757533",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6PqxX9Yx8MibJ3nial8ialvVrRs3PxhCJm7eWgR7vFrowLA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/a4f42c2224d505f5758535f33323336373537353333b72",
+   "last_read": "2026-04-07"
+  },
+  {
+   "name": "soft张三丰",
+   "book_id": "MP_WXS_3271424790",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM5qiaYvVwu0H0rcmDTZ3hHpYicTy62cVfXeSz18Z9wAz5DA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/dc64279224d505f5758535f33323731343234373930d7d",
+   "last_read": "2026-04-02"
+  },
+  {
+   "name": "歸藏的AI工具箱",
+   "book_id": "MP_WXS_3540975510",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6aHg7MdLJm6RMkHHHQfQVBIy2Sia8EFFlMdsyKUOpm3Tg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/0624272224d505f5758535f333534303937353531301d0",
+   "last_read": "2026-04-02"
+  },
+  {
+   "name": "JavaGuide",
+   "book_id": "MP_WXS_3869046948",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6j6ibiaOyeuibicQh9mQua4cSLP2fax8vNW25Wm8ic6kUQFlQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/58d4241224d505f5758535f33383639303436393438f58",
+   "last_read": "2026-04-01"
+  },
+  {
+   "name": "苍何",
+   "book_id": "MP_WXS_3585152880",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM58MRQsplKpLVV6tzhUyXiaGl278FmUUWrnRat7eg7FQpQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/61b4206224d505f5758535f33353835313532383830f59",
+   "last_read": "2026-04-01"
+  },
+  {
+   "name": "01Founder",
+   "book_id": "MP_WXS_3927644787",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Sqqm3oJYw2gVXzuhsbzbop9HUqTpO2fGVG2Hwlgd4ic6z5wJjCJrzaQLMKVWGVv6Uxq4xhhbHpMM/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/15142be224d505f5758535f33393237363434373837ec9",
+   "last_read": "2026-03-31"
+  },
+  {
+   "name": "Datawhale",
+   "book_id": "MP_WXS_3226363426",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM54elYMTg5ONEmPUibdDTx3qsDvunJcoTXF1OEte6lOxGw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/6a84218224d505f5758535f33323236333633343236a4e",
+   "last_read": "2026-03-30"
+  },
+  {
+   "name": "AI编程实验室",
+   "book_id": "MP_WXS_3198690583",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/jJtbwFuzNwDnhZicJzL5DcAo6MoOicu6DfFicxS6jWvOMgXC7rNz67NfOkYIdRBaBkqV0FmafS58yQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/7a94282224d505f5758535f333139383639303538331a3",
+   "last_read": "2026-03-26"
+  },
+  {
+   "name": "人类搞钱聚集地",
+   "book_id": "MP_WXS_3914603831",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM5ZcsJIaaFGgslpSKk4ZF10UxIMarib7fnA8WcoUkIPx8g/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/da442b2224d505f5758535f333931343630333833319b0",
+   "last_read": "2026-03-26"
+  },
+  {
+   "name": "BestBlogs",
+   "book_id": "MP_WXS_3283570543",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/AhLk989Zrl3uggPhDXSiaIeebtxqK8uBU1hR2Z36R0CWr4xvRR1uj5R53lzAjflZr6zu2AyBIR5w/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/a074283224d505f5758535f33323833353730353433665",
+   "last_read": "2026-03-23"
+  },
+  {
+   "name": "智东西",
+   "book_id": "MP_WXS_3081486433",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7iamv4Ze8TWTiczxnUhga2u7Ss6WPRStuhnItLymLiaeCRA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/dad4225224d505f5758535f333038313438363433330c2",
+   "last_read": "2026-03-21"
+  },
+  {
+   "name": "海外独角兽",
+   "book_id": "MP_WXS_3869640945",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM5kSCU0EU4khT3icBc0y5ibokcz9Xw6iaY7SZNz3ibvKJNT3w/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/3fb42b7224d505f5758535f33383639363430393435a02",
+   "last_read": "2026-03-20"
+  },
+  {
+   "name": "Java一条人",
+   "book_id": "MP_WXS_3865784727",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM59ofq3xjFgdttyukkEbLgTdCOXMK1wZWb5QicOssb2zYQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/1d042b1224d505f5758535f333836353738343732370b5",
+   "last_read": "2026-03-18"
+  },
+  {
+   "name": "秋芝2046",
+   "book_id": "MP_WXS_3930567871",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/JVDECnNjedEY2LbYdRwW9OiaYBZvN4jiapvcHiaxicrPTeH2v3Ufr08rb9fo5WUiaY6oHdmTOyb9FzJY/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/97c423c224d505f5758535f33393330353637383731d37",
+   "last_read": "2026-03-17"
+  },
+  {
+   "name": "硅基鹿鸣",
+   "book_id": "MP_WXS_3540720447",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/LTpwfH82ricnYlx8hI6Cfibia4JuU8mCV4UOUTUof9srttTzdOU9AUFvicPnTMPpgOMN4oeYTpibdv8o/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/91d4250224d505f5758535f3335343037323034343789e",
+   "last_read": "2026-03-16"
+  },
+  {
+   "name": "梅森投研",
+   "book_id": "MP_WXS_3248975013",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7Aiak0utvgemicBGeLPaPaIkFoJApefjjiaPXGgFUflln6g/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/1114276224d505f5758535f33323438393735303133cd1",
+   "last_read": "2026-03-15"
+  },
+  {
+   "name": "AI前线",
+   "book_id": "MP_WXS_3554086560",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/EWo3hwIVSD3mFu26EyJqXpyE2jbhibAo0TtZ5Cg6hpRdhRCGDonFSGKwF1edIb7gyoqMfZaIlSRs/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/d3e4246224d505f5758535f33353534303836353630ed6",
+   "last_read": "2026-03-14"
+  },
+  {
+   "name": "AI云枢",
+   "book_id": "MP_WXS_3268353657",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/O5IB5rptd1qzuUj9DPyHM7ErO0ASE1budbzUfNuoibH6FGSjZoWdvtES7Uke1ENE3sPicOXACAWm8/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/49d42a9224d505f5758535f333236383335333635372d1",
+   "last_read": "2026-03-14"
+  },
+  {
+   "name": "AI产品黄叔",
+   "book_id": "MP_WXS_2398553439",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/gWicbXPiajJn83qVFUIv24wtyTtGER9ZiaqichuOQCNcpHwSPMDqaQWNIcGsxKgtScEIBPluZuKGEJ0/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/dc342e8224d505f5758535f3233393835353334333993d",
+   "last_read": "2026-03-09"
+  },
+  {
+   "name": "程序员鱼皮",
+   "book_id": "MP_WXS_3254735000",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7mXTGickXwHIkGFatnzdA11W3AueURQAtVtGNWI4M5aKA/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/bbc423e224d505f5758535f33323534373335303030b60",
+   "last_read": "2026-03-08"
+  },
+  {
+   "name": "喜新",
+   "book_id": "MP_WXS_3551007682",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Szib8ySqErWLyhEehDSQSZNSib2cwsKB1Dcxk8U3HQrzbVhkZHjdt9Ch5mjz0FCTQxeSGLF1wCTYE/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/96e4274224d505f5758535f3335353130303736383291d",
+   "last_read": "2026-03-07"
+  },
+  {
+   "name": "AI科技评论",
+   "book_id": "MP_WXS_3098132220",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/vsACyXq1DBjCOrmw18tZIlDNuAEbym0xrLKNVFpHAejcGxDPwqPLCx7D8qia4IOFbPRjoeKdcCL0/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/48b426b224d505f5758535f33303938313332323230ab7",
+   "last_read": "2026-02-27"
+  },
+  {
+   "name": "硅基观察Pro",
+   "book_id": "MP_WXS_3925652168",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/FrdAUicrPIibd9ibEDo75sY0ibCKoK77PALicOnd5qldNiblTebVqVgeWEia8BicTEsbTJlqdZOeh3HHqW8/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/3d54269224d505f5758535f33393235363532313638336",
+   "last_read": "2026-02-27"
+  },
+  {
+   "name": "Z Potentials",
+   "book_id": "MP_WXS_3285810954",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/zZSYtpeVianSkphsCMyCkYzicGZzfYbfVXUeCI1pXmJHExzm1EibRRI7gictI9Ba4m9YqtGhIofUB8c/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/ae842ce224d505f5758535f3332383538313039353473b",
+   "last_read": "2026-02-24"
+  },
+  {
+   "name": "甲子光年",
+   "book_id": "MP_WXS_3599245772",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM4g2Fzew1K3Yoo9IIFQm7SYZYxDicvCYaURico6mOJQxJlQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/35b4243224d505f5758535f33353939323435373732b89",
+   "last_read": "2026-02-23"
+  },
+  {
+   "name": "AI大模型工场",
+   "book_id": "MP_WXS_3869663164",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/icF4iau8Sj7b0R9FJXViaqhdQVBZDyTWgZzErBnduW7Z7zeaAwsdaKyA7MicofV8vCmRDNsrYViaCCws/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/55242f5224d505f5758535f33383639363633313634752",
+   "last_read": "2026-02-23"
+  },
+  {
+   "name": "财联社AI daily",
+   "book_id": "MP_WXS_3882623527",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/JRicrayPGR3OncxbtBkFMAJaAzrJJRiasNKBSfXtjuWibibXDg1mwiarhVU5tnE3eKdXicmccRVm2hBC4/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/4684249224d505f5758535f333838323632333532378b7",
+   "last_read": "2026-02-23"
+  },
+  {
+   "name": "AI范儿",
+   "book_id": "MP_WXS_3947439738",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM4npQ8nG233h4oIdHsR9fT2NxKcEFF5gslguW9nClsO9A/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/db342b6224d505f5758535f33393437343339373338464",
+   "last_read": "2026-02-23"
+  },
+  {
+   "name": "智能涌现",
+   "book_id": "MP_WXS_3900464567",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/PL5y7QQHZgI9rWYGb5bwR5k71LIB5chtEWHRWdsErbDfiazicHhYibz7KT8UNpTxIJ7K1dzjgWCCIQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/0c842c9224d505f5758535f3339303034363435363782c",
+   "last_read": "2026-02-23"
+  },
+  {
+   "name": "极客公园",
+   "book_id": "MP_WXS_1304308441",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6dnlEsZXOPTtkZpEYHJ3nvUviaGTbLGUj4VRaq3vra2icQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/42942c2224d505f5758535f31333034333038343431f0f",
+   "last_read": "2026-02-23"
+  },
+  {
+   "name": "优设AIGC",
+   "book_id": "MP_WXS_2395046680",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/hqDXUD6csU8O01rwIRSP2VxibcPMEw1sREuicXcew7cZttvr9iancfNx4Nv7otPTTzaGPwKRic2MvVk/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/7d84211224d505f5758535f3233393530343636383042d",
+   "last_read": "2026-02-23"
+  },
+  {
+   "name": "InkFlow惜阅",
+   "book_id": "MP_WXS_3271467803",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM4EXnB007C6Uk7ePbpmvnl1EVDjkWu5MCIDyfptXlrNyg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/eea422c224d505f5758535f33323731343637383033045",
+   "last_read": "2026-02-23"
+  },
+  {
+   "name": "歪斯Wise",
+   "book_id": "MP_WXS_3281047910",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/ZHK9X5JK58xwpRbiautLv45Ysx2ycPgFg3j0xpc7sGypXgxmIa6BQquQW6aKn5C1QDlt409MYl1A/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/2ed4275224d505f5758535f333238313034373931308d2",
+   "last_read": "2026-02-23"
+  },
+  {
+   "name": "智能体AI",
+   "book_id": "MP_WXS_3892775853",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM4nDwFxZ6liaOKQZLJrFlUEOaQp9MFmyc5q2qIwET2CrGQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/bc14260224d505f5758535f33383932373735383533862",
+   "last_read": "2026-01-29"
+  },
+  {
+   "name": "MacTalk",
+   "book_id": "MP_WXS_2398460220",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM4dHfT9d3ogQk5E08iadsdsGpVuYSibFwLPD8cxL1prJwKQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/f5c42e7224d505f5758535f323339383436303232300b2",
+   "last_read": "2026-01-28"
+  },
+  {
+   "name": "AI修猫Prompt",
+   "book_id": "MP_WXS_3883618932",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6bX1b2bOVHHuY6UOWaw2IvoRpvAicq8iaHZ7na1jhI1RpQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/17442e5224d505f5758535f33383833363138393332077",
+   "last_read": "2026-01-13"
+  },
+  {
+   "name": "AI算法之道",
+   "book_id": "MP_WXS_3938257424",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7xvEI4q0VCUm4Y1qMDaTcUJnALw1kUicJxBibHaiaiagzxrQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/e3f4289224d505f5758535f3339333832353734323422c",
+   "last_read": "2026-01-13"
+  },
+  {
+   "name": "海辛和阿文",
+   "book_id": "MP_WXS_3236770276",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/0pygn8iaZdEe2oqyRic5JGV6Ca9Zbibiaoqqm93t1C78m47X4TkBnn3cBicTwGs5bqrocKibmvxqVLFJY/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/cda42d5224d505f5758535f3332333637373032373697e",
+   "last_read": "2026-01-11"
+  },
+  {
+   "name": "中年人的逆天改命记",
+   "book_id": "MP_WXS_3537233617",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM74gd4lmonGKSvn7xuLMfrwsAdrhsV5CLfdnJYHkvtOuQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/55f4272224d505f5758535f33353337323333363137b10",
+   "last_read": "2025-12-10"
+  },
+  {
+   "name": "易芝YZ",
+   "book_id": "MP_WXS_3294576268",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/1CHHx9Yq4nF449XMP2CdOKBsWEMicfBoK55Q1ttQkqAwjqJIrBtZJt1D4VG61MrFSd3LW95ic7g3s/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/43142bc224d505f5758535f33323934353736323638f2e",
+   "last_read": "2025-12-10"
+  },
+  {
+   "name": "龙龙AI副业",
+   "book_id": "MP_WXS_3939231721",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM5y9ATqIJqOYDHXOlsD0o8zcMqeM3QZePMB9MO0zo2f1Q/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/f854290224d505f5758535f3339333932333137323162f",
+   "last_read": "2025-12-10"
+  },
+  {
+   "name": "超级图解",
+   "book_id": "MP_WXS_3922695045",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/wjVtTPhRGG90uJvia5TibmsHfmiaUY75yBrnZDCFNZakATFnZlecONqG5icqTcNmaH8thn3jCOePmSI/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/dd14275224d505f5758535f3339323236393530343584c",
+   "last_read": "2025-11-19"
+  },
+  {
+   "name": "沈粒子",
+   "book_id": "MP_WXS_3923263793",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/jJSbu4Te5ib9SS3jQYMOysP76jiba24OMicEiaGibfmqguSCrbzbT6uJYlhbopbzzw5Via7Fwf28DCic7o/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/88f42f2224d505f5758535f33393233323633373933023",
+   "last_read": "2025-11-10"
+  },
+  {
+   "name": "别偷着学了带带我啊",
+   "book_id": "MP_WXS_3885082085",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/hgXWbMaaqmCB7ZpkLbxSKa7zoK2krLHFQcsSPkcoegdicJUlaibJtmkeGjIuEyy7DUAOyqy2ic7qnU/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/080422a224d505f5758535f3338383530383230383583f",
+   "last_read": "2025-10-15"
+  },
+  {
+   "name": "赛文乔伊",
+   "book_id": "MP_WXS_3596687917",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6F6Nicf7mQ7bZ3lwia77NpRRdD1RRmdicWcIicRuPghJP6Sg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/b5c428f224d505f5758535f3335393636383739313716f",
+   "last_read": "2025-10-10"
+  },
+  {
+   "name": "云中江树",
+   "book_id": "MP_WXS_3016599109",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/LwcbhAmMnZBjS4Dd7ovf7RCh2icX2YgO4Ou3ibXb0IjM8SSsvkAWWRQHJ6tdvhLvbyWtUuuxcY8Xk/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/b874263224d505f5758535f333031363539393130390ce",
+   "last_read": "2025-09-22"
+  },
+  {
+   "name": "饶秋1023",
+   "book_id": "MP_WXS_3896737563",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/LIUI5tJGiauB4Zx7vCdy3fY11cCibw95rQELXHWS1IaZFRr7kKUN5huu6ARuyo8EtWXJOnDf4U78w/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/0ff42ca224d505f5758535f33383936373337353633577",
+   "last_read": "2025-09-21"
+  },
+  {
+   "name": "AIBase基地",
+   "book_id": "MP_WXS_3236875538",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/QAm7hEbaujRfughrhqNq3rGP8hfFpMJ3iaZrTsQUro0fSF8QI1YjaYkzk4icGO74Lx47598rKCv4g/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/e9f425e224d505f5758535f333233363837353533387ed",
+   "last_read": "2025-09-16"
+  },
+  {
+   "name": "蔚公子说AI",
+   "book_id": "MP_WXS_3291487985",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/XCopLcwfzeeZStffE2JJ4w3yD0O9bjOwMrKxaIJzKgmkZbbzzgGx66j8BLeMIv6YFvWDqcSLKCY/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/9454237224d505f5758535f33323931343837393835f4a",
+   "last_read": "2025-09-16"
+  },
+  {
+   "name": "安与梦AI视频",
+   "book_id": "MP_WXS_3914625763",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/USH8Nb3Hz5TBg5GIH4qtar9Sz1NSTwGjwMicWHn2WuD7GeTc9vuWibE8TDHZQr0crEUtObdBCDsh0/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/823425b224d505f5758535f3339313436323537363378e",
+   "last_read": "2025-09-16"
+  },
+  {
+   "name": "行者AI视频",
+   "book_id": "MP_WXS_3529041738",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/VHU8bI7BOJAib4L5TBKz9XC8l9lzApcHbf1icyYmmFoEgKvwzFszibPzNXMuCtnvVhZUdicFVWr8os8/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/5974281224d505f5758535f3335323930343137333894f",
+   "last_read": "2025-09-16"
+  },
+  {
+   "name": "80后的AIGC时代",
+   "book_id": "MP_WXS_3904482263",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/00GYaClAoOpJNtZWeFCA1UUVqGWEBIlM5uYvvCBxeUY8d2dITYGxyacubPfAPIpLkO2icPtJao3A/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/00242d1224d505f5758535f33393034343832323633be3",
+   "last_read": "2025-09-16"
+  },
+  {
+   "name": "夕小瑶科技说",
+   "book_id": "MP_WXS_3207765945",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7mib7yjqnAgq5L1h8OWoUOcxl4bQglNqBttImia4Duyfpw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/f5942fc224d505f5758535f33323037373635393435607",
+   "last_read": "2025-09-16"
+  },
+  {
+   "name": "花叔",
+   "book_id": "MP_WXS_3869059014",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Jiavz9UrH80mW1Lv6vxM2JrM6BcCWR3DBAufVVrYWkTEUDzrY5ibUoT3B32Fwgh2ZQ5TNSQqJapmk/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/963428c224d505f5758535f3338363930353930313493c",
+   "last_read": "2025-09-11"
+  },
+  {
+   "name": "扣子Coze",
+   "book_id": "MP_WXS_3943641304",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/ChCs6YSVOGV9vvdNF4kXaIKhQsTZDGehthLFJXnCkqFscYnwQvmnibsfgicINWxO0WgkIRGWtp2A8/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/ac74218224d505f5758535f3339343336343133303420e",
+   "last_read": "2025-09-11"
+  },
+  {
+   "name": "十字路口Crossing",
+   "book_id": "MP_WXS_3010319264",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/EWo3hwIVSD3Oxrba1O0XWQicGKWVxibfmfWTlW6cE3zfPibb8ae5cfBnibgbiasmpCNpe6bIZtbpDg5k/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/0e14211224d505f5758535f33303130333139323634191",
+   "last_read": "2025-09-08"
+  },
+  {
+   "name": "AI评论员",
+   "book_id": "MP_WXS_3909448115",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/DxncLlErbRHsO6ib2fE4zRNk5N98maq0TpUXUweb9Qpzkzic2LuK6k7r9H60ApIomiaU4icjIjYxibog/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/50742ef224d505f5758535f333930393434383131351eb",
+   "last_read": "2025-09-08"
+  },
+  {
+   "name": "火山引擎Agent社区",
+   "book_id": "MP_WXS_3905207779",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/USH8Nb3Hz5SspMicdWOPLpWP2cTxhaCAfNqRHZGrxibROxhRQuLFticQwOjZz7EKdWiaEpdE5CibGPeo/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/1504299224d505f5758535f33393035323037373739176",
+   "last_read": "2025-09-06"
+  },
+  {
+   "name": "AI产品银海",
+   "book_id": "MP_WXS_3913528478",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/0nn3FBrD9a0HHENElQu4aXf98ergfowf1cueAZrM9wfgpL5IGLPbqIkMlxVNdNx88arNnQia3Axg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/c714294224d505f5758535f33393133353238343738fb3",
+   "last_read": "2025-08-31"
+  },
+  {
+   "name": "阿真Irene",
+   "book_id": "MP_WXS_3917638807",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/k8mFfEmdQe2uPfKceh0h04QBWg8faSyBuFSJn1u3Ex2lUoMaicv3wVhFPwLT9DACeicIpcwKB1Mibs/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/81842de224d505f5758535f33393137363338383037143",
+   "last_read": "2025-08-28"
+  },
+  {
+   "name": "小林AI实验",
+   "book_id": "MP_WXS_3866323996",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/KydxAIB52xmSWricBEcA0E1Y1qho0atAkdjicNSEEQUCNm92cloxBfn2Y8uCT3hFyFpqER0WufjQo/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/4b642a5224d505f5758535f33383636333233393936a88",
+   "last_read": "2025-08-28"
+  },
+  {
+   "name": "AI陈工",
+   "book_id": "MP_WXS_3957504265",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/ufVMVgCvafI1ric6akkShzHSzU4AvbXAcUP5YicT23al9HoF77ibbA8wJHDDhnoC6scVV73PGwWhjM/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/f0042d5224d505f5758535f3339353735303432363557c",
+   "last_read": "2025-08-28"
+  },
+  {
+   "name": "向阳乔木推荐看",
+   "book_id": "MP_WXS_3008229483",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM6RVF9ic4MOonZCDLdNlWWoIFO5m73kmnhToSGAA4bNgLw/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/9514299224d505f5758535f333030383232393438332f6",
+   "last_read": "2025-08-26"
+  },
+  {
+   "name": "小曾AI笔记",
+   "book_id": "MP_WXS_3008446245",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/OM4v0FU2h0s7eHFDP4LniatOs4ZSvPlGj6nkb5lTCsn3m7o40EbC5ZBia2xxbABgtBAdldSAtYb1w/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/35e420c224d505f5758535f3330303834343632343576b",
+   "last_read": "2025-08-26"
+  },
+  {
+   "name": "Dify",
+   "book_id": "MP_WXS_3890929674",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/zZSYtpeVianT8v0Dsb6p8pYIDrI8f508nYIibPkkvTo0L9dyW8FhcgfYKkC208UIxInZKZwXeYibPs/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/70f42a4224d505f5758535f33383930393239363734faa",
+   "last_read": "2025-08-26"
+  },
+  {
+   "name": "塔罗烩",
+   "book_id": "MP_WXS_3919662177",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/j8cooK2zCqqrMVdFFPs7navUe4kghBnfzNmzxDLCTb1lJ8ZEIonew87B76WEaHKibcs6xLZOrSWs/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/94b427b224d505f5758535f3339313936363231373743a",
+   "last_read": "2025-08-21"
+  },
+  {
+   "name": "八一菜刀",
+   "book_id": "MP_WXS_3094778415",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM583CTlbTiblLUE0TOvmoOJprhgtLqzScx2dyDOEBS2hFQ/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/ccf429c224d505f5758535f33303934373738343135ca2",
+   "last_read": "2025-08-21"
+  },
+  {
+   "name": "小黑黑讲AI",
+   "book_id": "MP_WXS_3898770952",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7la1OQ2Z54DsJ2HVuZo5mJlPF78ISt8EEV9757H49D3w/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/afb4219224d505f5758535f3338393837373039353286d",
+   "last_read": "2025-08-18"
+  },
+  {
+   "name": "飞跑的鹿",
+   "book_id": "MP_WXS_3910618667",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/Q3auHgzwzM69FZ1jskv2mGNZVfzZ6gtz1IejmNyRJk3cDkl5g7StEg/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/875428a224d505f5758535f33393130363138363637707",
+   "last_read": "2025-07-01"
+  },
+  {
+   "name": "魔宙",
+   "book_id": "MP_WXS_3239197880",
+   "author": "公众号",
+   "cover": "http://wx.qlogo.cn/mmhead/mONcle9pic3wWvDnQAJicRv8dADFyrvX0CbhCibZIDvg8q3tYichbhnW8sLqdW1y7Yc0nGsZAu7p97Y/0",
+   "reader_link": "https://weread.qq.com/web/mp/reader/9c34284224d505f5758535f33323339313937383830081",
+   "last_read": "2024-07-29"
+  }
+ ]
+}
