@@ -46,6 +46,21 @@ FB_FILE = os.path.join(ROOT, "data", "feedback.json")
 W_FB_LIKE, W_FB_DISLIKE = 0.6, -1.2          # 单篇直接加/降权
 W_FB_ACC_LIKE, W_FB_ACC_DISLIKE = 0.15, -0.3  # 同号累计 ≥2 次后的账号级调整
 
+# ---- 划线学习词（data/learned_kw.json，wx_kw_learn.py 产出）----
+KW_FILE = os.path.join(ROOT, "data", "learned_kw.json")
+W_LEARNED, LEARNED_CAP = 0.5, 3              # 权重低于 KW_GOOD(0.9)，最多计 3 词防过拟合
+
+
+def load_learned_kw():
+    """返回 {词: 权重}，缺失/损坏时返回空表（打分自动退化为无学习词）"""
+    if not os.path.exists(KW_FILE):
+        return {}
+    try:
+        d = json.load(open(KW_FILE, encoding="utf-8"))
+        return d.get("words", {}) or {}
+    except Exception:
+        return {}
+
 
 def load_feedback():
     """返回 (篇级 {key: mark}, 号级 {account: 净加分}, 类型级 {type: 净加分})"""
@@ -78,8 +93,9 @@ def latest(pattern):
     return fs[-1] if fs else None
 
 
-def score_one(a, type_map, now, art_fb=None, acc_adj=None):
+def score_one(a, type_map, now, art_fb=None, acc_adj=None, learned=None):
     reasons = []
+    learned = learned or {}
     t = type_map.get(a["account"], "")
     s_type = TYPE_W.get(t, 0.4)
     if s_type >= 0.9:
@@ -104,7 +120,13 @@ def score_one(a, type_map, now, art_fb=None, acc_adj=None):
     if bad:
         reasons.append("命中噪声词：" + "、".join(bad[:2]))
 
-    total = W_TYPE * s_type + W_HEAT * s_heat + W_FRESH * s_fresh + W_KW * s_kw
+    # ---- 划线学习词（你划线过的高频主题）----
+    lhit = [k for k in learned if k in low]
+    s_learned = min(len(lhit), LEARNED_CAP) / LEARNED_CAP * W_LEARNED
+    if lhit:
+        reasons.append("你划线过：" + "、".join(lhit[:3]))
+
+    total = W_TYPE * s_type + W_HEAT * s_heat + W_FRESH * s_fresh + W_KW * s_kw + s_learned
 
     # ---- 你的阅读反馈 ----
     if art_fb or acc_adj:
@@ -148,12 +170,18 @@ def main():
     n_like = sum(1 for m in art_fb.values() if m == "like")
     n_dis = sum(1 for m in art_fb.values() if m == "dislike")
     if art_fb:
-        print(f"已加载阅读反馈：{n_like} 条 👍 / {n_dis} 条 👎（{len(acc_adj)} 个号触发账号级调整）\n")
+        print(f"已加载阅读反馈：{n_like} 条 👍 / {n_dis} 条 👎（{len(acc_adj)} 个号触发账号级调整）")
+
+    # 划线学习词（data/learned_kw.json，由「🧠 回灌划线」→ wx_kw_learn.py 产出）
+    learned = load_learned_kw()
+    if learned:
+        top3 = "、".join(sorted(learned, key=learned.get, reverse=True)[:5])
+        print(f"已加载划线学习词 {len(learned)} 个（{top3}…）")
 
     # 同号同主题去重：标题前 12 字相同的只留最高分
     seen_title, deduped = {}, []
     for a in arts:
-        a["_score"], a["_reasons"] = score_one(a, type_map, now, art_fb, acc_adj)
+        a["_score"], a["_reasons"] = score_one(a, type_map, now, art_fb, acc_adj, learned)
         a["_type"] = type_map.get(a["account"], "")
     arts.sort(key=lambda x: -x["_score"])
     for a in arts:

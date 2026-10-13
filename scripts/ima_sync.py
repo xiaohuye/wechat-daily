@@ -16,6 +16,9 @@ ima_sync.py — 本地 ima 同步服务（日报页「☁ 存入 ima」按钮的
                           批注维度 → 每篇一篇「[公众号] 标题」笔记
     POST /save_doc        body: {"title","account","time","read","url","content_md"}
                           原文维度 → 单篇全文存档「[存档] 标题」笔记
+    POST /save_highlights body: {"items": [{"key","account","title","highlights":[{text,note,ts}]}]}
+                          回灌维度 → 不写 ima，落盘 data/highlights.json（按 key 增量合并），
+                          供 wx_kw_learn.py 提取兴趣关键词
                           返回: {"ok": n, "fail": n, "done": [...], "errors": [...]}
     会话级去重：批注（标题+首条划线文本）/ 原文（标题）本次服务生命周期内只写一次。
 
@@ -87,6 +90,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path.startswith("/save_doc"):
             return self._do_save_doc()
+        if self.path.startswith("/save_highlights"):
+            return self._do_save_highlights()
         if not self.path.startswith("/save"):
             self._send(404, {"ok": False, "msg": "not found"})
             return
@@ -142,6 +147,38 @@ class Handler(BaseHTTPRequestHandler):
                              "done": [f"✓ {title} → {resp.get('note_id', '')}"], "errors": []})
         else:
             self._send(200, {"ok": 0, "fail": 1, "done": [], "errors": [f"{title}: {resp}"]})
+
+    def _do_save_highlights(self):
+        """划线回灌：不写 ima，落盘 data/highlights.json（按 key 增量合并）"""
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            data = json.loads(self.rfile.read(n).decode("utf-8", "ignore"))
+        except Exception as e:
+            self._send(400, {"ok": 0, "fail": 1, "errors": [f"bad body: {e}"]})
+            return
+        items = data.get("items") or []
+        if not items:
+            self._send(200, {"ok": 0, "fail": 0, "done": [], "errors": []})
+            return
+        from ima_save import DATA
+        f = os.path.join(DATA, "highlights.json")
+        old = {}
+        if os.path.exists(f):
+            try:
+                old = (json.load(open(f, encoding="utf-8")) or {}).get("articles", {}) or {}
+            except Exception:
+                old = {}
+        for it in items:
+            k = it.get("key") or f"{it.get('account','')}|{it.get('title','')}"
+            old[k] = {"account": it.get("account", ""), "title": it.get("title", ""),
+                      "highlights": it.get("highlights") or []}
+        tmp = f + ".tmp"
+        json.dump({"updated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                   "count": sum(1 for v in old.values() if v.get("highlights")),
+                   "articles": old},
+                  open(tmp, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        os.replace(tmp, f)
+        self._send(200, {"ok": len(items), "fail": 0, "done": [f"✓ 落盘 {f}"], "errors": []})
 
     def log_message(self, *a):   # 静音访问日志
         pass

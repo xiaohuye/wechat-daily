@@ -874,6 +874,29 @@ function saveDocToIma(btn){
   });
 }
 
+/* 维度三：回灌划线——把划线+批注回传本地服务，供关键词学习（改进明日推荐） */
+function syncHighlights(){
+  const items = [];
+  allUnits().forEach(function(art){
+    const k = art.dataset.key;
+    const list = loadHL(k);
+    if(!list.length) return;
+    items.push({key: k, account: art.dataset.account, title: art.dataset.title,
+                highlights: list.map(h=>({text: h.text, note: h.note || '', ts: h.ts}))});
+  });
+  if(!items.length){ toast('还没有任何划线，先选中句子划线'); return; }
+  const n = items.reduce((s,x)=>s + x.highlights.length, 0);
+  toast('正在回灌 ' + n + ' 条划线…');
+  fetch('http://127.0.0.1:8931/save_highlights', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({items: items})
+  }).then(function(r){ return r.json(); }).then(function(d){
+    toast(d.ok ? ('✓ 已回灌 ' + d.ok + ' 篇 / ' + n + ' 条划线，明日推荐自动参考你的划线兴趣') : '回灌失败：' + JSON.stringify(d).slice(0, 60));
+  }).catch(function(){
+    toast('连不上本地同步服务，请先运行: python scripts/ima_sync.py');
+  });
+}
+
 /* ---------------- 导出 ---------------- */
 function collect(){
   const items = []; const seen = {};
@@ -1297,6 +1320,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<button class="pri" onclick="copyAll()">📋 复制全部批注</button>'
              '<button onclick="exportNotes()">📤 导出 .md</button>'
              '<button onclick="saveToIma()" title="把有划线批注的文章写入 ima（划线+批注成对保存）">🖍 批注入库</button>'
+             '<button onclick="syncHighlights()" title="把所有划线+批注回传本地，提取你的兴趣关键词用于明日推荐">🧠 回灌划线</button>'
              '<button onclick="exportFeedback()" title="导出 👍/👎 标记，供推荐算法迭代">🎯 导出反馈</button>'
              '<span class="tip"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 存批注 · <kbd>Esc</kbd> 关闭</span>'
              '</div>')

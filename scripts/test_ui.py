@@ -96,6 +96,8 @@ def main():
         # 9. 分类 chip 过滤推荐视图（chips 是「主题」，按标题命中关键词过滤）
         chips = page.query_selector_all(".theme-chip")
         check("概览分类 chips 存在", len(chips) >= 3, f"{len(chips)} 个")
+        total_rec = page.eval_on_selector_all("#recView article", "els => els.length")
+        check("推荐视图加载", total_rec > 20, f"{total_rec} 篇")
         chips[0].click()
         chip_name = chips[0].get_attribute("data-tname")
         vis_g = page.eval_on_selector_all("#recView .gitem",
@@ -110,7 +112,7 @@ def main():
         vis_all = page.eval_on_selector_all("#recView article",
             "els => els.filter(e => e.style.display !== 'none').length")
         off_chip = page.eval_on_selector_all(".theme-chip.on", "els => els.length")
-        check("再点取消过滤", vis_all == 29 and off_chip == 0, f"恢复 {vis_all} 篇")
+        check("再点取消过滤", vis_all == total_rec and off_chip == 0, f"恢复 {vis_all} 篇")
 
         # 10. 速览点击 → 自动展开正文 + flash 高亮
         g1 = page.query_selector('#recView .gitem[data-rank="1"]')

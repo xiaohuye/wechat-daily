@@ -95,6 +95,13 @@ log "→ $ART"
 
 # ---------- 2/5 排序 ----------
 log "=== [2/5] 推荐排序 ==="
+# ---------- 3/5 排序（先学习划线关键词，再打分） ----------
+log "--- 划线关键词学习 + 排序推荐 ---"
+if [ -f data/highlights.json ]; then
+  "$PY" scripts/wx_kw_learn.py || echo "(关键词学习失败，跳过)"
+else
+  log "无划线语料（highlights.json 不存在），跳过关键词学习"
+fi
 "$PY" scripts/wx_rank.py --days "$DAYS" --top "$TOP" || exit 2
 
 # ---------- 3/5 分析 ----------
