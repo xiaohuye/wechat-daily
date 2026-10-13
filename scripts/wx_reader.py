@@ -794,11 +794,87 @@ function exportFeedback(){
 }
 
 /* ---------------- 直存 ima（本地同步服务转发，绕开 file:// 的 CORS 限制） ---------------- */
+/* 服务按需短生命周期：平时不存在。不在线时所有入库动作进「离线暂存队列」，
+   服务被拉起后（run_daily.sh / 手动 / 喊 AI 同步），页面自动探测并冲刷，服务闲置自动退出。 */
+const SYNC = 'http://127.0.0.1:8931';
+const QKEY = 'wxqueue';
+function qLoad(){ try{ return JSON.parse(localStorage.getItem(QKEY) || '[]'); }catch(e){ return []; } }
+function qSave(q){ localStorage.setItem(QKEY, JSON.stringify(q)); }
+function qAdd(kind, payload){
+  const sig = kind + '|' + JSON.stringify(payload);
+  const q = qLoad();
+  if(q.some(e => e.sig === sig)){ return false; }        /* 重复点击不重复排队 */
+  q.push({kind: kind, sig: sig, payload: payload, ts: Date.now()});
+  qSave(q);
+  startQueueWatcher();   /* 入队即挂自动探测：含「写入中断转队列」的路径也会被 watcher 覆盖 */
+  return true;
+}
+function probe(cb, ms){
+  const ac = ('AbortController' in window) ? new AbortController() : null;
+  const t = ac && setTimeout(()=>ac.abort(), ms || 600);
+  fetch(SYNC + '/ping', ac ? {signal: ac.signal} : {}).then(()=>{ if(t) clearTimeout(t); cb(true); })
+  .catch(()=>{ if(t) clearTimeout(t); cb(false); });
+}
+function postOne(entry){
+  return fetch(SYNC + '/' + entry.kind, {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(entry.payload)
+  }).then(function(r){ return r.json(); });
+}
+function qMarkDone(entry){
+  /* 冲刷成功的条目补写防重标记——与直发路径行为一致，否则下次点按钮又会重复排队发送 */
+  const p = entry.payload || {};
+  if(entry.kind === 'save'){
+    (p.items || []).forEach(function(it){
+      localStorage.setItem('wximsaved::' + it.account + '|' + it.title,
+        JSON.stringify({cnt: (it.highlights||[]).length, ts: Date.now()}));
+    });
+  } else if(entry.kind === 'save_doc'){
+    localStorage.setItem('wximsaved_doc::' + p.account + '|' + p.title, '1');
+  }
+}
+function flushQueue(silent){
+  const q = qLoad();
+  if(!q.length) return;
+  let done = Promise.resolve();
+  const remain = q.slice();
+  let sent = 0;
+  q.forEach(function(e){
+    done = done.then(function(){
+      return postOne(e).then(function(d){
+        const okc = typeof d.ok === 'number' ? d.ok : (d.ok ? 1 : 0);
+        if(okc > 0 || (d.done && d.done.length)){        /* 成功或服务端判定已入库(跳过) */
+          const i = remain.indexOf(e); if(i >= 0) remain.splice(i, 1);
+          qMarkDone(e);
+          sent++;
+        }
+      }).catch(function(){});
+    });
+  });
+  done.then(function(){
+    qSave(remain);
+    if(remain.length){ startQueueWatcher(false); }        /* 有失败条目：15s 后再探，等服务下次唤醒重试 */
+    if(!silent){
+      toast(sent > 0 ? ('✓ 已自动同步 ' + sent + ' 条暂存操作到 ima')
+                     : (remain.length ? '暂存队列同步失败（写入异常），已保留 ' + remain.length + ' 条待重试' : '队列已清空'));
+    }
+  });
+}
+let _qwTimer = null;
+function startQueueWatcher(now){
+  if(_qwTimer) return;
+  const tick = function(){
+    if(!qLoad().length){ clearInterval(_qwTimer); _qwTimer = null; return; }   /* 队列空：停表，不再空转探测 */
+    probe(function(on){ if(on){ clearInterval(_qwTimer); _qwTimer = null; flushQueue(false); } }, 900);
+  };
+  if(now !== false) tick();               /* flush 失败重启时传 false，等下一轮再试，避免快速连发 */
+  _qwTimer = setInterval(tick, 15000);   /* 有暂存时每 15s 探测一次，页面开着即可自动同步 */
+}
+
 /* 维度一：批注入库（划线句+批注成对存笔记） */
 function saveToIma(){
   const items = [];
   collect().forEach(function(o){
-    /* 同步防重：划线数量与上次入库时一致 → 跳过；加了新划线 → 重存 */
     const k = 'wximsaved::' + o.art.dataset.key;
     const cnt = o.list.length;
     const saved = (function(){ try{ return JSON.parse(localStorage.getItem(k) || 'null'); }catch(e){ return null; } })();
@@ -810,8 +886,17 @@ function saveToIma(){
     });
   });
   if(!items.length){ toast('没有需要新增入库的批注（或已全部存过）'); return; }
+  probe(function(on){
+    if(on){ flushQueue(true); return realSave(items); }
+    const added = qAdd('save', {items: items});
+    toast(added ? ('已离线暂存 ' + items.length + ' 篇批注；下次同步服务开启后自动发送')
+                : '已在暂存队列中，无需重复添加');
+    startQueueWatcher();
+  });
+}
+function realSave(items){
   toast('正在写入 ima…');
-  fetch('http://127.0.0.1:8931/save', {
+  fetch(SYNC + '/save', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({items: items})
   }).then(function(r){ return r.json(); }).then(function(d){
@@ -822,7 +907,8 @@ function saveToIma(){
     if(d.fail){ toast('入库 ' + d.ok + ' 篇，失败 ' + d.fail + ' 篇：' + (d.errors[0]||'').slice(0,60)); }
     else{ toast('已存入 ima 知识库：' + d.ok + ' 篇'); }
   }).catch(function(){
-    toast('连不上本地同步服务，请先运行: python scripts/ima_sync.py');
+    qAdd('save', {items: items});
+    toast('写入中断，已转入离线暂存队列');
   });
 }
 /* 维度二：原文入库——整篇正文转 markdown 存为「[存档]」笔记 */
@@ -854,12 +940,21 @@ function saveDocToIma(btn){
   if(!paper){ toast('本篇正文不可用'); return; }
   const md = htmlToMd(paper);
   if(md.length < 50){ toast('正文内容太少，无法入库'); return; }
+  const payload = {
+    title: unit.dataset.title, account: unit.dataset.account, time: unit.dataset.time,
+    read: unit.dataset.read, url: unit.dataset.url, content_md: md};
+  probe(function(on){
+    if(on){ flushQueue(true); return realSaveDoc(btn, k, payload); }
+    const added = qAdd('save_doc', payload);
+    toast(added ? '已离线暂存本篇原文；下次同步服务开启后自动发送' : '已在暂存队列中，无需重复添加');
+    startQueueWatcher();
+  });
+}
+function realSaveDoc(btn, k, payload){
   btn.disabled = true; toast('正在写入 ima…');
-  fetch('http://127.0.0.1:8931/save_doc', {
+  fetch(SYNC + '/save_doc', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      title: unit.dataset.title, account: unit.dataset.account, time: unit.dataset.time,
-      read: unit.dataset.read, url: unit.dataset.url, content_md: md})
+    body: JSON.stringify(payload)
   }).then(function(r){ return r.json(); }).then(function(d){
     btn.disabled = false;
     if(d.ok){ localStorage.setItem(k, '1'); toast('✓ 原文已存入 ima（[存档] 笔记）'); }
@@ -870,15 +965,17 @@ function saveDocToIma(btn){
     }
   }).catch(function(){
     btn.disabled = false;
-    toast('连不上本地同步服务，请先运行: python scripts/ima_sync.py');
+    qAdd('save_doc', payload);
+    toast('写入中断，已转入离线暂存队列');
   });
 }
 
 /* 维度三：回灌划线——把划线+批注回传本地服务，供关键词学习（改进明日推荐） */
 function syncHighlights(){
-  const items = [];
+  const items = []; const seen = {};
   allUnits().forEach(function(art){
     const k = art.dataset.key;
+    if(seen[k]) return; seen[k] = 1;       /* 同一篇在推荐/全部两个视图都有 DOM，去重 */
     const list = loadHL(k);
     if(!list.length) return;
     items.push({key: k, account: art.dataset.account, title: art.dataset.title,
@@ -886,14 +983,23 @@ function syncHighlights(){
   });
   if(!items.length){ toast('还没有任何划线，先选中句子划线'); return; }
   const n = items.reduce((s,x)=>s + x.highlights.length, 0);
+  probe(function(on){
+    if(on){ flushQueue(true); return realSyncHl(items, n); }
+    qAdd('save_highlights', {items: items});
+    toast('已离线暂存 ' + items.length + ' 篇 / ' + n + ' 条划线；下次同步服务开启后自动发送');
+    startQueueWatcher();
+  });
+}
+function realSyncHl(items, n){
   toast('正在回灌 ' + n + ' 条划线…');
-  fetch('http://127.0.0.1:8931/save_highlights', {
+  fetch(SYNC + '/save_highlights', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({items: items})
   }).then(function(r){ return r.json(); }).then(function(d){
     toast(d.ok ? ('✓ 已回灌 ' + d.ok + ' 篇 / ' + n + ' 条划线，明日推荐自动参考你的划线兴趣') : '回灌失败：' + JSON.stringify(d).slice(0, 60));
   }).catch(function(){
-    toast('连不上本地同步服务，请先运行: python scripts/ima_sync.py');
+    qAdd('save_highlights', {items: items});
+    toast('回灌中断，已转入离线暂存队列');
   });
 }
 
@@ -1208,6 +1314,7 @@ document.addEventListener('DOMContentLoaded', function(){
   renderDrawer('');
   applyAll();
   paintFbAll();
+  startQueueWatcher();
   const v = localStorage.getItem('wxview');
   if(v === 'all') setView('all');
 });

@@ -7,8 +7,15 @@ ima_sync.py — 本地 ima 同步服务（日报页「☁ 存入 ima」按钮的
 所以页面把批注 POST 给本服务（127.0.0.1:8931），由本服务转发给 ima OpenAPI。
 
 用法：
-    python scripts/ima_sync.py            # 前台启动（Ctrl+C 停止）
+    python scripts/ima_sync.py            # 启动（默认闲置 180 秒无请求自动退出）
+    python scripts/ima_sync.py --idle 0   # 永不自动退出
     python scripts/ima_sync.py --port 8932
+    python scripts/ima_sync.py --mock     # 测试模式：不真实写 ima（回归测试用，避免产生垃圾笔记）
+
+生命周期（短驻模式）：
+    平时不需要挂着。页面端「入库/回灌」在服务不在线时自动进离线暂存队列；
+    需要同步时（run_daily.sh 拉起 / 手动启动 / 喊一声 AI），打开着的日报页
+    会在 15 秒内探测到服务并自动冲刷队列；闲置 --idle 秒后本服务自动退出。
 
 接口：
     GET  /ping            健康检查
@@ -24,7 +31,7 @@ ima_sync.py — 本地 ima 同步服务（日报页「☁ 存入 ima」按钮的
 
 依赖：scripts/ima_save.py（凭证与写入逻辑）、凭证 ~/.config/ima/
 """
-import os, sys, json, argparse, datetime
+import os, sys, json, time, argparse, datetime, threading
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ima_save import call, build_note, to_utf8  # noqa: E402
@@ -65,7 +72,9 @@ _seen = set()   # 会话级去重：本次服务生命周期内已入库的 (tit
 
 class Handler(BaseHTTPRequestHandler):
 
-    def _send(self, code, payload):
+    def _send(self, code, payload, touch=True):
+        if touch:
+            self.server.last_active = time.time()      # 供 watchdog 判闲置；/ping 探测不算业务活动
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
         for k, v in CORS.items():
@@ -76,6 +85,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_OPTIONS(self):
+        self.server.last_active = time.time()
         self.send_response(204)
         for k, v in CORS.items():
             self.send_header(k, v)
@@ -83,7 +93,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path.startswith("/ping"):
-            self._send(200, {"ok": True, "ts": datetime.datetime.now().strftime("%H:%M:%S")})
+            # touch=False：页面 watcher 每 15s 一次的 ping 探测不能阻止闲置退出
+            self._send(200, {"ok": True, "ts": datetime.datetime.now().strftime("%H:%M:%S")}, touch=False)
         else:
             self._send(404, {"ok": False, "msg": "not found"})
 
@@ -187,10 +198,32 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8931)
+    ap.add_argument("--idle", type=int, default=180,
+                    help="闲置多少秒无请求自动退出（0=永不退出，默认 180）")
+    ap.add_argument("--mock", action="store_true",
+                    help="测试模式：不真实写 ima，/save /save_doc 直接返回成功")
     args = ap.parse_args()
+    if args.mock:
+        def _mock_call(path, payload):
+            return True, {"note_id": "mock_" + str(int(time.time() * 1000) % 100000), "mock": True}
+        global call
+        call = _mock_call                       # Handler 内对 call 的引用走模块全局，mock 即生效
+        print("[MOCK] 测试模式：不真实写 ima，只验证链路与生命周期")
     srv = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"ima 同步服务已启动: http://127.0.0.1:{args.port}  （Ctrl+C 停止）")
-    print("日报页点「☁ 存入 ima」前请保持本服务运行；run_daily.sh 会自动后台拉起。")
+    srv.daemon_threads = True                   # 卡住的转发线程不阻塞「闲置自动退出」
+    srv.last_active = time.time()
+    if args.idle > 0:
+        def watchdog():
+            while True:
+                time.sleep(5)
+                if time.time() - srv.last_active > args.idle:
+                    print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 闲置 {args.idle}s 无请求，自动退出")
+                    srv.shutdown()
+                    return
+        threading.Thread(target=watchdog, daemon=True).start()
+    print(f"ima 同步服务已启动: http://127.0.0.1:{args.port}"
+          + (f"（闲置 {args.idle}s 自动退出）" if args.idle > 0 else "（常驻，Ctrl+C 停止）"))
+    print("日报页有暂存时会自动同步过来；同步完成后本服务自动退出，无需手动关闭。")
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
