@@ -13,17 +13,43 @@ ima_sync.py — 本地 ima 同步服务（日报页「☁ 存入 ima」按钮的
 接口：
     GET  /ping            健康检查
     POST /save            body: {"items": [{title, account, time, read, url, note, highlights:[{text,note}]}]}
+                          批注维度 → 每篇一篇「[公众号] 标题」笔记
+    POST /save_doc        body: {"title","account","time","read","url","content_md"}
+                          原文维度 → 单篇全文存档「[存档] 标题」笔记
                           返回: {"ok": n, "fail": n, "done": [...], "errors": [...]}
-    会话级去重：同一批划线（标题+首条划线文本）本次服务生命周期内只写一次。
+    会话级去重：批注（标题+首条划线文本）/ 原文（标题）本次服务生命周期内只写一次。
 
 依赖：scripts/ima_save.py（凭证与写入逻辑）、凭证 ~/.config/ima/
 """
 import os, sys, json, argparse, datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from ima_save import call, build_note  # noqa: E402
+from ima_save import call, build_note, to_utf8  # noqa: E402
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer  # noqa: E402
+
+MAX_DOC = 60000   # 原文存档单篇上限（字符），超长截断
+
+
+def build_doc_note(d):
+    """原文维度：全文存档笔记（markdown）。ima 的显示标题取正文 H1，前缀要写进 H1"""
+    title = to_utf8(d.get("title") or "")
+    head = f"[存档] {title}"
+    if len(head) > 60:
+        head = head[:60]
+    lines = [f"# [存档] {title}", ""]
+    if d.get("account"): lines.append(f"> 公众号：{d['account']}")
+    if d.get("time"):    lines.append(f"> 发布：{d['time']}")
+    if d.get("read"):    lines.append(f"> 阅读：{d['read']}")
+    if d.get("url"):     lines.append(f"> 原文：{d['url']}")
+    lines.append("")
+    md = to_utf8(d.get("content_md") or "")
+    if len(md) > MAX_DOC:
+        md = md[:MAX_DOC] + "\n\n_（正文超长已截断）_"
+    lines.append("## 原文")
+    lines.append("")
+    lines.append(md or "_（正文为空）_")
+    return head, to_utf8("\n".join(lines))
 
 CORS = {
     "Access-Control-Allow-Origin": "*",
@@ -59,6 +85,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"ok": False, "msg": "not found"})
 
     def do_POST(self):
+        if self.path.startswith("/save_doc"):
+            return self._do_save_doc()
         if not self.path.startswith("/save"):
             self._send(404, {"ok": False, "msg": "not found"})
             return
@@ -90,6 +118,30 @@ class Handler(BaseHTTPRequestHandler):
                 fail_n += 1
                 errors.append(f"{title}: {resp}")
         self._send(200, {"ok": ok_n, "fail": fail_n, "done": done, "errors": errors})
+
+    def _do_save_doc(self):
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            d = json.loads(self.rfile.read(n).decode("utf-8", "ignore"))
+        except Exception as e:
+            self._send(400, {"ok": 0, "fail": 1, "errors": [f"bad body: {e}"]})
+            return
+        if not (d.get("title") or "").strip():
+            self._send(400, {"ok": 0, "fail": 1, "errors": ["缺 title"]})
+            return
+        sig = "[doc]" + d.get("title", "")
+        if sig in _seen:
+            self._send(200, {"ok": 0, "fail": 0, "done": ["[跳过·已入库] " + d.get("title", "")], "errors": []})
+            return
+        title, content = build_doc_note(d)
+        ok, resp = call("openapi/note/v1/import_doc",
+                        {"title": title, "content": content, "content_format": 1})
+        if ok:
+            _seen.add(sig)
+            self._send(200, {"ok": 1, "fail": 0,
+                             "done": [f"✓ {title} → {resp.get('note_id', '')}"], "errors": []})
+        else:
+            self._send(200, {"ok": 0, "fail": 1, "done": [], "errors": [f"{title}: {resp}"]})
 
     def log_message(self, *a):   # 静音访问日志
         pass

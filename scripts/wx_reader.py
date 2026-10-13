@@ -377,6 +377,12 @@ body.mode-all #allView{display:block}
 .fb.on-like{background:#e9f9ee;border-color:#2fa05a;color:#1e7a40}
 .fb.on-dislike{background:#fdeeee;border-color:#d4574e;color:#b03a32}
 article .acts .fb{padding:9px 14px;font-size:13px}
+/* 原文入库按钮（云端语义，蓝底） */
+.docbtn{font:600 12.5px/1 inherit;border:1px solid #c9d9ff;background:var(--blue-soft);
+       border-radius:8px;padding:7px 11px;cursor:pointer;color:var(--blue-ink);transition:.16s}
+.docbtn:hover{border-color:var(--blue);background:#e0eaff}
+.docbtn:disabled{opacity:.55;cursor:wait}
+article .acts .docbtn{padding:9px 14px;font-size:13px}
 .alist{margin:0;padding:0;list-style:none}
 .alist li{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
      padding:14px 17px;margin-bottom:9px;transition:all .18s;box-shadow:var(--shadow-sm)}
@@ -788,6 +794,7 @@ function exportFeedback(){
 }
 
 /* ---------------- 直存 ima（本地同步服务转发，绕开 file:// 的 CORS 限制） ---------------- */
+/* 维度一：批注入库（划线句+批注成对存笔记） */
 function saveToIma(){
   const items = [];
   collect().forEach(function(o){
@@ -815,6 +822,54 @@ function saveToIma(){
     if(d.fail){ toast('入库 ' + d.ok + ' 篇，失败 ' + d.fail + ' 篇：' + (d.errors[0]||'').slice(0,60)); }
     else{ toast('已存入 ima 知识库：' + d.ok + ' 篇'); }
   }).catch(function(){
+    toast('连不上本地同步服务，请先运行: python scripts/ima_sync.py');
+  });
+}
+/* 维度二：原文入库——整篇正文转 markdown 存为「[存档]」笔记 */
+function htmlToMd(root){
+  const out = [];
+  (function walk(el){
+    if(el.nodeType === 3){ const t = el.textContent.trim(); if(t) out.push(t); return; }
+    if(el.nodeType !== 1) return;
+    const tag = el.tagName;
+    if(tag === 'IMG'){ if(el.getAttribute('src')) out.push('[图]'); return; }
+    if(tag === 'P' || tag === 'PRE' || tag === 'FIGCAPTION'){
+      const t = el.innerText.trim(); if(t) out.push(t); return;
+    }
+    if(/^H[1-6]$/.test(tag)){ out.push('###### '.slice(0, +tag[1] + 1) + ' ' + el.innerText.trim()); return; }
+    if(tag === 'BLOCKQUOTE'){ out.push('> ' + el.innerText.trim().replace(/\n+/g, '\n> ')); return; }
+    if(tag === 'LI'){ const t = el.innerText.trim(); if(t) out.push('- ' + t); return; }
+    Array.from(el.childNodes).forEach(walk);
+  })(root);
+  return out.join('\n\n');
+}
+function saveDocToIma(btn){
+  const unit = btn.closest('article[data-key], #alist > li[data-key]'); if(!unit) return;
+  const k = 'wximsaved_doc::' + unit.dataset.key;
+  if(localStorage.getItem(k)){
+    if(!confirm('这篇原文已入库过，再存一篇？')) return;
+    localStorage.removeItem(k);
+  }
+  const paper = $('.paper', unit);
+  if(!paper){ toast('本篇正文不可用'); return; }
+  const md = htmlToMd(paper);
+  if(md.length < 50){ toast('正文内容太少，无法入库'); return; }
+  btn.disabled = true; toast('正在写入 ima…');
+  fetch('http://127.0.0.1:8931/save_doc', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      title: unit.dataset.title, account: unit.dataset.account, time: unit.dataset.time,
+      read: unit.dataset.read, url: unit.dataset.url, content_md: md})
+  }).then(function(r){ return r.json(); }).then(function(d){
+    btn.disabled = false;
+    if(d.ok){ localStorage.setItem(k, '1'); toast('✓ 原文已存入 ima（[存档] 笔记）'); }
+    else if(d.done && d.done.length && String(d.done[0]).indexOf('跳过') >= 0){
+      localStorage.setItem(k, '1'); toast('原文已入库过（服务端去重）');
+    }else{
+      toast('入库失败：' + ((d.errors && d.errors[0]) || '').slice(0, 50));
+    }
+  }).catch(function(){
+    btn.disabled = false;
     toast('连不上本地同步服务，请先运行: python scripts/ima_sync.py');
   });
 }
@@ -1241,7 +1296,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<button data-d="-40">窄</button><button data-d="40">宽</button></span>'
              '<button class="pri" onclick="copyAll()">📋 复制全部批注</button>'
              '<button onclick="exportNotes()">📤 导出 .md</button>'
-             '<button onclick="saveToIma()" title="把有批注的文章直接写入 ima 知识库（需本地同步服务在跑）">☁ 存入 ima</button>'
+             '<button onclick="saveToIma()" title="把有划线批注的文章写入 ima（划线+批注成对保存）">🖍 批注入库</button>'
              '<button onclick="exportFeedback()" title="导出 👍/👎 标记，供推荐算法迭代">🎯 导出反馈</button>'
              '<span class="tip"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 存批注 · <kbd>Esc</kbd> 关闭</span>'
              '</div>')
@@ -1319,6 +1374,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         W.append('<div class="acts">'
                  '<button class="tg" onclick="toggleBody(this)">📖 展开正文</button>'
                  '<button class="hlbtn" onclick="openDrawer()">🖍 批注 <span class="hlcnt">0</span></button>'
+                 '<button class="docbtn" onclick="saveDocToIma(this)" title="整篇正文转 markdown 存入 ima 知识库（[存档] 笔记）">☁ 原文入库</button>'
                  '<button class="fb" data-fb="like" onclick="fbMark(this,\'like\')">👍 感兴趣</button>'
                  '<button class="fb" data-fb="dislike" onclick="fbMark(this,\'dislike\')">👎 不感兴趣</button>'
                  '<button class="tg backidx" onclick="backToGlance(this)" title="平滑滚回推荐速览">↑ 返回速览</button>'
@@ -1401,6 +1457,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         if has:
             W.append('<button onclick="toggleInline(this)">📖 展开正文</button>')
             W.append('<button onclick="openDrawer()">🖍 批注</button>')
+            W.append('<button class="docbtn" onclick="saveDocToIma(this)" title="整篇正文转 markdown 存入 ima（[存档] 笔记）">☁ 原文入库</button>')
         else:
             W.append('<span class="no">正文未取到</span>')
         W.append('<button class="fb" data-fb="like" onclick="fbMark(this,\'like\')">👍 感兴趣</button>'

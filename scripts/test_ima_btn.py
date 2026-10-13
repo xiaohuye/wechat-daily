@@ -23,9 +23,9 @@ def main():
         page = b.new_page()
         page.goto("file:///" + html.replace("\\", "/"))
 
-        # 1. 找到「存入 ima」按钮
-        btn = page.query_selector('button:has-text("☁ 存入 ima")')
-        check("页面存在「☁ 存入 ima」按钮", btn is not None)
+        # 1. 找到「批注入库」按钮
+        btn = page.query_selector('button:has-text("🖍 批注入库")')
+        check("页面存在「🖍 批注入库」按钮", btn is not None)
 
         # 2. 注入两条测试划线到 art-1（模拟用户划过线）
         key = page.eval_on_selector("#art-1", "e => e.dataset.key")
