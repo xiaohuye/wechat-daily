@@ -93,6 +93,65 @@ def main():
         clean = page.evaluate("() => Object.keys(localStorage).filter(k=>k.indexOf('wxfb::')===0).length")
         check("清理测试标记", clean == 0)
 
+        # 9. 分类 chip 过滤推荐视图（chips 是「主题」，按标题命中关键词过滤）
+        chips = page.query_selector_all(".theme-chip")
+        check("概览分类 chips 存在", len(chips) >= 3, f"{len(chips)} 个")
+        chips[0].click()
+        chip_name = chips[0].get_attribute("data-tname")
+        vis_g = page.eval_on_selector_all("#recView .gitem",
+            "els => els.filter(e => e.style.display !== 'none').length")
+        wrong_g = page.eval_on_selector_all("#recView .gitem",
+            f"els => els.filter(e => e.style.display !== 'none' && (',' + e.dataset.themes + ',').indexOf(',{chip_name},') < 0).length")
+        on_chip = page.eval_on_selector_all(".theme-chip.on", "els => els.length")
+        check("chip 主题过滤生效", vis_g > 0 and wrong_g == 0 and on_chip == 1,
+              f"「{chip_name}」: {vis_g} 篇命中")
+        # 再点取消
+        chips[0].click()
+        vis_all = page.eval_on_selector_all("#recView article",
+            "els => els.filter(e => e.style.display !== 'none').length")
+        off_chip = page.eval_on_selector_all(".theme-chip.on", "els => els.length")
+        check("再点取消过滤", vis_all == 29 and off_chip == 0, f"恢复 {vis_all} 篇")
+
+        # 10. 速览点击 → 自动展开正文 + flash 高亮
+        g1 = page.query_selector('#recView .gitem[data-rank="1"]')
+        g1.click()
+        page.wait_for_timeout(800)
+        is_open = page.eval_on_selector("#art-1", "e => e.classList.contains('open')")
+        is_flash = page.eval_on_selector('#recView .gitem[data-rank="1"]', "e => e.classList.contains('flash')")
+        check("速览点击自动展开正文", is_open and is_flash)
+
+        # 11. 滚过速览区 → backIdx 悬浮按钮出现
+        page.eval_on_selector("#art-5", "e => e.scrollIntoView()")
+        page.wait_for_timeout(400)
+        back_show = page.eval_on_selector("#backIdx", "e => e.classList.contains('show')")
+        check("backIdx 悬浮出现", back_show)
+        page.click("#backIdx")
+        page.wait_for_timeout(2200)
+        near_top = page.evaluate("() => document.querySelector('.glance').getBoundingClientRect().top")
+        check("点击 backIdx 滚回速览", -140 <= near_top <= 130, f"glance top={int(near_top)}")
+
+        # 12. article 内「返回速览」按钮
+        page.eval_on_selector("#art-8", "e => e.scrollIntoView()")
+        page.wait_for_timeout(300)
+        page.eval_on_selector("#art-8 .backidx", "e => e.click()")
+        page.wait_for_timeout(2200)
+        near_top2 = page.evaluate("() => document.querySelector('.glance').getBoundingClientRect().top")
+        check("卡内按钮返回速览", -140 <= near_top2 <= 130, f"glance top={int(near_top2)}")
+
+        # 13. 卡片 tag 点击 → 同分类过滤（与主题互斥）
+        page.eval_on_selector("#art-1 .tag", "e => e.click()")
+        hint_txt = page.eval_on_selector(".ghint", "e => e.textContent")
+        vis_tag = page.eval_on_selector_all("#recView article",
+            "els => els.filter(e => e.style.display !== 'none').length")
+        check("tag 分类过滤生效", vis_tag > 0 and vis_tag < 29 and hint_txt.find("分类「") >= 0,
+              f"{vis_tag} 篇, hint={hint_txt[:24]}")
+        # tag 与主题互斥：过滤状态下点主题 chip → 切到主题过滤
+        if len(chips) > 1:
+            chips[1].click()
+            page.wait_for_timeout(200)
+            hint_txt2 = page.eval_on_selector(".ghint", "e => e.textContent")
+            check("主题/分类过滤互斥", hint_txt2.find("主题「") >= 0, hint_txt2[:24])
+
         b.close()
 
     fails = [r for r in results if not r[1]]

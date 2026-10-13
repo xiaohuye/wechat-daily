@@ -69,9 +69,17 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 var(--ff);
   letter-spacing:.06em;color:var(--blue);background:var(--blue-soft);
   padding:4px 12px;border-radius:999px;margin-bottom:12px}
 .hero .eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blue)}
-h1.top{font-size:30px;font-weight:800;margin:0 0 8px;letter-spacing:-.02em;line-height:1.25}
-.subtop{color:var(--sub);font-size:13.5px;line-height:1.7}
+h1.top{font-size:30px;font-weight:800;margin:0 0 10px;letter-spacing:-.02em;line-height:1.25}
+.subtop{color:var(--sub);font-size:13.5px;line-height:1.7;margin:0 0 14px}
 .subtop b{color:var(--ink-2);font-weight:600}
+.hero .stats{display:flex;gap:12px;flex-wrap:wrap}
+.hero .stat{flex:1;min-width:130px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:12px 16px;box-shadow:var(--shadow-sm);
+  transition:transform .15s}
+.hero .stat:hover{transform:translateY(-2px)}
+.hero .stat b{display:block;font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.hero .stat span{font-size:12px;color:var(--sub)}
+.hero .stat.s1 b{color:var(--blue)} .hero .stat.s2 b{color:var(--red)} .hero .stat.s3 b{color:var(--amber)}
 
 /* ---------- 工具条 ---------- */
 .bar{position:sticky;top:14px;z-index:30;display:flex;gap:9px;flex-wrap:wrap;align-items:center;
@@ -98,8 +106,11 @@ h1.top{font-size:30px;font-weight:800;margin:0 0 8px;letter-spacing:-.02em;line-
 /* ---------- 概览/目录卡片 ---------- */
 .idx{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
      padding:18px 20px;margin-bottom:18px;box-shadow:var(--shadow-sm)}
-.idx h3{margin:0 0 11px;font-size:13px;color:var(--sub);font-weight:700;
-        letter-spacing:.05em;text-transform:uppercase}
+.idx h3{margin:0 0 13px;font-size:13px;color:var(--sub);font-weight:700;
+        letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.idx h3::before{content:"";width:4px;height:16px;border-radius:2px;
+        background:linear-gradient(180deg,var(--blue),#6f9bff);flex:none}
+.idx h3::after{content:"";flex:1;height:1px;background:var(--line)}
 .idx p{margin:0 0 12px;font-size:14.5px;line-height:1.75;color:var(--ink-2)}
 .idx ol{margin:0;padding-left:22px;counter-reset:x}
 .idx li{margin:5px 0;font-size:13.8px;line-height:1.6}
@@ -108,10 +119,14 @@ h1.top{font-size:30px;font-weight:800;margin:0 0 8px;letter-spacing:-.02em;line-
 .idx a:hover{color:var(--blue)}
 .idx .who{color:var(--sub);font-size:12px;margin-left:7px}
 .theme-chip{display:inline-flex;align-items:center;gap:6px;background:var(--blue-soft);
-     color:var(--blue-ink);border-radius:999px;padding:5px 13px;font-size:12.5px;
-     margin:0 8px 9px 0;transition:transform .15s}
-.theme-chip:hover{transform:translateY(-1px)}
+     color:var(--blue-ink);border-radius:999px;padding:6px 14px;font-size:12.5px;
+     margin:0 8px 9px 0;transition:all .15s;cursor:pointer;border:1px solid transparent;user-select:none}
+.theme-chip::after{content:"筛选 ⇵";font-size:10.5px;opacity:.55;margin-left:2px}
+.theme-chip:hover{transform:translateY(-1px);border-color:#c9d9ff;background:#e6eeff}
 .theme-chip b{font-weight:700}
+.theme-chip.on{background:var(--blue);color:#fff;border-color:var(--blue);
+     box-shadow:0 3px 10px rgba(47,111,237,.3)}
+.theme-chip.on::after{content:"✕ 清除";opacity:.9}
 
 /* ---------- 推荐速览（判断层） ---------- */
 .glance .ghint{font-size:11.5px;font-weight:500;color:var(--sub);letter-spacing:0;
@@ -123,7 +138,12 @@ h1.top{font-size:30px;font-weight:800;margin:0 0 8px;letter-spacing:-.02em;line-
 .gitem + .gitem{margin-top:2px}
 .grank{flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--blue),#6f9bff);
        color:#fff;font:700 13px/26px var(--ff);text-align:center;margin-top:1px}
+.gitem[data-rank="1"] .grank{background:linear-gradient(135deg,#f7a325,#e0820c);
+       box-shadow:0 2px 8px rgba(224,130,12,.35)}
+.gitem[data-rank="2"] .grank{background:linear-gradient(135deg,#8b97ad,#6d7d96)}
+.gitem[data-rank="3"] .grank{background:linear-gradient(135deg,#d2905c,#b8723f)}
 .gitem:nth-child(n+12) .grank{background:linear-gradient(135deg,#9aa7bd,#b8c3d6)}
+.gitem.flash{background:var(--blue-soft);border-color:var(--blue)}
 .gmain{flex:1;min-width:0}
 .gtitle{display:block;font-size:15px;font-weight:650;line-height:1.5;letter-spacing:-.005em}
 .gitem:hover .gtitle{color:var(--blue-ink)}
@@ -135,22 +155,28 @@ h1.top{font-size:30px;font-weight:800;margin:0 0 8px;letter-spacing:-.02em;line-
 
 /* ---------- 文章卡片 ---------- */
 article{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
-        padding:24px 26px;margin-bottom:20px;scroll-margin-top:86px;
+        padding:0;margin-bottom:22px;scroll-margin-top:96px;overflow:hidden;
         box-shadow:var(--shadow-sm);transition:box-shadow .25s ease,transform .25s ease}
 article:hover{box-shadow:var(--shadow-md)}
-article.open{box-shadow:var(--shadow-md)}
-article .head{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-bottom:13px}
-.rank{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;
+article.open{box-shadow:var(--shadow-md);border-color:#cfdcf5}
+article.open::before{content:"";display:block;height:3px;
+        background:linear-gradient(90deg,var(--blue),#6f9bff 45%,transparent)}
+article .head{display:flex;gap:11px;align-items:center;flex-wrap:wrap;padding:15px 26px;
+        margin-bottom:0;background:#f8fafd;border-bottom:1px solid var(--line)}
+article .head .meta{margin-left:auto}
+article .abody{padding:20px 26px 24px}
+.rank{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;
       background:linear-gradient(135deg,#f0565f,var(--red));color:#fff;border-radius:9px;
-      font-size:13.5px;font-weight:800;padding:0 8px;box-shadow:0 3px 8px rgba(225,77,90,.3);
+      font-size:14px;font-weight:800;padding:0 9px;box-shadow:0 3px 8px rgba(225,77,90,.3);
       letter-spacing:.01em}
 .acc{font-weight:700;font-size:14.5px;letter-spacing:.01em}
 .tag{font-size:11.5px;color:var(--sub);border:1px solid var(--line-2);border-radius:6px;
-     padding:2px 9px;background:#fafafa;transition:.15s}
+     padding:2px 9px;background:#fff;transition:.15s;cursor:pointer}
+.tag:hover{border-color:var(--blue);color:var(--blue)}
 .meta{margin-left:auto;color:var(--sub);font-size:12.5px;white-space:nowrap;
       display:flex;align-items:center;gap:6px}
 .meta .dot{width:3px;height:3px;border-radius:50%;background:var(--line-2)}
-.meta b{color:var(--blue);font-weight:700}
+.meta b{color:var(--blue);font-weight:700;background:var(--blue-soft);border-radius:6px;padding:1px 8px}
 article h2{font-size:22px;line-height:1.4;margin:4px 0 14px;font-weight:800;
            letter-spacing:-.01em;color:var(--ink)}
 article h2::after{content:"";display:block;width:44px;height:3px;margin-top:12px;
@@ -373,8 +399,19 @@ article .acts .fb{padding:9px 14px;font-size:13px}
 .alist li.expanded .inline-read{display:block}
 /* 全部视图里的正文沿用 paper 样式 */
 #allView .paper{max-width:100%;padding:24px 26px;font-size:16px}
-#totop.show{display:flex}
+/* ---------- 右下角悬浮按钮组 ---------- */
+#totop,#backIdx{position:fixed;right:26px;z-index:90;width:44px;height:44px;border-radius:13px;
+     display:none;align-items:center;justify-content:center;cursor:pointer;
+     border:1px solid var(--line-2);background:var(--card);color:var(--ink-2);
+     font:700 15px/1 var(--ff);box-shadow:var(--shadow-md);transition:all .18s;user-select:none}
+#totop{bottom:86px}
+#backIdx{bottom:140px;width:auto;padding:0 15px;height:40px;font-size:13px;border-radius:999px;
+     background:var(--blue);border-color:var(--blue);color:#fff;gap:5px}
+#backIdx::before{content:"☰"}
+#totop.show,#backIdx.show{display:flex;animation:fadeIn .25s ease}
 #totop:hover{background:var(--blue);color:#fff;border-color:var(--blue);transform:translateY(-3px)}
+#backIdx:hover{background:#2559c9;transform:translateY(-3px);box-shadow:0 6px 18px rgba(47,111,237,.4)}
+body.mode-all #backIdx.show{display:none}
 
 /* 响应式 */
 @media (max-width:680px){
@@ -382,9 +419,12 @@ article .acts .fb{padding:9px 14px;font-size:13px}
   h1.top{font-size:25px}
   .bar{top:8px;padding:9px 10px}
   .tip{display:none}
-  article{padding:19px 18px}
+  article .head{padding:12px 16px;gap:8px}
+  article .abody{padding:15px 16px 20px}
   .paper{padding:22px 20px;font-size:16px}
   .meta{margin-left:0;width:100%;justify-content:flex-start}
+  #backIdx{right:16px;bottom:128px}
+  #totop{right:16px;bottom:78px}
 }
 """
 
@@ -410,17 +450,25 @@ function allUnits(){ return $$('article[data-key], #alist > li[data-key]'); }
 
 /* ---------------- 阅读进度 + 回顶 ---------------- */
 function bindScroll(){
-  const pbar = $('#pbar'), totop = $('#totop');
+  const pbar = $('#pbar'), totop = $('#totop'), backIdx = $('#backIdx');
   function upd(){
     const h = document.documentElement;
     const max = h.scrollHeight - h.clientHeight;
     const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
     pbar.style.width = pct + '%';
     totop.classList.toggle('show', h.scrollTop > 600);
+    /* 推荐视图 + 已滚过速览区 → 显示「返回速览」悬浮按钮 */
+    const gl = $('.glance');
+    if(backIdx && gl){
+      const past = gl.getBoundingClientRect().bottom < -40;
+      backIdx.classList.toggle('show',
+        past && !document.body.classList.contains('mode-all'));
+    }
   }
   window.addEventListener('scroll', upd, {passive:true});
   upd();
   totop.addEventListener('click', ()=>window.scrollTo({top:0, behavior:'smooth'}));
+  if(backIdx) backIdx.addEventListener('click', backToGlance);
 }
 
 /* ---------------- 字号调节 ---------------- */
@@ -838,6 +886,57 @@ function setView(v){
   window.scrollTo({top:0, behavior:'smooth'});
   if(all){ renderDrawer($('#dsearch') ? $('#dsearch').value : ''); }
   else{ applyAll(); renderDrawer($('#dsearch') ? $('#dsearch').value : ''); }
+  updBackBtn();
+}
+function updBackBtn(){
+  const backIdx = $('#backIdx');
+  if(backIdx) backIdx.classList.toggle('show',
+    !document.body.classList.contains('mode-all') && backIdx.classList.contains('show'));
+}
+
+/* ---------------- 推荐视图：主题 / 分类 过滤（互斥） ---------------- */
+let recFilter = {kind:'', val:''};   /* kind: '' | 'theme' | 'type' */
+function setRecFilter(kind, val){
+  if(recFilter.kind === kind && recFilter.val === val){ kind=''; val=''; }   /* 再点取消 */
+  recFilter = {kind:kind, val:val};
+  $$('.theme-chip').forEach(c=>c.classList.toggle('on',
+    kind==='theme' && c.dataset.tname === val));
+  let shown = 0;
+  $$('#recView .gitem').forEach(function(g){
+    const hit = !kind
+      || (kind==='theme' ? (',' + g.dataset.themes + ',').indexOf(',' + val + ',') >= 0
+                         : g.dataset.type === val);
+    g.style.display = hit ? '' : 'none';
+    if(hit) shown++;
+  });
+  $$('#recView article').forEach(function(a){
+    const hit = !kind
+      || (kind==='theme' ? (',' + a.dataset.themes + ',').indexOf(',' + val + ',') >= 0
+                         : a.dataset.type === val);
+    a.style.display = hit ? '' : 'none';
+  });
+  const hint = $('.ghint');
+  if(hint) hint.textContent = kind
+    ? ((kind==='theme' ? '主题「' : '分类「') + val + '」· ' + shown + ' 篇 · 再点一次取消')
+    : '先看理由，点感兴趣的直接读（自动展开正文）';
+}
+function filterTheme(chip, name){ setRecFilter('theme', name); }
+function filterType(tag, t){ setRecFilter('type', t); }
+function backToGlance(){
+  const gl = $('.glance');
+  if(gl) window.scrollTo({top: Math.max(0, gl.offsetTop - 96), behavior:'smooth'});   /* 96 = sticky bar 预留 */
+}
+/* 速览点击 → 跳转 + 自动展开正文 + 高亮 */
+function gotoArt(i, ev){
+  if(ev && (ev.ctrlKey || ev.metaKey || ev.shiftKey)) return; /* 修饰键=原生锚点行为 */
+  if(ev) ev.preventDefault();
+  const art = $('#art-' + i);
+  if(!art || art.style.display === 'none') return;
+  openArt(art);
+  art.scrollIntoView({behavior:'smooth', block:'start'});
+  $$('#recView .gitem').forEach(g=>g.classList.remove('flash'));
+  const g = $('.gitem[data-rank="' + i + '"]');
+  if(g) g.classList.add('flash');
 }
 function toggleInline(btn){
   const li = btn.closest('li');
@@ -1063,9 +1162,13 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<body><div id="pbar"></div><div class="wrap">')
     W.append('<div class="hero"><span class="eyebrow">公众号精读</span>'
              f'<h1 class="top">今日推荐 · 可读可批注</h1>'
-             f'<div class="subtop">生成 <b>{esc(gen)}</b> ｜ 推荐 <b>{len(arts)}</b> 篇'
-             f' ｜ 今日更新 <b>{n_total}</b> 篇（<b>{n_full}</b> 篇已取到全文）'
-             '<br>正文已内嵌，点「📖 展开正文」直接读；<b>选中句子</b>即可划线批注或求解释。</div></div>')
+             f'<div class="subtop">生成 <b>{esc(gen)}</b> ｜ 正文已内嵌，点「📖 展开正文」直接读；'
+             '<b>选中句子</b>即可划线批注或求解释。</div>'
+             f'<div class="stats">'
+             f'<div class="stat s1"><b>{len(arts)}</b><span>今日推荐</span></div>'
+             f'<div class="stat s2"><b>{n_total}</b><span>今日更新</span></div>'
+             f'<div class="stat s3"><b>{n_full}</b><span>已取到全文</span></div>'
+             '</div></div>')
 
     W.append('<div class="bar">'
              '<span class="viewtabs">'
@@ -1092,7 +1195,9 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
             W.append(f'<p>{esc(overview)}</p>')
         if themes:
             W.append('<div>' + "".join(
-                f'<span class="theme-chip"><b>{esc(t.get("name"))}</b>·{esc(t.get("desc"))}</span>'
+                f'<span class="theme-chip" data-tname="{esc(t.get("name"))}" '
+                f'onclick="filterTheme(this,\'{esc(t.get("name"))}\')">'
+                f'<b>{esc(t.get("name"))}</b>·{esc(t.get("desc"))}</span>'
                 for t in themes) + '</div>')
         W.append('</div>')
 
@@ -1110,16 +1215,21 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
             stat = f"阅读 {v['read_num']}"
             if v.get("like_num"):
                 stat += f" / 赞 {v['like_num']}"
-        calc[k] = (m.get("_type", ""), m.get("_score"), reason_txt, stat)
+        # 命中主题（概览 chips 过滤用）：标题+摘要按各主题关键词匹配
+        low = ((v.get("title") or "") + " " + (v.get("digest") or "")).lower()
+        hit_themes = ",".join(t["name"] for t in themes
+                              if any(kw in low for kw in (t.get("kws") or [])))
+        calc[k] = (m.get("_type", ""), m.get("_score"), reason_txt, stat, hit_themes)
 
     # ---------- 推荐速览（判断层）：理由前置，快速扫读决定读哪篇 ----------
-    W.append('<div class="idx glance"><h3>推荐速览 <span class="ghint">先看理由，点感兴趣的直接读</span></h3>')
+    W.append('<div class="idx glance"><h3>推荐速览 <span class="ghint">先看理由，点感兴趣的直接读（自动展开正文）</span></h3>')
     for i, (k, v) in enumerate(arts, 1):
         if not v.get("content_html"):
             continue
-        typ, score, reason_txt, stat = calc[k]
+        typ, score, reason_txt, stat, hts = calc[k]
         fallback = (v.get("digest") or "")[:60]
-        W.append(f'<a class="gitem" href="#art-{i}" data-gkey="{esc(k)}">'
+        W.append(f'<a class="gitem" href="#art-{i}" data-rank="{i}" data-gkey="{esc(k)}" '
+                 f'data-type="{esc(typ)}" data-themes="{esc(hts)}" onclick="gotoArt({i}, event)">'
                  f'<span class="grank">{i}</span>'
                  f'<span class="gmain">'
                  f'<span class="gtitle">{esc(v.get("title") or k)}</span>'
@@ -1134,19 +1244,22 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         body = v.get("content_html") or ""
         if not body:
             continue
-        typ, score, reason_txt, stat = calc[k]
+        typ, score, reason_txt, stat, hts = calc[k]
         inner_id = v.get("internal_id") or ""
         rlink = f"https://weread.qq.com/web/mp/reader/{inner_id}" if inner_id else ""
 
         W.append(f'<article id="art-{i}" data-key="{esc(k)}" data-rank="{i}" '
                  f'data-account="{esc(v.get("account"))}" data-title="{esc(v.get("title"))}" '
-                 f'data-time="{esc(v.get("time"))}" data-read="{esc(stat)}" data-url="{esc(rlink)}">')
+                 f'data-time="{esc(v.get("time"))}" data-type="{esc(typ)}" data-themes="{esc(hts)}" '
+                 f'data-read="{esc(stat)}" data-url="{esc(rlink)}">')
         W.append('<div class="head">'
                  f'<span class="rank">{i}</span><span class="acc">{esc(v.get("account"))}</span>'
-                 f'<span class="tag">{esc(typ or "未分类")}</span>'
+                 f'<span class="tag" onclick="filterType(this,\'{esc(typ or "未分类")}\')" '
+                 f'title="点此只看该分类的文章">{esc(typ or "未分类")}</span>'
                  f'<span class="meta">{esc(v.get("time"))}'
                  + (f'<span class="dot"></span>{esc(stat)}' if stat else '')
                  + (f'<span class="dot"></span><b>评分 {score}</b>' if score else '') + '</span></div>')
+        W.append('<div class="abody">')
         W.append(f'<h2>{esc(v.get("title"))}</h2>')
         if reason_txt:
             W.append(f'<div class="reasons">为什么推给你：{esc(reason_txt)}</div>')
@@ -1157,6 +1270,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
                  '<button class="hlbtn" onclick="openDrawer()">🖍 批注 <span class="hlcnt">0</span></button>'
                  '<button class="fb" data-fb="like" onclick="fbMark(this,\'like\')">👍 感兴趣</button>'
                  '<button class="fb" data-fb="dislike" onclick="fbMark(this,\'dislike\')">👎 不感兴趣</button>'
+                 '<button class="tg backidx" onclick="backToGlance(this)" title="平滑滚回推荐速览">↑ 返回速览</button>'
                  '</div>')
         W.append('<div class="read"><div class="paper">')
         W.append(body)
@@ -1165,7 +1279,8 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
                  '<div class="hlhd">🖍 本篇划线批注 <span class="cnt">0</span> 条</div>'
                  '<div class="hlempty">在正文里选中任意句子，即可划线、写批注或求解释。</div>'
                  '<ol class="hllist"></ol></div>')
-        W.append('</div>')
+        W.append('</div>')   # /read
+        W.append('</div>')   # /abody
         W.append('</article>')
     W.append('</div>')  # /recView
 
@@ -1253,6 +1368,8 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
 
     # 浮层组件
     W.append('<div id="selbar" class="selbar" hidden></div>')
+    W.append('<div id="backIdx" title="返回推荐速览">速览</div>')
+    W.append('<div id="totop" title="回到顶部">↑</div>')
     W.append('<div id="mask" class="mask" hidden></div>')
     W.append('<div id="editor" class="editor" hidden>'
              '<div class="qh">选中的句子</div>'
@@ -1269,7 +1386,6 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<div id="dstat" class="dstat"></div>'
              '<div class="dlist" id="dlist"></div></div>')
 
-    W.append('<div id="totop" title="回到顶部">↑</div>')
     W.append('<footer>'
              f'数据来源 {esc(d.get("source", "微信读书 /web/mp/content"))} · 正文由 WorkBuddy 内嵌，无需跳转<br>'
              '划线批注自动保存在本地浏览器 · 点「📋 复制全部批注」粘到对话，即可与原文一起存入 ima 知识库'

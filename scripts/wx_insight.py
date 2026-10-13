@@ -98,8 +98,8 @@ def main():
         for name, kws, _ in THEME_RULES:
             if any(k in low for k in kws):
                 cnt[name] += 1
-    themes = [{"name": n, "desc": f"{c} 篇 · {desc}"}
-              for (n, _, desc), c in
+    themes = [{"name": n, "desc": f"{c} 篇 · {desc}", "kws": list(kws)}
+              for (n, kws, desc), c in
               sorted(((rule, cnt[rule[0]]) for rule in THEME_RULES), key=lambda x: -x[1])
               if c > 0][:6]
 
