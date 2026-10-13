@@ -1148,6 +1148,32 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
     n_full = sum(1 for a in listing if a.get("_full", {}).get("content_html"))
     n_total = len(listing)
 
+    # 预计算每篇的推荐理由 / 阅读数据 / 命中主题（速览与卡片共用，保证两处一致）
+    calc = {}
+    for k, v in arts:
+        m = meta.get(k, {})
+        reasons = m.get("_reasons") or []
+        keep = [r for r in reasons if "类型高度贴合" not in r]
+        reason_txt = "；".join(keep) if keep else ""
+        if not reason_txt:
+            reason_txt = (imeta.get(k, {}) or {}).get("reason", "").split("｜")[0]
+        stat = ""
+        if v.get("read_num"):
+            stat = f"阅读 {v['read_num']}"
+            if v.get("like_num"):
+                stat += f" / 赞 {v['like_num']}"
+        # 命中主题（概览 chips 过滤用）：标题+摘要按各主题关键词匹配
+        low = ((v.get("title") or "") + " " + (v.get("digest") or "")).lower()
+        hit_list = [t["name"] for t in themes
+                    if any(kw in low for kw in (t.get("kws") or []))]
+        calc[k] = (m.get("_type", ""), m.get("_score"), reason_txt, stat, ",".join(hit_list))
+    # 各主题在「推荐列表」内的命中数（chips 口径 = 点击后的实际过滤数，与全量口径分开标注）
+    rec_theme_cnt = {}
+    for c in calc.values():
+        for tn in (c[4] or "").split(","):
+            if tn:
+                rec_theme_cnt[tn] = rec_theme_cnt.get(tn, 0) + 1
+
     stamp_raw = os.path.basename(full_file).split("articles-full-weread-")[-1].replace(".json", "")
     try:
         dt = datetime.datetime.strptime(stamp_raw, "%Y-%m-%d-%H%M")
@@ -1194,32 +1220,24 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         if overview:
             W.append(f'<p>{esc(overview)}</p>')
         if themes:
-            W.append('<div>' + "".join(
-                f'<span class="theme-chip" data-tname="{esc(t.get("name"))}" '
-                f'onclick="filterTheme(this,\'{esc(t.get("name"))}\')">'
-                f'<b>{esc(t.get("name"))}</b>·{esc(t.get("desc"))}</span>'
-                for t in themes) + '</div>')
+            chips_html = []
+            for t in themes:
+                nm = t.get("name") or ""
+                # insights 的 desc 是全量口径（如「6 篇 · 多模态内容生产」）；
+                # chips 上的可点击过滤只作用于推荐列表，两口径分开标注避免误导
+                m_desc = re.match(r"(\d+)\s*篇\s*·\s*(.+)", t.get("desc") or "")
+                desc_txt = m_desc.group(2) if m_desc else (t.get("desc") or "")
+                total_n = m_desc.group(1) if m_desc else "—"
+                rec_n = rec_theme_cnt.get(nm, 0)
+                chips_html.append(
+                    f'<span class="theme-chip" data-tname="{esc(nm)}" '
+                    f'onclick="filterTheme(this,\'{esc(nm)}\')" '
+                    f'title="今日全量 {total_n} 篇命中；点此在推荐列表内过滤（推荐 {rec_n} 篇）">'
+                    f'<b>{esc(nm)}</b>·{esc(desc_txt)}·推荐 {rec_n}'
+                    + (f'/今日 {total_n}' if str(rec_n) != total_n else '')
+                    + '</span>')
+            W.append('<div>' + "".join(chips_html) + '</div>')
         W.append('</div>')
-
-    # 预计算每篇的推荐理由 / 阅读数据（速览与卡片共用，保证两处一致）
-    calc = {}
-    for k, v in arts:
-        m = meta.get(k, {})
-        reasons = m.get("_reasons") or []
-        keep = [r for r in reasons if "类型高度贴合" not in r]
-        reason_txt = "；".join(keep) if keep else ""
-        if not reason_txt:
-            reason_txt = (imeta.get(k, {}) or {}).get("reason", "").split("｜")[0]
-        stat = ""
-        if v.get("read_num"):
-            stat = f"阅读 {v['read_num']}"
-            if v.get("like_num"):
-                stat += f" / 赞 {v['like_num']}"
-        # 命中主题（概览 chips 过滤用）：标题+摘要按各主题关键词匹配
-        low = ((v.get("title") or "") + " " + (v.get("digest") or "")).lower()
-        hit_themes = ",".join(t["name"] for t in themes
-                              if any(kw in low for kw in (t.get("kws") or [])))
-        calc[k] = (m.get("_type", ""), m.get("_score"), reason_txt, stat, hit_themes)
 
     # ---------- 推荐速览（判断层）：理由前置，快速扫读决定读哪篇 ----------
     W.append('<div class="idx glance"><h3>推荐速览 <span class="ghint">先看理由，点感兴趣的直接读（自动展开正文）</span></h3>')
@@ -1363,7 +1381,10 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
 
     if d.get("failed"):
         names = "、".join(esc(f.get("key", "").split("|")[0]) for f in d["failed"])
-        W.append(f'<div class="idx"><h3>未取到正文（可在微信读书里搜标题阅读）</h3>'
+        W.append('<div class="idx"><h3>未取到正文 · 微信读书侧原文不可读</h3>'
+                 '<p style="margin:0 0 8px;font-size:13px;color:var(--sub)">'
+                 '这些条目经核实：微信读书自己的阅读页同样「加载失败」——多为作者已删除 / 平台下架，'
+                 '或本就不是标准图文（活动预约贴、裂变海报等短内容），并非抓取故障。</p>'
                  f'<p style="margin:0">{names}</p></div>')
 
     # 浮层组件
