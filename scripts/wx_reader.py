@@ -113,6 +113,26 @@ h1.top{font-size:30px;font-weight:800;margin:0 0 8px;letter-spacing:-.02em;line-
 .theme-chip:hover{transform:translateY(-1px)}
 .theme-chip b{font-weight:700}
 
+/* ---------- 推荐速览（判断层） ---------- */
+.glance .ghint{font-size:11.5px;font-weight:500;color:var(--sub);letter-spacing:0;
+             text-transform:none;margin-left:6px}
+.gitem{display:flex;gap:13px;align-items:flex-start;padding:13px 12px;border-radius:var(--r-md);
+       text-decoration:none;color:var(--ink);border:1px solid transparent;
+       transition:background .15s,border-color .15s}
+.gitem:hover{background:var(--blue-soft);border-color:#e3ecff}
+.gitem + .gitem{margin-top:2px}
+.grank{flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--blue),#6f9bff);
+       color:#fff;font:700 13px/26px var(--ff);text-align:center;margin-top:1px}
+.gitem:nth-child(n+12) .grank{background:linear-gradient(135deg,#9aa7bd,#b8c3d6)}
+.gmain{flex:1;min-width:0}
+.gtitle{display:block;font-size:15px;font-weight:650;line-height:1.5;letter-spacing:-.005em}
+.gitem:hover .gtitle{color:var(--blue-ink)}
+.gmeta{display:block;margin-top:3px;font-size:12px;color:var(--sub);
+       white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.greason{display:block;margin-top:6px;font-size:13px;line-height:1.6;color:var(--blue-ink);
+         background:#f4f8ff;border-left:3px solid var(--blue);border-radius:0 6px 6px 0;
+         padding:6px 10px}
+
 /* ---------- 文章卡片 ---------- */
 article{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
         padding:24px 26px;margin-bottom:20px;scroll-margin-top:86px;
@@ -301,11 +321,50 @@ footer{color:var(--sub);font-size:12.5px;text-align:center;margin-top:34px;line-
        max-width:88vw;text-align:center;line-height:1.65;box-shadow:var(--shadow-lg)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* 回到顶部 */
-#totop{position:fixed;right:26px;bottom:30px;z-index:60;width:44px;height:44px;border-radius:50%;
-     background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow-md);
-     color:var(--ink-2);font-size:19px;cursor:pointer;display:none;align-items:center;
-     justify-content:center;transition:all .2s}
+/* 视图切换 */
+.viewtabs{display:inline-flex;gap:3px;background:#eef0f3;border-radius:10px;padding:4px;margin-right:4px}
+.viewtabs button{border:0;background:transparent;font:600 13px/1 var(--ff);color:var(--ink-2);
+     padding:8px 14px;border-radius:7px;cursor:pointer;transition:.16s}
+.viewtabs button.on{background:#fff;color:var(--blue);box-shadow:var(--shadow-sm)}
+.viewtabs button:hover{color:var(--blue)}
+.viewtabs .n{font-size:11px;color:var(--sub);margin-left:4px}
+.viewtabs button.on .n{color:var(--blue);opacity:.75}
+#allView{display:none}
+body.mode-all #recView{display:none}
+body.mode-all #allView{display:block}
+#allView .abody{font-size:16.5px}
+#allView .paper{margin-top:12px}
+.accbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0 18px;
+     background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
+     padding:11px 14px;box-shadow:var(--shadow-sm)}
+.accbar select{flex:1;min-width:180px;font:13.5px/1 var(--ff);border:1px solid var(--line);
+     border-radius:var(--r-sm);padding:9px 11px;background:#fafbfc;color:var(--ink);
+     cursor:pointer;transition:.15s}
+.accbar select:focus{outline:none;border-color:var(--blue);background:#fff;
+     box-shadow:0 0 0 3px rgba(47,111,237,.12)}
+.accbar .cinfo{font-size:12.5px;color:var(--sub);margin-left:auto}
+.alist{margin:0;padding:0;list-style:none}
+.alist li{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
+     padding:14px 17px;margin-bottom:9px;transition:all .18s;box-shadow:var(--shadow-sm)}
+.alist li:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.alist .at{font-size:16px;font-weight:700;color:var(--ink);line-height:1.5;margin-bottom:7px;
+     display:block;text-decoration:none}
+.alist .at:hover{color:var(--blue)}
+.alist .am{display:flex;gap:9px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--sub)}
+.alist .am .aacc{font-weight:700;color:var(--ink-2)}
+.alist .am .sep{width:3px;height:3px;border-radius:50%;background:var(--line-2)}
+.alist .dg{font-size:13.5px;color:#4a4f57;line-height:1.65;margin:7px 0 0}
+.alist .ops{margin-top:9px;display:flex;gap:9px;flex-wrap:wrap}
+.alist .ops button{font:600 12.5px/1 inherit;border:1px solid var(--line);background:#fff;
+     border-radius:8px;padding:7px 13px;cursor:pointer;color:var(--ink-2);transition:.16s}
+.alist .ops button:hover{border-color:var(--blue);color:var(--blue)}
+.alist .ops button.open{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
+.alist .ops .no{color:#b0b5bd;cursor:default;border-style:dashed}
+.alist .ops .no:hover{border-color:var(--line);color:#b0b5bd}
+.alist .inline-read{display:none;margin-top:13px;padding-top:13px;border-top:1px dashed var(--line-2)}
+.alist li.expanded .inline-read{display:block}
+/* 全部视图里的正文沿用 paper 样式 */
+#allView .paper{max-width:100%;padding:24px 26px;font-size:16px}
 #totop.show{display:flex}
 #totop:hover{background:var(--blue);color:#fff;border-color:var(--blue);transform:translateY(-3px)}
 
@@ -337,7 +396,9 @@ function toast(msg){
   t.textContent = msg; t.classList.add('show');
   clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2200);
 }
-function artByKey(k){ return $$('article[data-key]').find(a=>a.dataset.key===k); }
+function artByKey(k){ return $$('article[data-key], #alist > li[data-key]').find(a=>a.dataset.key===k); }
+/* 所有承载正文的可批注单元（推荐视图的 article + 全部视图的 li） */
+function allUnits(){ return $$('article[data-key], #alist > li[data-key]'); }
 
 /* ---------------- 阅读进度 + 回顶 ---------------- */
 function bindScroll(){
@@ -437,7 +498,7 @@ function applyHighlights(key){
   list.forEach(h=> markRange(root, h.start, h.end, h.id, !!(h.note && h.note.trim())));
 }
 function applyAll(){
-  $$('article[data-key]').forEach(a=>{ if(loadHL(a.dataset.key).length) applyHighlights(a.dataset.key); });
+  allUnits().forEach(a=>{ if(loadHL(a.dataset.key).length) applyHighlights(a.dataset.key); });
 }
 
 /* ---------------- 选区 ---------------- */
@@ -448,7 +509,7 @@ function readSel(){
   if(!sel || sel.isCollapsed || !sel.rangeCount) return null;
   const r = sel.getRangeAt(0);
   let root = null;
-  $$('article[data-key]').forEach(function(a){
+  allUnits().forEach(function(a){
     const p = $('.paper', a);
     if(p && p.contains(r.startContainer) && p.contains(r.endContainer)) root = p;
   });
@@ -458,7 +519,7 @@ function readSel(){
   if(s < 0 || e < 0 || e <= s) return null;
   const text = root.textContent.slice(s, e).trim();
   if(text.length < 2 || text.length > 1200) return null;
-  const art = root.closest('article');
+  const art = root.closest('article[data-key]') || root.closest('#alist > li[data-key]');
   return {key: art.dataset.key, start:s, end:e, text:text, rect:r.getBoundingClientRect()};
 }
 
@@ -542,8 +603,9 @@ function renderPanel(key){
 function renderDrawer(filter){
   const box = $('#dlist'); if(!box) return;
   const q = (filter || '').trim().toLowerCase();
-  let total = 0, groups = 0, html = '';
-  $$('article[data-key]').forEach(function(art){
+  let total = 0, groups = 0, html = ''; const seen = {};
+  allUnits().forEach(function(art){
+    if(seen[art.dataset.key]) return; seen[art.dataset.key] = 1;
     const list = loadHL(art.dataset.key).slice().sort((a,b)=>a.start - b.start);
     const hits = list.filter(h=> !q ||
       (h.text + ' ' + (h.note||'')).toLowerCase().indexOf(q) >= 0);
@@ -616,8 +678,9 @@ function askExplain(text, akey, start, end){
 
 /* ---------------- 导出 ---------------- */
 function collect(){
-  const items = [];
-  $$('article[data-key]').forEach(function(art){
+  const items = []; const seen = {};
+  allUnits().forEach(function(art){
+    if(seen[art.dataset.key]) return; seen[art.dataset.key] = 1;
     const list = loadHL(art.dataset.key).slice().sort((a,b)=>a.start - b.start);
     if(list.length) items.push({art:art, list:list});
   });
@@ -672,13 +735,25 @@ function openArt(art){
 }
 function toggleBody(btn){
   const art = btn.closest('article');
+  if(!art) return;
   if(art.classList.contains('open')){
     art.classList.remove('open');
     btn.textContent = '📖 展开正文'; btn.classList.remove('on');
   }else{ openArt(art); }
 }
 function toggleAll(){
-  const arts = $$('article');
+  // 当前视图内生效
+  if(document.body.classList.contains('mode-all')){
+    const lis = $$('#alist > li').filter(li=> $('.inline-read', li));
+    const anyClosed = lis.some(li=>!li.classList.contains('expanded'));
+    lis.forEach(function(li){
+      li.classList.toggle('expanded', anyClosed);
+      const b = $('.ops button', li);
+      if(b && b.textContent.indexOf('正文') >= 0) b.textContent = anyClosed ? '📖 收起正文' : '📖 展开正文';
+    });
+    return;
+  }
+  const arts = $$('#recView article');
   const anyClosed = arts.some(a=>!a.classList.contains('open'));
   arts.forEach(function(a){
     if(anyClosed){ openArt(a); }
@@ -688,6 +763,49 @@ function toggleAll(){
       if(b){ b.textContent = '📖 展开正文'; b.classList.remove('on'); }
     }
   });
+}
+
+/* ---------------- 视图切换 ---------------- */
+function setView(v){
+  const all = v === 'all';
+  document.body.classList.toggle('mode-all', all);
+  $('#tabRec').classList.toggle('on', !all);
+  $('#tabAll').classList.toggle('on', all);
+  localStorage.setItem('wxview', v);
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(all){ renderDrawer($('#dsearch') ? $('#dsearch').value : ''); }
+  else{ applyAll(); renderDrawer($('#dsearch') ? $('#dsearch').value : ''); }
+}
+function toggleInline(btn){
+  const li = btn.closest('li');
+  li.classList.toggle('expanded');
+  btn.textContent = li.classList.contains('expanded') ? '📖 收起正文' : '📖 展开正文';
+  if(li.classList.contains('expanded')){
+    const k = li.dataset.key;
+    if(loadHL(k).length) applyHighlights(k);
+  }
+}
+function toggleAllInline(){
+  const lis = $$('#alist > li').filter(li=> $('.inline-read', li));
+  const anyClosed = lis.some(li=>!li.classList.contains('expanded'));
+  lis.forEach(function(li){
+    li.classList.toggle('expanded', anyClosed);
+    const b = $('.ops button', li);
+    if(b && b.textContent.indexOf('正文') >= 0) b.textContent = anyClosed ? '📖 收起正文' : '📖 展开正文';
+    if(anyClosed && loadHL(li.dataset.key).length) applyHighlights(li.dataset.key);
+  });
+  toast(anyClosed ? ('已展开 ' + lis.length + ' 篇') : '已收起');
+}
+function filterAll(){
+  const v = $('#accFilter').value;
+  let shown = 0;
+  $$('#alist > li').forEach(function(li){
+    const hit = !v || li.dataset.acc === v;
+    li.style.display = hit ? '' : 'none';
+    if(hit) shown++;
+  });
+  const info = $('#acInfo');
+  if(info) info.textContent = v ? (v + '：' + shown + ' 篇') : ('共 ' + shown + ' 篇');
 }
 
 /* ---------------- 事件 ---------------- */
@@ -707,7 +825,7 @@ document.addEventListener('click', function(e){
 
   const mk = e.target.closest ? e.target.closest('mark.hl') : null;
   if(mk){
-    const art = mk.closest('article');
+    const art = mk.closest('article[data-key]') || mk.closest('#alist > li[data-key]');
     const r = mk.getBoundingClientRect();
     curSel = null;
     showBar(r, 'edit', mk.dataset.hlid);
@@ -716,7 +834,7 @@ document.addEventListener('click', function(e){
   }
   const li = e.target.closest ? e.target.closest('.hllist li') : null;
   if(li){
-    const art = li.closest('article');
+    const art = li.closest('article[data-key]') || li.closest('#alist > li[data-key]');
     curArtKey = art.dataset.key;
     if(e.target.dataset.a === 'ask'){
       const h = loadHL(curArtKey).find(x=>x.id === li.dataset.hlid);
@@ -787,16 +905,19 @@ $('#fss').addEventListener('click', function(e){
 document.addEventListener('DOMContentLoaded', function(){
   bindScroll();
   restoreView();
-  $$('article[data-key]').forEach(a=>renderPanel(a.dataset.key));
+  $$('#recView article[data-key]').forEach(a=>renderPanel(a.dataset.key));
   renderDrawer('');
   applyAll();
+  const v = localStorage.getItem('wxview');
+  if(v === 'all') setView('all');
 });
 """
 
 
 def build(full_file, rank_file, top, insights_file=None, articles_file=None):
     d = json.load(open(full_file, encoding="utf-8"))
-    arts = list(d.get("articles", {}).items())[:top]
+    allmap = d.get("articles", {})           # 全量（含正文的）
+    arts = list(allmap.items())[:top]        # 推荐区（前 top 篇）
 
     meta = {}
     if rank_file and os.path.exists(rank_file):
@@ -804,6 +925,14 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         for a in rk.get("top", []):
             k = f"{a.get('account','')}|{a.get('title','')}"
             meta[k] = a
+        # 推荐顺序：按 ranked 的 top 顺序（而不是 full 的键顺序）
+        ordered = []
+        for a in rk.get("top", [])[:top]:
+            k = f"{a.get('account','')}|{a.get('title','')}"
+            if k in allmap and allmap[k].get("content_html"):
+                ordered.append((k, allmap[k]))
+        if ordered:
+            arts = ordered
 
     ins = {}
     if insights_file and os.path.exists(insights_file):
@@ -812,9 +941,22 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
     themes = ins.get("themes", [])
     imeta = ins.get("articles", {})
 
-    all_arts = []
+    # 全量清单（含无正文的），并回填正文
+    listing = []
     if articles_file and os.path.exists(articles_file):
-        all_arts = json.load(open(articles_file, encoding="utf-8")).get("articles", [])
+        listing = json.load(open(articles_file, encoding="utf-8")).get("articles", [])
+        for a in listing:
+            k = f"{a.get('account','')}|{a.get('title','')}"
+            fv = allmap.get(k)
+            if fv:
+                a["_full"] = fv
+                a["read_num"] = a.get("read_num") or fv.get("read_num")
+    elif allmap:
+        listing = [dict(v, account=v.get("account"), title=v.get("title")) for v in allmap.values()]
+
+    rec_keys = set(k for k, _ in arts)
+    n_full = sum(1 for a in listing if a.get("_full", {}).get("content_html"))
+    n_total = len(listing)
 
     stamp_raw = os.path.basename(full_file).split("articles-full-weread-")[-1].replace(".json", "")
     try:
@@ -831,10 +973,14 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
     W.append('<div class="hero"><span class="eyebrow">公众号精读</span>'
              f'<h1 class="top">今日推荐 · 可读可批注</h1>'
              f'<div class="subtop">生成 <b>{esc(gen)}</b> ｜ 推荐 <b>{len(arts)}</b> 篇'
-             + (f' ｜ 全量更新 <b>{len(all_arts)}</b> 篇' if all_arts else '')
-             + '<br>正文已内嵌，点「📖 展开正文」直接读；<b>选中句子</b>即可划线批注或求解释。</div></div>')
+             f' ｜ 今日更新 <b>{n_total}</b> 篇（<b>{n_full}</b> 篇已取到全文）'
+             '<br>正文已内嵌，点「📖 展开正文」直接读；<b>选中句子</b>即可划线批注或求解释。</div></div>')
 
     W.append('<div class="bar">'
+             '<span class="viewtabs">'
+             f'<button id="tabRec" class="on" onclick="setView(\'rec\')">⭐ 推荐精读<span class="n">{len(arts)}</span></button>'
+             f'<button id="tabAll" onclick="setView(\'all\')">📚 全部更新<span class="n">{n_total}</span></button>'
+             '</span>'
              '<button onclick="toggleAll()">⇅ 展开/折叠</button>'
              '<button onclick="openDrawer()">🖍 划线批注</button>'
              '<span class="grp" id="fss" title="字号">'
@@ -846,7 +992,8 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<span class="tip"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 存批注 · <kbd>Esc</kbd> 关闭</span>'
              '</div>')
 
-    # 今日概览 + 主题
+    # ---------- 推荐视图 ----------
+    W.append('<div id="recView">')
     if overview or themes:
         W.append('<div class="idx"><h3>今日概览</h3>')
         if overview:
@@ -857,22 +1004,10 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
                 for t in themes) + '</div>')
         W.append('</div>')
 
-    # 目录
-    W.append('<div class="idx"><h3>推荐目录</h3><ol>')
-    for i, (k, v) in enumerate(arts, 1):
-        if not v.get("content_html"):
-            continue
-        W.append(f'<li><a href="#art-{i}">{esc(v.get("title") or k)}</a>'
-                 f'<span class="who">{esc(v.get("account"))}</span></li>')
-    W.append('</ol></div>')
-
-    for i, (k, v) in enumerate(arts, 1):
-        body = v.get("content_html") or ""
-        if not body:
-            continue
+    # 预计算每篇的推荐理由 / 阅读数据（速览与卡片共用，保证两处一致）
+    calc = {}
+    for k, v in arts:
         m = meta.get(k, {})
-        typ = m.get("_type", "")
-        score = m.get("_score")
         reasons = m.get("_reasons") or []
         keep = [r for r in reasons if "类型高度贴合" not in r]
         reason_txt = "；".join(keep) if keep else ""
@@ -883,6 +1018,31 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
             stat = f"阅读 {v['read_num']}"
             if v.get("like_num"):
                 stat += f" / 赞 {v['like_num']}"
+        calc[k] = (m.get("_type", ""), m.get("_score"), reason_txt, stat)
+
+    # ---------- 推荐速览（判断层）：理由前置，快速扫读决定读哪篇 ----------
+    W.append('<div class="idx glance"><h3>推荐速览 <span class="ghint">先看理由，点感兴趣的直接读</span></h3>')
+    for i, (k, v) in enumerate(arts, 1):
+        if not v.get("content_html"):
+            continue
+        typ, score, reason_txt, stat = calc[k]
+        fallback = (v.get("digest") or "")[:60]
+        W.append(f'<a class="gitem" href="#art-{i}" data-gkey="{esc(k)}">'
+                 f'<span class="grank">{i}</span>'
+                 f'<span class="gmain">'
+                 f'<span class="gtitle">{esc(v.get("title") or k)}</span>'
+                 f'<span class="gmeta">{esc(v.get("account"))} · {esc(typ or "未分类")}'
+                 + (f' · {esc(stat)}' if stat else '')
+                 + (f' · 评分 {score}' if score else '') + '</span>'
+                 f'<span class="greason">💡 {esc(reason_txt or fallback)}</span>'
+                 f'</span></a>')
+    W.append('</div>')
+
+    for i, (k, v) in enumerate(arts, 1):
+        body = v.get("content_html") or ""
+        if not body:
+            continue
+        typ, score, reason_txt, stat = calc[k]
         inner_id = v.get("internal_id") or ""
         rlink = f"https://weread.qq.com/web/mp/reader/{inner_id}" if inner_id else ""
 
@@ -913,30 +1073,54 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
                  '<ol class="hllist"></ol></div>')
         W.append('</div>')
         W.append('</article>')
+    W.append('</div>')  # /recView
 
-    # 全量更新清单（折叠）
-    if all_arts:
-        per = {}
-        for a in all_arts:
-            per.setdefault(a.get("account", ""), []).append(a)
-        rec_keys = set(k for k, _ in arts)
-        W.append('<div class="idx"><h3 style="cursor:pointer" onclick="'
-                 "const x=document.getElementById('allList');"
-                 "x.style.display=x.style.display==='none'?'block':'none'\">"
-                 f'▸ 全部更新清单（{len(all_arts)} 篇 / {len(per)} 个号）· 点击展开</h3>')
-        W.append('<div id="allList" style="display:none">')
-        for acc in sorted(per, key=lambda x: -len(per[x])):
-            items = sorted(per[acc], key=lambda k: -(k.get("ts") or 0))
-            W.append(f'<div style="margin:13px 0 5px;font-weight:700;font-size:13.8px">'
-                     f'{esc(acc)} <span style="color:#9aa0a6;font-weight:400">（{len(items)}）</span></div>')
-            for a in items:
-                kk = f'{a.get("account","")}|{a.get("title","")}'
-                star = ' ⭐' if kk in rec_keys else ''
-                rn = f' · 阅读 {a["read_num"]}' if a.get("read_num") else ''
-                W.append(f'<div style="font-size:13.6px;color:#3a3f47;padding:4px 0 4px 16px;line-height:1.55">'
-                         f'· {esc(a.get("title"))}{star}'
-                         f'<span style="color:#9aa0a6;font-size:12px;margin-left:6px">{esc(a.get("time",""))}{esc(rn)}</span></div>')
-        W.append('</div></div>')
+    # ---------- 全部视图 ----------
+    W.append('<div id="allView">')
+    W.append('<div class="accbar">'
+             '<select id="accFilter" onchange="filterAll()"><option value="">全部公众号（' + str(len(set(a.get("account","") for a in listing))) + '）</option>'
+             + "".join(f'<option value="{esc(x)}">{esc(x)}</option>'
+                       for x in sorted(set(a.get("account", "") for a in listing), key=str))
+             + '</select>'
+             '<button class="tg" style="border:1px solid var(--line);background:#fff;border-radius:9px;'
+             'padding:9px 14px;cursor:pointer;font:600 13px/1 inherit;color:var(--ink-2)" '
+             'onclick="toggleAllInline()">展开/折叠全部正文</button>'
+             f'<span class="cinfo" id="acInfo">共 {n_total} 篇 · {n_full} 篇可读全文</span>'
+             '</div>')
+    W.append('<ul class="alist" id="alist">')
+    for i, a in enumerate(listing, 1):
+        k = f'{a.get("account","")}|{a.get("title","")}'
+        fv = a.get("_full") or {}
+        has = bool(fv.get("content_html"))
+        star = ' ⭐' if k in rec_keys else ''
+        stat_bits = [esc(a.get("time", ""))]
+        if a.get("read_num"):
+            stat_bits.append(f'阅读 {a["read_num"]}')
+        if a.get("like_num"):
+            stat_bits.append(f'赞 {a["like_num"]}')
+        W.append(f'<li data-acc="{esc(a.get("account",""))}" data-key="{esc(k)}" '
+                 f'data-account="{esc(a.get("account",""))}" data-title="{esc(a.get("title",""))}" '
+                 f'data-time="{esc(a.get("time",""))}" '
+                 f'data-read="{esc(("阅读 "+str(a["read_num"])) if a.get("read_num") else "")}" '
+                 f'data-url="{esc(fv.get("real_url") or "")}">')
+        W.append(f'<span class="at">{esc(a.get("title"))}{star}</span>')
+        W.append('<div class="am"><span class="aacc">' + esc(a.get("account", "")) + '</span>'
+                 '<span class="sep"></span>' + '<span class="sep"></span>'.join(stat_bits) + '</div>')
+        dg = (a.get("digest") or fv.get("digest") or "").strip()
+        if dg:
+            W.append(f'<p class="dg">{esc(dg[:150])}</p>')
+        W.append('<div class="ops">')
+        if has:
+            W.append('<button onclick="toggleInline(this)">📖 展开正文</button>')
+            W.append('<button onclick="openDrawer()">🖍 批注</button>')
+        else:
+            W.append('<span class="no">正文未取到</span>')
+        W.append('</div>')
+        if has:
+            W.append('<div class="inline-read"><div class="paper">' + fv["content_html"] + '</div></div>')
+        W.append('</li>')
+    W.append('</ul>')
+    W.append('</div>')  # /allView
 
     if d.get("failed"):
         names = "、".join(esc(f.get("key", "").split("|")[0]) for f in d["failed"])
