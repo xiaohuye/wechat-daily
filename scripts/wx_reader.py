@@ -661,6 +661,7 @@ function openEditor(hlid, artKey, quote){
 }
 function closeEditor(){ $('#mask').hidden = true; $('#editor').hidden = true; curHlId = null; }
 function saveEditor(){
+  if($('#editor').hidden) return;   /* 幂等：mousedown+click 双路触发/重复点击只存一次 */
   const note = ($('#edNote').value || '').trim();
   const list = loadHL(curArtKey);
   if(curHlId){
@@ -676,6 +677,7 @@ function saveEditor(){
   toast(note ? '已保存划线批注' : '已划线（未写批注）');
 }
 function deleteHl(){
+  if($('#editor').hidden) return;   /* 幂等：双路触发只删一次 */
   const k = curArtKey;
   const list = loadHL(k).filter(x=>x.id !== curHlId);
   saveHL(k, list);
@@ -1348,9 +1350,18 @@ document.addEventListener('click', function(e){
 });
 
 /* 编辑器按钮 */
+/* 保存/取消/删除：mousedown 即触发——预览面板 webview + 中文输入法组合下
+   click 可能被 IME composition 吞掉（第一次点击没反应、弹窗不关、无报错）；
+   mousedown 不经过输入法转发且先于 click 发生，双路触发由 saveEditor/deleteHl
+   开头的 hidden 幂等检查收敛成一次生效 */
+function edBtn(fn){ return function(e){ e.preventDefault(); fn(); }; }
+$('#edSave').addEventListener('mousedown', edBtn(saveEditor));
+$('#edCancel').addEventListener('mousedown', edBtn(closeEditor));
+$('#edDel').addEventListener('mousedown', edBtn(deleteHl));
 $('#edSave').addEventListener('click', saveEditor);
 $('#edCancel').addEventListener('click', closeEditor);
 $('#edDel').addEventListener('click', deleteHl);
+$('#mask').addEventListener('mousedown', closeEditor);
 $('#mask').addEventListener('click', closeEditor);
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape'){
