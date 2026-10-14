@@ -294,8 +294,8 @@ mark.hl.active{background:var(--hl-2);box-shadow:0 0 0 3px rgba(255,214,74,.45)}
 .selbar button:hover{background:rgba(255,255,255,.16)}
 
 /* ---------- 编辑器 ---------- */
-.mask{position:fixed;inset:0;background:rgba(22,24,28,.5);backdrop-filter:blur(3px);z-index:135;
-      animation:fadeIn .18s ease}
+.mask{position:fixed;inset:0;background:rgba(22,24,28,.58);z-index:135;
+      animation:fadeIn .18s ease}   /* 不用 backdrop-filter：旧 webview 内核下其合成层有点击 hit-test 错乱的怪癖，会吞掉编辑器按钮的点击 */
 .editor{position:fixed;z-index:140;left:50%;top:50%;transform:translate(-50%,-50%);
         width:min(580px,93vw);background:#fff;border-radius:var(--r-lg);
         box-shadow:var(--shadow-lg);padding:20px 22px;overflow:hidden;
@@ -1499,7 +1499,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
     W = []
     W.append('<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">'
              '<meta name="viewport" content="width=device-width,initial-scale=1">'
-             f'<title>公众号日报 · 精读版 {esc(gen)}</title><style>{CSS}</style></head>'
+             f'<title>公众号日报 · 精读版 {esc(gen)} · 构建{esc(datetime.datetime.now().strftime("%H:%M"))}</title><style>{CSS}</style></head>'
              '<body><div id="pbar"></div><div class="wrap">')
     W.append('<div class="hero"><span class="eyebrow">公众号精读</span>'
              f'<h1 class="top">今日推荐 · 可读可批注</h1>'
