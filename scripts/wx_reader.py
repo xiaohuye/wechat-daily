@@ -99,13 +99,22 @@ h1.top{font-size:30px;font-weight:800;margin:0 0 10px;letter-spacing:-.02em;line
 .bar .grp button{border:0;background:transparent;padding:7px 10px;color:var(--ink-2)}
 .bar .grp button.on{background:#fff;color:var(--blue);box-shadow:var(--shadow-sm);transform:none}
 .bar .grp button:hover{color:var(--blue);transform:none;box-shadow:none}
-.bgrp{display:flex;gap:6px;align-items:center;padding-left:9px;margin-left:2px;
-     border-left:1px solid var(--line-2)}
+.brow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.brow.nav{margin-bottom:9px}
+.bar .sep{width:1px;height:22px;background:var(--line-2);margin:0 3px}
+.dd{position:relative}
+.ddmenu{display:none;position:absolute;top:calc(100% + 7px);left:0;z-index:80;background:#fff;
+     border:1px solid var(--line);border-radius:var(--r-sm);padding:6px;min-width:180px;
+     box-shadow:var(--shadow-md);flex-direction:column;gap:4px}
+.dd.open .ddmenu{display:flex}
+.ddmenu .grp{background:#f3f4f6;margin:0}
+.ddmenu button{white-space:nowrap}
+.ddmenu label{font-size:11px;color:var(--sub);padding:4px 8px 2px}
 .bar .badge{font:600 12px/1 var(--ff);border-radius:999px;padding:8px 14px;cursor:pointer;
      border:1px solid #b7dcae;background:#eef7e9;color:#3f6d2b;margin-left:auto;white-space:nowrap}
 .bar .badge.wait{border-color:#ecc98a;background:#fbf3e2;color:#8a5a14}
 .bar .badge:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(47,111,237,.14)}
-.tip{font-size:12px;color:var(--sub);margin-left:0;display:flex;align-items:center;gap:5px}
+.tip{font-size:12px;color:var(--sub);margin-left:auto;display:flex;align-items:center;gap:5px}
 .tip kbd{background:#f1f2f4;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;
      padding:1px 6px;font:600 11px/1.6 var(--ff);color:var(--ink-2)}
 
@@ -1345,13 +1354,33 @@ $('#selbar').addEventListener('click', function(e){
   }
 });
 
+/* 头部下拉菜单（导出批注 / 阅读设置）：开关互斥、点外面收起、Esc 收起 */
+function toggleDD(btn){
+  const dd = btn.closest('.dd');
+  const was = dd.classList.contains('open');
+  $$('.dd.open').forEach(function(d){ d.classList.remove('open'); });
+  if(!was){ dd.classList.add('open'); }
+}
+function ddGo(btn, fn){
+  window[fn]();
+  const dd = btn.closest('.dd');
+  if(dd){ dd.classList.remove('open'); }
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.dd')){ $$('.dd.open').forEach(function(d){ d.classList.remove('open'); }); }
+});
+
 /* 编辑器按钮 */
 $('#edSave').addEventListener('click', saveEditor);
 $('#edCancel').addEventListener('click', closeEditor);
 $('#edDel').addEventListener('click', deleteHl);
 $('#mask').addEventListener('click', closeEditor);
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape'){ if(!$('#editor').hidden) closeEditor(); hideBar(); closeDrawer(); }
+  if(e.key === 'Escape'){
+    if(!$('#editor').hidden) closeEditor();
+    hideBar(); closeDrawer();
+    $$('.dd.open').forEach(function(d){ d.classList.remove('open'); });
+  }
   if((e.ctrlKey||e.metaKey) && e.key === 'Enter' && !$('#editor').hidden){ saveEditor(); }
 });
 
@@ -1480,26 +1509,36 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '</div></div>')
 
     W.append('<div class="bar">'
+             '<div class="brow nav">'
              '<span class="viewtabs">'
              f'<button id="tabRec" class="on" onclick="setView(\'rec\')">⭐ 推荐精读<span class="n">{len(arts)}</span></button>'
              f'<button id="tabAll" onclick="setView(\'all\')">📚 全部更新<span class="n">{n_total}</span></button>'
              '</span>'
-             '<span class="bgrp" title="阅读操作：展开折叠 / 划线 / 字号 / 版宽">'
-             '<button onclick="toggleAll()">⇅ 展开/折叠</button>'
-             '<button onclick="openDrawer()">🖍 划线批注</button>'
-             '<span class="grp" id="fss" title="字号">'
-             '<button data-d="-1">A−</button><button data-d="1">A+</button></span>'
-             '<span class="grp" id="fsw" title="正文宽度">'
-             '<button data-d="-40">窄</button><button data-d="40">宽</button></span>'
-             '</span>'
-             '<span class="bgrp" title="读后沉淀：复制 / 导出 / 存入 ima 知识库">'
-             '<button class="pri" onclick="copyAll()">📋 复制批注</button>'
-             '<button onclick="exportNotes()">📤 导出 .md</button>'
-             '<button onclick="saveToIma()" title="把有划线批注的文章写入 ima（划线+批注成对保存）">🖍 批注入库</button>'
-             '</span>'
              '<button id="syncBadge" class="badge" onclick="syncAllNow()"'
              ' title="划线/反馈自动保存并同步；点击立即全量同步">✓ 已自动同步</button>'
+             '</div>'
+             '<div class="brow tools">'
+             '<button onclick="toggleAll()" title="批量展开/折叠全部正文">⇅ 展开/折叠</button>'
+             '<button onclick="openDrawer()" title="查看和管理所有划线与批注">🖍 划线批注</button>'
+             '<span class="sep"></span>'
+             '<span class="dd">'
+             '<button onclick="toggleDD(this)" title="把划线批注带走：复制或下载文件">📤 导出批注 ▾</button>'
+             '<span class="ddmenu">'
+             '<button onclick="ddGo(this,\'copyAll\')" title="划线+批注纯文本，粘贴到任何地方">📋 复制全部批注</button>'
+             '<button onclick="ddGo(this,\'exportNotes\')" title="下载 Markdown 文件到本地">💾 下载 .md 文件</button>'
+             '</span></span>'
+             '<button onclick="saveToIma()" title="划线+批注成对存入 ima 知识库（长期沉淀）">🖍 批注入库</button>'
+             '<span class="sep"></span>'
+             '<span class="dd">'
+             '<button onclick="toggleDD(this)" title="阅读偏好：字号与版宽（设置会记忆）">⚙ 阅读</button>'
+             '<span class="ddmenu">'
+             '<label>字号</label>'
+             '<span class="grp" id="fss"><button data-d="-1">A−</button><button data-d="1">A+</button></span>'
+             '<label>宽度</label>'
+             '<span class="grp" id="fsw"><button data-d="-40">窄</button><button data-d="40">宽</button></span>'
+             '</span></span>'
              '<span class="tip"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 存批注 · <kbd>Esc</kbd> 关闭</span>'
+             '</div>'
              '</div>')
 
     # ---------- 推荐视图 ----------
