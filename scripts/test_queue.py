@@ -70,17 +70,25 @@ def main():
         qn2 = page.evaluate("() => JSON.parse(localStorage.getItem('wxqueue')||'[]').length")
         check("离线原文入库→暂存", qn2 == 2, f"队列 {qn2} 条")
 
-        # 3. 离线：回灌划线 → 暂存
-        page.click('button:has-text("🧠 回灌划线")')
-        time.sleep(1.5)
+        # 3. 离线：划线 → 自动回灌入队（防抖 2s，无按钮，saveHL 真实入口）
+        page.evaluate("""([k]) => saveHL(k, [
+          {id:'q1', start:5, end:60, text:'队列测试划线：分层记忆架构与混合检索。', note:'队列批注', ts:Date.now()}
+        ])""", [key])
+        time.sleep(2.8)
         qn3 = page.evaluate("() => JSON.parse(localStorage.getItem('wxqueue')||'[]').length")
-        check("离线回灌划线→暂存", qn3 == 3, f"队列 {qn3} 条")
+        check("离线划线自动回灌→暂存", qn3 == 3, f"队列 {qn3} 条")
 
-        # 4. 重复点击不重复排队
-        page.click('button:has-text("🧠 回灌划线")')
-        time.sleep(1.2)
+        # 4. 同篇再划 → 队列按 key 收敛不重复
+        page.evaluate("""([k]) => saveHL(k, [
+          {id:'q1', start:5, end:60, text:'队列测试划线：分层记忆架构与混合检索。', note:'队列批注', ts:1},
+          {id:'q2', start:70, end:120, text:'第二条划线：任务分解与失败恢复。', note:'', ts:2}
+        ])""", [key])
+        time.sleep(2.8)
         qn4 = page.evaluate("() => JSON.parse(localStorage.getItem('wxqueue')||'[]').length")
-        check("重复点击不重复排队", qn4 == 3, f"队列仍 {qn4} 条")
+        hl_n = page.evaluate("() => { const q = JSON.parse(localStorage.getItem('wxqueue')||'[]');"
+                            " const e = q.find(x => x.kind==='save_highlights');"
+                            " return e ? e.payload.items[0].highlights.length : 0; }")
+        check("同篇重复划线收敛仍 1 条", qn4 == 3 and hl_n == 2, f"队列仍 {qn4} 条/划线 {hl_n} 条")
 
         # 5. 拉起 mock 服务（--idle 12s）→ 页面开着，15s 轮询内自动探测冲刷
         proc = subprocess.Popen([PY, os.path.join(PY_DIR, "scripts", "ima_sync.py"),

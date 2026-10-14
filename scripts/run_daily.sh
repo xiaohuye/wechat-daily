@@ -95,7 +95,19 @@ log "→ $ART"
 
 # ---------- 2/5 排序 ----------
 log "=== [2/5] 推荐排序 ==="
-# ---------- 3/5 排序（先学习划线关键词，再打分） ----------
+
+# ---------- 先拉起 ima 同步服务：页面挂着的用户，昨天的划线/反馈在排序前自动冲刷落盘 ----------
+if "$PY" -c "import socket;s=socket.socket();s.settimeout(1);raise SystemExit(0 if s.connect_ex(('127.0.0.1',8931))==0 else 1)" 2>/dev/null; then
+  log "ima 同步服务已在运行 (127.0.0.1:8931)"
+else
+  nohup "$PY" scripts/ima_sync.py >/dev/null 2>&1 &
+  sleep 1
+  log "ima 同步服务已拉起 (8931) —— 日报页开着时自动冲刷暂存队列（划线/反馈即生效）"
+fi
+log "--- 等待 25s 冲刷窗口（页面 watcher 15s 轮询 + 发送）---"
+sleep 25
+
+# ---------- 3/3 排序（先学习划线关键词，再打分） ----------
 log "--- 划线关键词学习 + 排序推荐 ---"
 if [ -f data/highlights.json ]; then
   "$PY" scripts/wx_kw_learn.py || echo "(关键词学习失败，跳过)"
@@ -136,12 +148,3 @@ ls -t output/公众号日报-精读版-*.html 2>/dev/null | head -1
 echo
 log "附带生成旧版清单日报（无正文）："
 "$PY" scripts/wx_report.py "$ART" || true
-
-# ---------- 顺带拉起 ima 同步服务（短驻：页面暂存队列自动冲刷，闲置 3 分钟自动退出） ----------
-if "$PY" -c "import socket;s=socket.socket();s.settimeout(1);raise SystemExit(0 if s.connect_ex(('127.0.0.1',8931))==0 else 1)" 2>/dev/null; then
-  log "ima 同步服务已在运行 (127.0.0.1:8931)"
-else
-  nohup "$PY" scripts/ima_sync.py >/dev/null 2>&1 &
-  sleep 1
-  log "ima 同步服务已拉起 (8931) —— 打开日报页即可自动同步暂存队列；闲置 3 分钟自动退出"
-fi

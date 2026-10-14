@@ -99,7 +99,13 @@ h1.top{font-size:30px;font-weight:800;margin:0 0 10px;letter-spacing:-.02em;line
 .bar .grp button{border:0;background:transparent;padding:7px 10px;color:var(--ink-2)}
 .bar .grp button.on{background:#fff;color:var(--blue);box-shadow:var(--shadow-sm);transform:none}
 .bar .grp button:hover{color:var(--blue);transform:none;box-shadow:none}
-.tip{font-size:12px;color:var(--sub);margin-left:auto;display:flex;align-items:center;gap:5px}
+.bgrp{display:flex;gap:6px;align-items:center;padding-left:9px;margin-left:2px;
+     border-left:1px solid var(--line-2)}
+.bar .badge{font:600 12px/1 var(--ff);border-radius:999px;padding:8px 14px;cursor:pointer;
+     border:1px solid #b7dcae;background:#eef7e9;color:#3f6d2b;margin-left:auto;white-space:nowrap}
+.bar .badge.wait{border-color:#ecc98a;background:#fbf3e2;color:#8a5a14}
+.bar .badge:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(47,111,237,.14)}
+.tip{font-size:12px;color:var(--sub);margin-left:0;display:flex;align-items:center;gap:5px}
 .tip kbd{background:#f1f2f4;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;
      padding:1px 6px;font:600 11px/1.6 var(--ff);color:var(--ink-2)}
 
@@ -508,6 +514,7 @@ function loadHL(key){
 function saveHL(key, arr){
   localStorage.setItem(HKEY+key, JSON.stringify(arr));
   renderPanel(key); renderDrawer($('#dsearch') ? $('#dsearch').value : '');
+  autoSyncHL(key);   /* 划线有变化 → 自动回灌这一篇（防抖 2s），喂明日推荐，无需手动点按钮 */
 }
 function newId(){ return 'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36); }
 
@@ -762,11 +769,13 @@ function fbMark(btn, mark){
     localStorage.removeItem(fbKey(k));
     paintFb(k, null);
     toast('已取消标记');
+    autoSyncFb();                          // 取消也同步：反馈全集以页面为准，服务端整体替换
   }else{
     localStorage.setItem(fbKey(k), JSON.stringify({
       mark:mark, ts:Date.now(), account:unit.dataset.account||'', title:unit.dataset.title||''}));
     paintFb(k, mark);
     toast(mark==='like' ? '👍 已标记感兴趣，后续会加权推荐同类' : '👎 已标记不感兴趣，后续会降权');
+    autoSyncFb();                          // 反馈一发生就自动同步，无需手动「导出反馈」
   }
 }
 function paintFb(k, mark){
@@ -781,17 +790,7 @@ function paintFb(k, mark){
   });
 }
 function paintFbAll(){ fbAll().forEach(function(f){ paintFb(f.key, f.mark); }); }
-function exportFeedback(){
-  const list = fbAll();
-  if(!list.length){ toast('还没有任何反馈标记'); return; }
-  const payload = JSON.stringify({generated_at:new Date().toISOString(), feedback:list}, null, 1);
-  const b = new Blob([payload], {type:'application/json;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(b);
-  a.download = 'feedback-' + new Date().toLocaleDateString('zh-CN').replace(/\//g,'-') + '.json';
-  a.click(); URL.revokeObjectURL(a.href);
-  toast('已导出 ' + list.length + ' 条反馈，存到 wechat-daily/data/feedback.json 后重跑管线即可生效');
-}
+/* 「导出反馈」已自动化：fbMark → autoSyncFb 自动同步到 data/feedback.json */
 
 /* ---------------- 直存 ima（本地同步服务转发，绕开 file:// 的 CORS 限制） ---------------- */
 /* 服务按需短生命周期：平时不存在。不在线时所有入库动作进「离线暂存队列」，
@@ -799,15 +798,24 @@ function exportFeedback(){
 const SYNC = 'http://127.0.0.1:8931';
 const QKEY = 'wxqueue';
 function qLoad(){ try{ return JSON.parse(localStorage.getItem(QKEY) || '[]'); }catch(e){ return []; } }
-function qSave(q){ localStorage.setItem(QKEY, JSON.stringify(q)); }
-function qAdd(kind, payload){
+function qSave(q){ localStorage.setItem(QKEY, JSON.stringify(q)); badge(); }
+function qAdd(kind, payload, ded){
   const sig = kind + '|' + JSON.stringify(payload);
   const q = qLoad();
-  if(q.some(e => e.sig === sig)){ return false; }        /* 重复点击不重复排队 */
-  q.push({kind: kind, sig: sig, payload: payload, ts: Date.now()});
+  if(ded){                                                /* 收敛：同 kind 同 ded 只留最新一条（同一篇划线/全量反馈） */
+    for(let i = q.length - 1; i >= 0; i--){ if(q[i].kind === kind && q[i].ded === ded){ q.splice(i, 1); } }
+  }
+  if(q.some(e => e.sig === sig)){ return false; }         /* 完全相同内容不重复排队 */
+  q.push({kind: kind, sig: sig, payload: payload, ts: Date.now(), ded: ded || ''});
   qSave(q);
   startQueueWatcher();   /* 入队即挂自动探测：含「写入中断转队列」的路径也会被 watcher 覆盖 */
   return true;
+}
+function qRemoveKind(kind){
+  const q = qLoad();
+  const rest = q.filter(e => e.kind !== kind);
+  if(rest.length !== q.length){ qSave(rest); }
+  return rest;
 }
 function probe(cb, ms){
   const ac = ('AbortController' in window) ? new AbortController() : null;
@@ -869,6 +877,78 @@ function startQueueWatcher(now){
   };
   if(now !== false) tick();               /* flush 失败重启时传 false，等下一轮再试，避免快速连发 */
   _qwTimer = setInterval(tick, 15000);   /* 有暂存时每 15s 探测一次，页面开着即可自动同步 */
+}
+
+/* ---------------- 自动保存：划线/反馈一发生就同步（喂推荐算法，替代手动回灌/导出按钮） ---------------- */
+let _hlDeb = null;
+function autoSyncHL(key){
+  clearTimeout(_hlDeb);
+  _hlDeb = setTimeout(function(){ syncOneHL(key); }, 2000);   /* 防抖 2s：连续划线只发最后一次 */
+}
+function syncOneHL(key){
+  const art = artByKey(key);
+  if(!art) return;
+  const list = loadHL(key);
+  const items = [{key: key, account: art.dataset.account, title: art.dataset.title,
+                  highlights: list.map(h=>({text: h.text, note: h.note || '', ts: h.ts}))}];
+  probe(function(on){
+    if(on){ flushQueue(true); return realSyncHl(items, list.length, true); }
+    qAdd('save_highlights', {items: items}, 'hl::' + key);   /* 收敛：同篇只留最新一条 */
+  });
+}
+function autoSyncFb(){
+  const list = fbAll();
+  probe(function(on){
+    if(on){ flushQueue(true); return realSyncFb(list); }
+    qAdd('save_feedback', {feedback: list}, 'fb');            /* 全量单条：页面 localStorage 即反馈全集 */
+  });
+}
+function realSyncFb(list){
+  fetch(SYNC + '/save_feedback', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({feedback: list})
+  }).catch(function(){
+    qAdd('save_feedback', {feedback: list}, 'fb');
+  });
+}
+/* 同步状态徽章：划线/👍👎 自动更新；点击 = 立即全量同步（旧「回灌+导出」按钮的兜底替代） */
+function badge(){
+  const b = $('#syncBadge'); if(!b) return;
+  const n = qLoad().length;
+  if(n){ b.textContent = '⏳ ' + n + ' 条待同步';
+         b.className = 'badge wait';
+         b.title = '划线/反馈已自动暂存；同步服务开启后自动发送。点击立即全量同步'; }
+  else { b.textContent = '✓ 已自动同步';
+         b.className = 'badge';
+         b.title = '划线/反馈自动保存并同步。点击可全量同步一次'; }
+}
+function syncAllNow(){
+  const fb = fbAll();
+  const items = []; const seen = {};
+  allUnits().forEach(function(art){
+    const k = art.dataset.key;
+    if(seen[k]) return; seen[k] = 1;
+    const list = loadHL(k);
+    if(!list.length) return;
+    items.push({key: k, account: art.dataset.account, title: art.dataset.title,
+                highlights: list.map(h=>({text: h.text, note: h.note || '', ts: h.ts}))});
+  });
+  if(!items.length && !fb.length){ toast('还没有任何划线或反馈，先读一篇'); return; }
+  const n = items.reduce((s,x)=>s + x.highlights.length, 0);
+  probe(function(on){
+    if(on){
+      qRemoveKind('save_highlights'); qRemoveKind('save_feedback');  /* 全量已覆盖，清掉旧的单篇暂存 */
+      flushQueue(true);
+      if(items.length){ realSyncHl(items, n, true); }   /* 静默：结果由下面的总 toast 表达 */
+      if(fb.length){ realSyncFb(fb); }
+      toast('已全量同步 ' + items.length + ' 篇划线 / ' + fb.length + ' 条反馈');
+    }else{
+      qRemoveKind('save_highlights'); qRemoveKind('save_feedback');
+      if(items.length){ qAdd('save_highlights', {items: items}, 'hl-all'); }
+      if(fb.length){ qAdd('save_feedback', {feedback: fb}, 'fb'); }
+      toast('已离线暂存全部划线与反馈；下次同步服务开启后自动发送');
+    }
+  });
 }
 
 /* 维度一：批注入库（划线句+批注成对存笔记） */
@@ -970,36 +1050,21 @@ function realSaveDoc(btn, k, payload){
   });
 }
 
-/* 维度三：回灌划线——把划线+批注回传本地服务，供关键词学习（改进明日推荐） */
-function syncHighlights(){
-  const items = []; const seen = {};
-  allUnits().forEach(function(art){
-    const k = art.dataset.key;
-    if(seen[k]) return; seen[k] = 1;       /* 同一篇在推荐/全部两个视图都有 DOM，去重 */
-    const list = loadHL(k);
-    if(!list.length) return;
-    items.push({key: k, account: art.dataset.account, title: art.dataset.title,
-                highlights: list.map(h=>({text: h.text, note: h.note || '', ts: h.ts}))});
-  });
-  if(!items.length){ toast('还没有任何划线，先选中句子划线'); return; }
-  const n = items.reduce((s,x)=>s + x.highlights.length, 0);
-  probe(function(on){
-    if(on){ flushQueue(true); return realSyncHl(items, n); }
-    qAdd('save_highlights', {items: items});
-    toast('已离线暂存 ' + items.length + ' 篇 / ' + n + ' 条划线；下次同步服务开启后自动发送');
-    startQueueWatcher();
-  });
-}
-function realSyncHl(items, n){
-  toast('正在回灌 ' + n + ' 条划线…');
+/* 维度三：回灌划线——划线一发生即自动回传本地服务（saveHL 钩子触发，旧手动按钮已由 syncAllNow 徽章替代） */
+function realSyncHl(items, n, silent){
+  if(!silent){ toast('正在回灌 ' + n + ' 条划线…'); }
   fetch(SYNC + '/save_highlights', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({items: items})
   }).then(function(r){ return r.json(); }).then(function(d){
-    toast(d.ok ? ('✓ 已回灌 ' + d.ok + ' 篇 / ' + n + ' 条划线，明日推荐自动参考你的划线兴趣') : '回灌失败：' + JSON.stringify(d).slice(0, 60));
+    if(!silent){
+      toast(d.ok ? ('✓ 已回灌 ' + d.ok + ' 篇 / ' + n + ' 条划线，明日推荐自动参考你的划线兴趣') : '回灌失败：' + JSON.stringify(d).slice(0, 60));
+    }
   }).catch(function(){
-    qAdd('save_highlights', {items: items});
-    toast('回灌中断，已转入离线暂存队列');
+    items.forEach(function(it){                    /* 中断转队列：按篇收敛，同篇只留最新 */
+      qAdd('save_highlights', {items: [it]}, 'hl::' + it.key);
+    });
+    if(!silent){ toast('回灌中断，已转入离线暂存队列'); }
   });
 }
 
@@ -1314,6 +1379,7 @@ document.addEventListener('DOMContentLoaded', function(){
   renderDrawer('');
   applyAll();
   paintFbAll();
+  badge();                 /* 徽章初始状态：有历史暂存队列则显示「N 条待同步」 */
   startQueueWatcher();
   const v = localStorage.getItem('wxview');
   if(v === 'all') setView('all');
@@ -1418,17 +1484,21 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              f'<button id="tabRec" class="on" onclick="setView(\'rec\')">⭐ 推荐精读<span class="n">{len(arts)}</span></button>'
              f'<button id="tabAll" onclick="setView(\'all\')">📚 全部更新<span class="n">{n_total}</span></button>'
              '</span>'
+             '<span class="bgrp" title="阅读操作：展开折叠 / 划线 / 字号 / 版宽">'
              '<button onclick="toggleAll()">⇅ 展开/折叠</button>'
              '<button onclick="openDrawer()">🖍 划线批注</button>'
              '<span class="grp" id="fss" title="字号">'
              '<button data-d="-1">A−</button><button data-d="1">A+</button></span>'
              '<span class="grp" id="fsw" title="正文宽度">'
              '<button data-d="-40">窄</button><button data-d="40">宽</button></span>'
-             '<button class="pri" onclick="copyAll()">📋 复制全部批注</button>'
+             '</span>'
+             '<span class="bgrp" title="读后沉淀：复制 / 导出 / 存入 ima 知识库">'
+             '<button class="pri" onclick="copyAll()">📋 复制批注</button>'
              '<button onclick="exportNotes()">📤 导出 .md</button>'
              '<button onclick="saveToIma()" title="把有划线批注的文章写入 ima（划线+批注成对保存）">🖍 批注入库</button>'
-             '<button onclick="syncHighlights()" title="把所有划线+批注回传本地，提取你的兴趣关键词用于明日推荐">🧠 回灌划线</button>'
-             '<button onclick="exportFeedback()" title="导出 👍/👎 标记，供推荐算法迭代">🎯 导出反馈</button>'
+             '</span>'
+             '<button id="syncBadge" class="badge" onclick="syncAllNow()"'
+             ' title="划线/反馈自动保存并同步；点击立即全量同步">✓ 已自动同步</button>'
              '<span class="tip"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 存批注 · <kbd>Esc</kbd> 关闭</span>'
              '</div>')
 

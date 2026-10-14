@@ -27,6 +27,9 @@ ima_sync.py — 本地 ima 同步服务（日报页「☁ 存入 ima」按钮的
                           回灌维度 → 不写 ima，落盘 data/highlights.json（按 key 增量合并），
                           供 wx_kw_learn.py 提取兴趣关键词
                           返回: {"ok": n, "fail": n, "done": [...], "errors": [...]}
+    POST /save_feedback   body: {"feedback": [{"key","account","title","mark","ts"}]}
+                          阅读反馈 → 整体替换 data/feedback.json（页面反馈全集为准），
+                          供 wx_rank.py 排序加权（页面 fbMark 后自动调用）
     会话级去重：批注（标题+首条划线文本）/ 原文（标题）本次服务生命周期内只写一次。
 
 依赖：scripts/ima_save.py（凭证与写入逻辑）、凭证 ~/.config/ima/
@@ -103,6 +106,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._do_save_doc()
         if self.path.startswith("/save_highlights"):
             return self._do_save_highlights()
+        if self.path.startswith("/save_feedback"):
+            return self._do_save_feedback()
         if not self.path.startswith("/save"):
             self._send(404, {"ok": False, "msg": "not found"})
             return
@@ -158,6 +163,27 @@ class Handler(BaseHTTPRequestHandler):
                              "done": [f"✓ {title} → {resp.get('note_id', '')}"], "errors": []})
         else:
             self._send(200, {"ok": 0, "fail": 1, "done": [], "errors": [f"{title}: {resp}"]})
+
+    def _do_save_feedback(self):
+        """阅读反馈自动同步：整体替换 data/feedback.json（页面 localStorage 即反馈全集，
+        取消标记也随全量覆盖自然生效），格式与 wx_rank.load_feedback 兼容"""
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            data = json.loads(self.rfile.read(n).decode("utf-8", "ignore"))
+        except Exception as e:
+            self._send(400, {"ok": 0, "fail": 1, "errors": [f"bad body: {e}"]})
+            return
+        fb = [f for f in (data.get("feedback") or [])
+              if isinstance(f, dict) and f.get("mark") in ("like", "dislike")]
+        from ima_save import DATA
+        f = os.path.join(DATA, "feedback.json")
+        tmp = f + ".tmp"
+        json.dump({"generated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                   "count": len(fb), "feedback": fb},
+                  open(tmp, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        os.replace(tmp, f)
+        self._send(200, {"ok": len(fb), "fail": 0,
+                         "done": [f"✓ 落盘 {f}"], "errors": []})
 
     def _do_save_highlights(self):
         """划线回灌：不写 ima，落盘 data/highlights.json（按 key 增量合并）"""
