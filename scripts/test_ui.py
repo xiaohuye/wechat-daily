@@ -63,41 +63,54 @@ def main():
             "els => els.filter(e => e.style.display !== 'none').length")
         check("重置后恢复全量", n_reset == total, f"{n_reset}/{total}")
 
-        # 6. 反馈标记：在全部视图点 👍
-        page.query_selector_all("#alist > li .fb[data-fb='like']")[0].click()
+        # 6. 反馈标记：全部视图点条目 → 打开阅读弹层 → 弹层内点 👍
+        page.query_selector_all("#alist > li:not([data-nobody])")[0].click()
+        page.wait_for_timeout(400)
+        reader_open = page.eval_on_selector("#reader", "e => !e.hidden")
+        has_paper = page.eval_on_selector("#rdBody article", "e => !!e.querySelector('.paper')")
+        check("列表条目点击打开阅读弹层", reader_open and has_paper)
+        page.click("#rdBody .fb[data-fb='like']")
         fb1 = page.evaluate("() => JSON.parse(Object.keys(localStorage).filter(k=>k.indexOf('wxfb::')===0).map(k=>localStorage[k])[0] || 'null')")
         check("👍 写入 localStorage", fb1 and fb1.get("mark") == "like", str(fb1)[:80])
-        # 按钮上色
-        on_like = page.eval_on_selector_all("#alist > li .fb.on-like", "els => els.length")
+        on_like = page.eval_on_selector_all("#rdBody .fb.on-like", "els => els.length")
         check("按钮变色 on-like", on_like >= 1, f"{on_like} 个")
 
-        # 7. 推荐视图同篇同步上色
-        page.click("#tabRec")
-        rec_like = page.eval_on_selector_all("article .fb.on-like", "els => els.length")
-        check("推荐视图同篇同步", rec_like >= 0)  # 该篇可能不在推荐 30 里
+        # 7. 返回按钮关弹层 → 正文归位 storehouse，标记保留
+        page.click(".rdclose")
+        page.wait_for_timeout(300)
+        rd_hidden = page.eval_on_selector("#reader", "e => e.hidden")
+        rec_like = page.eval_on_selector_all("#storehouse article .fb.on-like", "els => els.length")
+        check("关闭弹层正文归位且标记保留", rd_hidden and rec_like >= 1, f"on-like {rec_like} 个")
 
-        # 再点一次取消
-        page.click("#tabAll")
-        page.query_selector_all("#alist > li .fb[data-fb='like']")[0].click()
+        # 8. 重新打开弹层再点一次取消
+        page.query_selector_all("#alist > li:not([data-nobody])")[0].click()
+        page.wait_for_timeout(400)
+        page.click("#rdBody .fb[data-fb='like']")
         fb_left = page.evaluate("() => Object.keys(localStorage).filter(k=>k.indexOf('wxfb::')===0).length")
         check("再点取消标记", fb_left == 0)
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(300)
 
-        # 8. 切回推荐视图在 article 上点 👍 然后 👎
+        # 9. 推荐视图打开弹层：👍 后改 👎 覆盖语义
         page.click("#tabRec")
-        page.query_selector_all("article .fb[data-fb='like']")[0].click()
-        page.query_selector_all("article .fb[data-fb='dislike']")[0].click()
+        page.evaluate("() => gotoArt(1)")
+        page.wait_for_timeout(400)
+        page.click("#rdBody .fb[data-fb='like']")
+        page.click("#rdBody .fb[data-fb='dislike']")
         fb2 = page.evaluate("() => Object.keys(localStorage).filter(k=>k.indexOf('wxfb::')===0).map(k=>JSON.parse(localStorage[k]))")
         check("👍 后改 👎 覆盖", len(fb2) == 1 and fb2[0]["mark"] == "dislike")
         # 取消掉，不留测试数据
-        page.query_selector_all("article .fb[data-fb='dislike']")[0].click()
+        page.click("#rdBody .fb[data-fb='dislike']")
         clean = page.evaluate("() => Object.keys(localStorage).filter(k=>k.indexOf('wxfb::')===0).length")
         check("清理测试标记", clean == 0)
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(300)
 
-        # 9. 分类 chip 过滤推荐视图（chips 是「主题」，按标题命中关键词过滤）
+        # 10. 分类 chip 过滤推荐榜单（chips 作用于浏览层榜单条目）
         chips = page.query_selector_all(".theme-chip")
         check("概览分类 chips 存在", len(chips) >= 3, f"{len(chips)} 个")
-        total_rec = page.eval_on_selector_all("#recView article", "els => els.length")
-        check("推荐视图加载", total_rec > 20, f"{total_rec} 篇")
+        total_rec = page.eval_on_selector_all("#recView .gitem", "els => els.length")
+        check("推荐榜单加载", total_rec > 20, f"{total_rec} 篇")
         chips[0].click()
         chip_name = chips[0].get_attribute("data-tname")
         vis_g = page.eval_on_selector_all("#recView .gitem",
@@ -109,45 +122,50 @@ def main():
               f"「{chip_name}」: {vis_g} 篇命中")
         # 再点取消
         chips[0].click()
-        vis_all = page.eval_on_selector_all("#recView article",
+        vis_all = page.eval_on_selector_all("#recView .gitem",
             "els => els.filter(e => e.style.display !== 'none').length")
         off_chip = page.eval_on_selector_all(".theme-chip.on", "els => els.length")
         check("再点取消过滤", vis_all == total_rec and off_chip == 0, f"恢复 {vis_all} 篇")
 
-        # 10. 速览点击 → 自动展开正文 + flash 高亮
+        # 11. 速览点击 → 打开阅读弹层 + flash 高亮
         g1 = page.query_selector('#recView .gitem[data-rank="1"]')
         g1.click()
         page.wait_for_timeout(800)
-        is_open = page.eval_on_selector("#art-1", "e => e.classList.contains('open')")
+        is_open = page.eval_on_selector("#reader", "e => !e.hidden")
+        paper_ok = page.eval_on_selector("#rdBody article", "e => !!e.querySelector('.paper')")
         is_flash = page.eval_on_selector('#recView .gitem[data-rank="1"]', "e => e.classList.contains('flash')")
-        check("速览点击自动展开正文", is_open and is_flash)
+        check("速览点击打开阅读弹层", is_open and paper_ok and is_flash)
 
-        # 11. 滚过速览区 → backIdx 悬浮按钮出现
-        page.eval_on_selector("#art-5", "e => e.scrollIntoView()")
+        # 12. Esc 关闭弹层 → 正文归位 storehouse
+        page.keyboard.press("Escape")
         page.wait_for_timeout(400)
-        back_show = page.eval_on_selector("#backIdx", "e => e.classList.contains('show')")
-        check("backIdx 悬浮出现", back_show)
-        page.click("#backIdx")
-        page.wait_for_timeout(2200)
-        near_top = page.evaluate("() => document.querySelector('.glance').getBoundingClientRect().top")
-        check("点击 backIdx 滚回速览", -140 <= near_top <= 130, f"glance top={int(near_top)}")
+        esc_hidden = page.eval_on_selector("#reader", "e => e.hidden")
+        art_back = page.eval_on_selector_all("#storehouse article .paper", "els => els.length")
+        check("Esc 关闭弹层正文归位", esc_hidden and art_back > 20, f"storehouse 正文 {art_back} 篇")
 
-        # 12. article 内「返回速览」按钮
-        page.eval_on_selector("#art-8", "e => e.scrollIntoView()")
+        # 13. 深色精选 Top3 卡片 → 点击打开弹层
+        t3 = page.query_selector_all(".t3card")
+        check("今日精选 Top3 存在", len(t3) == 3, f"{len(t3)} 张")
+        t3[1].click()
+        page.wait_for_timeout(400)
+        t3_open = page.eval_on_selector("#reader", "e => !e.hidden")
+        t3_title = page.eval_on_selector("#rdTitle", "e => e.textContent.slice(0, 20)")
+        check("精选卡点击打开弹层", t3_open, f"标题={t3_title}")
+        page.keyboard.press("Escape")
         page.wait_for_timeout(300)
-        page.eval_on_selector("#art-8 .backidx", "e => e.click()")
-        page.wait_for_timeout(2200)
-        near_top2 = page.evaluate("() => document.querySelector('.glance').getBoundingClientRect().top")
-        check("卡内按钮返回速览", -140 <= near_top2 <= 130, f"glance top={int(near_top2)}")
 
-        # 13. 卡片 tag 点击 → 同分类过滤（与主题互斥）
-        page.eval_on_selector("#art-1 .tag", "e => e.click()")
+        # 14. 弹层内 tag 点击 → 浏览层榜单同分类过滤（与主题互斥）
+        page.evaluate("() => gotoArt(1)")
+        page.wait_for_timeout(300)
+        page.eval_on_selector("#rdBody article .tag", "e => e.click()")
         hint_txt = page.eval_on_selector(".ghint", "e => e.textContent")
-        vis_tag = page.eval_on_selector_all("#recView article",
+        vis_tag = page.eval_on_selector_all("#recView .gitem",
             "els => els.filter(e => e.style.display !== 'none').length")
-        check("tag 分类过滤生效", vis_tag > 0 and vis_tag < 29 and hint_txt.find("分类「") >= 0,
+        check("tag 分类过滤生效", vis_tag > 0 and vis_tag < total_rec and hint_txt.find("分类「") >= 0,
               f"{vis_tag} 篇, hint={hint_txt[:24]}")
-        # tag 与主题互斥：过滤状态下点主题 chip → 切到主题过滤
+        # 关闭弹层回浏览层，tag 与主题互斥：过滤状态下点主题 chip → 切到主题过滤
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(300)
         if len(chips) > 1:
             chips[1].click()
             page.wait_for_timeout(200)

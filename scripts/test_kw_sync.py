@@ -68,7 +68,12 @@ def main():
           {id:'k1', start:5, end:66, text:'企业级 Agent 记忆系统需要分层设计与混合检索。', note:'分层设计是重点', ts:Date.now()},
           {id:'k2', start:80, end:150, text:'编排框架要考虑任务分解与失败恢复。', note:'', ts:Date.now()}
         ])""", [key])
+        # fb 按钮在阅读弹层内：先打开 art-2 弹层，点赞后关弹层露出头部徽章
+        page.evaluate("openArt(document.querySelector('#art-2'))")
+        time.sleep(0.3)
         page.click('#art-2 .fb[data-fb="like"]')
+        page.keyboard.press("Escape")
+        time.sleep(0.3)
 
         # 3. 点徽章 → 全量同步 → toast + 两个文件落盘
         time.sleep(0.5)

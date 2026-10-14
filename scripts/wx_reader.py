@@ -398,41 +398,70 @@ article .acts .fb{padding:9px 14px;font-size:13px}
 .docbtn:hover{border-color:var(--blue);background:#e0eaff}
 .docbtn:disabled{opacity:.55;cursor:wait}
 article .acts .docbtn{padding:9px 14px;font-size:13px}
-.alist{margin:0;padding:0;list-style:none}
+.alist{margin:0;padding:0;list-style:none;display:grid;
+     grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:9px}
 .alist li{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
-     padding:14px 17px;margin-bottom:9px;transition:all .18s;box-shadow:var(--shadow-sm)}
-.alist li:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
-.alist .at{font-size:16px;font-weight:700;color:var(--ink);line-height:1.5;margin-bottom:7px;
-     display:block;text-decoration:none}
-.alist .at:hover{color:var(--blue)}
-.alist .am{display:flex;gap:9px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--sub)}
+     padding:12px 14px;transition:all .18s;box-shadow:var(--shadow-sm);cursor:pointer;
+     display:flex;flex-direction:column;gap:5px}
+.alist li:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:#dfe6f5}
+.alist li.nobody{cursor:default;opacity:.6}
+.alist li.nobody:hover{transform:none;box-shadow:var(--shadow-sm)}
+.alist .at{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.45;
+     display:block;text-decoration:none;
+     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.alist .am{display:flex;gap:7px;flex-wrap:wrap;align-items:center;font-size:11.5px;color:var(--sub)}
 .alist .am .aacc{font-weight:700;color:var(--ink-2)}
 .alist .am .sep{width:3px;height:3px;border-radius:50%;background:var(--line-2)}
-.alist .dg{font-size:13.5px;color:#4a4f57;line-height:1.65;margin:7px 0 0}
-.alist .ops{margin-top:9px;display:flex;gap:9px;flex-wrap:wrap}
-.alist .ops button{font:600 12.5px/1 inherit;border:1px solid var(--line);background:#fff;
-     border-radius:8px;padding:7px 13px;cursor:pointer;color:var(--ink-2);transition:.16s}
-.alist .ops button:hover{border-color:var(--blue);color:var(--blue)}
-.alist .ops button.open{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
-.alist .ops .no{color:#b0b5bd;cursor:default;border-style:dashed}
-.alist .ops .no:hover{border-color:var(--line);color:#b0b5bd}
-.alist .inline-read{display:none;margin-top:13px;padding-top:13px;border-top:1px dashed var(--line-2)}
-.alist li.expanded .inline-read{display:block}
-/* 全部视图里的正文沿用 paper 样式 */
-#allView .paper{max-width:100%;padding:24px 26px;font-size:16px}
+.alist .am .no{color:#b0b5bd}
 /* ---------- 右下角悬浮按钮组 ---------- */
-#totop,#backIdx{position:fixed;right:26px;z-index:90;width:44px;height:44px;border-radius:13px;
+#totop{position:fixed;right:26px;bottom:86px;z-index:90;width:44px;height:44px;border-radius:13px;
      display:none;align-items:center;justify-content:center;cursor:pointer;
      border:1px solid var(--line-2);background:var(--card);color:var(--ink-2);
      font:700 15px/1 var(--ff);box-shadow:var(--shadow-md);transition:all .18s;user-select:none}
-#totop{bottom:86px}
-#backIdx{bottom:140px;width:auto;padding:0 15px;height:40px;font-size:13px;border-radius:999px;
-     background:var(--blue);border-color:var(--blue);color:#fff;gap:5px}
-#backIdx::before{content:"☰"}
-#totop.show,#backIdx.show{display:flex;animation:fadeIn .25s ease}
+#totop.show{display:flex;animation:fadeIn .25s ease}
 #totop:hover{background:var(--blue);color:#fff;border-color:var(--blue);transform:translateY(-3px)}
-#backIdx:hover{background:#2559c9;transform:translateY(-3px);box-shadow:0 6px 18px rgba(47,111,237,.4)}
-body.mode-all #backIdx.show{display:none}
+
+/* ---------- 深色精选区（浏览层视觉锚点） ---------- */
+.dark-top{background:#161922;border-radius:var(--r-lg);padding:20px 22px 24px;margin:4px 0 30px}
+.dark-top h3{color:#f2f4f8;margin:0 0 4px;border:0;padding:0}
+.dark-top h3::before{display:none}
+.dark-top .dsub{font-size:12.5px;color:#8a93a8;margin:0 0 14px}
+.t3row{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px}
+.t3card{background:#1f2430;border:1px solid #323b52;border-radius:var(--r-md);padding:15px 16px;
+     cursor:pointer;transition:all .18s ease;display:flex;flex-direction:column;gap:7px}
+.t3card:hover{transform:translateY(-3px);border-color:#4a6cf7;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.t3cover{width:44px;height:58px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+     font-size:21px;font-weight:700;color:#fff;flex:0 0 auto}
+.t3title{font-size:14.5px;line-height:1.45;color:#f2f4f8;font-weight:600;
+     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.t3meta{font-size:12px;color:#8a93a8}
+.t3reason{font-size:12px;color:#aab3c9;line-height:1.55;
+     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.t3foot{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:#6d7791}
+.t3foot b{color:#f0b74d;font-size:12.5px}
+
+/* ---------- 阅读弹层（浏览层与阅读层分离） ---------- */
+#reader{position:fixed;inset:0;z-index:120;background:#eef0f4;display:flex;flex-direction:column}
+#reader[hidden]{display:none}
+body.reading{overflow:hidden}
+.rdtop{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;
+     border-bottom:1px solid var(--line);flex:0 0 auto;box-shadow:var(--shadow-sm)}
+.rdtop .rdclose{font:600 13px/1 var(--ff);border:1px solid var(--line);background:#fff;color:var(--ink-2);
+     border-radius:8px;padding:9px 13px;cursor:pointer;white-space:nowrap;transition:.16s}
+.rdtop .rdclose:hover{border-color:var(--blue);color:var(--blue)}
+.rdinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#rdTitle{font-size:14.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#rdMeta{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdtools{display:flex;gap:5px;align-items:center;flex:0 0 auto}
+.rdtools .grp{display:flex;gap:4px;align-items:center;background:#f3f4f6;border-radius:8px;padding:3px}
+.rdtools .grp button{border:0;background:transparent;padding:7px 10px;color:var(--ink-2);
+     font:600 12px/1 var(--ff);border-radius:6px;cursor:pointer}
+.rdtools .grp button:hover{color:var(--blue)}
+.rdscroll{flex:1;overflow:auto;padding:24px 14px 80px;scroll-behavior:smooth}
+#reader article{width:min(860px,94vw);margin:0 auto 30px}
+#reader article .read{display:block}
+#reader article .acts .tg{display:none}
+#reader article .acts .backidx{display:none}
 
 /* 响应式 */
 @media (max-width:680px){
@@ -444,8 +473,9 @@ body.mode-all #backIdx.show{display:none}
   article .abody{padding:15px 16px 20px}
   .paper{padding:22px 20px;font-size:16px}
   .meta{margin-left:0;width:100%;justify-content:flex-start}
-  #backIdx{right:16px;bottom:128px}
   #totop{right:16px;bottom:78px}
+  .rdtop{flex-wrap:wrap}
+  .rdscroll{padding:14px 8px 70px}
 }
 """
 
@@ -471,25 +501,17 @@ function allUnits(){ return $$('article[data-key], #alist > li[data-key]'); }
 
 /* ---------------- 阅读进度 + 回顶 ---------------- */
 function bindScroll(){
-  const pbar = $('#pbar'), totop = $('#totop'), backIdx = $('#backIdx');
+  const pbar = $('#pbar'), totop = $('#totop');
   function upd(){
     const h = document.documentElement;
     const max = h.scrollHeight - h.clientHeight;
     const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
     pbar.style.width = pct + '%';
     totop.classList.toggle('show', h.scrollTop > 600);
-    /* 推荐视图 + 已滚过速览区 → 显示「返回速览」悬浮按钮 */
-    const gl = $('.glance');
-    if(backIdx && gl){
-      const past = gl.getBoundingClientRect().bottom < -40;
-      backIdx.classList.toggle('show',
-        past && !document.body.classList.contains('mode-all'));
-    }
   }
   window.addEventListener('scroll', upd, {passive:true});
   upd();
   totop.addEventListener('click', ()=>window.scrollTo({top:0, behavior:'smooth'}));
-  if(backIdx) backIdx.addEventListener('click', backToGlance);
 }
 
 /* ---------------- 字号调节 ---------------- */
@@ -712,19 +734,17 @@ function openDrawer(){ renderDrawer($('#dsearch').value); $('#drawer').classList
 function closeDrawer(){ $('#drawer').classList.remove('open'); }
 
 function jumpTo(akey, hlid){
-  const art = artByKey(akey); if(!art) return;
+  const art = artByKey(akey); if(!art || !$('.paper', art)) return;
   closeDrawer();
-  if(!art.classList.contains('open')) openArt(art);
+  openReader(akey);                       /* 抽屉点击划线 → 打开阅读弹层 */
   setTimeout(function(){
     const mk = $('mark[data-hlid="' + hlid + '"]', art);
     if(mk){
       mk.scrollIntoView({behavior:'smooth', block:'center'});
       mk.classList.add('active');
       setTimeout(()=>mk.classList.remove('active'), 1700);
-    }else{
-      art.scrollIntoView({behavior:'smooth', block:'start'});
     }
-  }, 100);
+  }, 120);
 }
 
 /* ---------------- 解释 ---------------- */
@@ -1125,46 +1145,36 @@ function exportNotes(){
   toast('已导出 ' + n + ' 条批注');
 }
 
-/* ---------------- 展开/折叠 ---------------- */
-function openArt(art){
-  if(!art.classList.contains('open')){
-    art.classList.add('open');
-    const b = $('.acts .tg', art);
-    if(b){ b.textContent = '📖 收起正文'; b.classList.add('on'); }
-    applyHighlights(art.dataset.key);
+/* ---------------- 阅读弹层（浏览层与阅读层分离） ----------------
+   打开：整篇 article 从 storehouse 移入弹层——划线/批注/反馈/入库的
+   artByKey 与 closest 查找全部继续工作，零适配。关闭时移回 storehouse。 */
+function openReader(n){
+  const art = (typeof n === 'string') ? artByKey(n)
+            : ($('#art-' + n) || (n && n.nodeType === 1 ? n : null));
+  if(!art || !$('.paper', art)){ toast('本篇正文不可用'); return; }
+  const cur = $('#rdBody article');
+  if(cur && cur !== art){ $('#storehouse').appendChild(cur); }  /* 换篇：旧篇先归位，避免双篇叠加 */
+  if(!$('#rdBody').contains(art)){
+    $('#rdBody').appendChild(art);
   }
+  applyHighlights(art.dataset.key);
+  renderPanel(art.dataset.key);
+  $('#rdTitle').textContent = art.dataset.title || '';
+  $('#rdMeta').textContent = (art.dataset.account || '')
+    + (art.dataset.time ? ' · ' + art.dataset.time : '')
+    + (art.dataset.read ? ' · ' + art.dataset.read : '');
+  $('#reader').hidden = false;
+  document.body.classList.add('reading');
+  $('#rdBody').scrollTop = 0;
 }
-function toggleBody(btn){
-  const art = btn.closest('article');
-  if(!art) return;
-  if(art.classList.contains('open')){
-    art.classList.remove('open');
-    btn.textContent = '📖 展开正文'; btn.classList.remove('on');
-  }else{ openArt(art); }
+function closeReader(){
+  const art = $('#rdBody article');
+  if(art){ $('#storehouse').appendChild(art); }
+  $('#reader').hidden = true;
+  document.body.classList.remove('reading');
 }
-function toggleAll(){
-  // 当前视图内生效
-  if(document.body.classList.contains('mode-all')){
-    const lis = $$('#alist > li').filter(li=> $('.inline-read', li));
-    const anyClosed = lis.some(li=>!li.classList.contains('expanded'));
-    lis.forEach(function(li){
-      li.classList.toggle('expanded', anyClosed);
-      const b = $('.ops button', li);
-      if(b && b.textContent.indexOf('正文') >= 0) b.textContent = anyClosed ? '📖 收起正文' : '📖 展开正文';
-    });
-    return;
-  }
-  const arts = $$('#recView article');
-  const anyClosed = arts.some(a=>!a.classList.contains('open'));
-  arts.forEach(function(a){
-    if(anyClosed){ openArt(a); }
-    else{
-      a.classList.remove('open');
-      const b = $('.acts .tg', a);
-      if(b){ b.textContent = '📖 展开正文'; b.classList.remove('on'); }
-    }
-  });
-}
+/* 兼容旧调用入口（测试/外部 evaluate）：接收 DOM article */
+function openArt(art){ if(art && art.dataset){ openReader(art.dataset.key); } }
 
 /* ---------------- 视图切换 ---------------- */
 function setView(v){
@@ -1176,12 +1186,6 @@ function setView(v){
   window.scrollTo({top:0, behavior:'smooth'});
   if(all){ renderDrawer($('#dsearch') ? $('#dsearch').value : ''); }
   else{ applyAll(); renderDrawer($('#dsearch') ? $('#dsearch').value : ''); }
-  updBackBtn();
-}
-function updBackBtn(){
-  const backIdx = $('#backIdx');
-  if(backIdx) backIdx.classList.toggle('show',
-    !document.body.classList.contains('mode-all') && backIdx.classList.contains('show'));
 }
 
 /* ---------------- 推荐视图：主题 / 分类 过滤（互斥） ---------------- */
@@ -1199,54 +1203,21 @@ function setRecFilter(kind, val){
     g.style.display = hit ? '' : 'none';
     if(hit) shown++;
   });
-  $$('#recView article').forEach(function(a){
-    const hit = !kind
-      || (kind==='theme' ? (',' + a.dataset.themes + ',').indexOf(',' + val + ',') >= 0
-                         : a.dataset.type === val);
-    a.style.display = hit ? '' : 'none';
-  });
   const hint = $('.ghint');
   if(hint) hint.textContent = kind
     ? ((kind==='theme' ? '主题「' : '分类「') + val + '」· ' + shown + ' 篇 · 再点一次取消')
-    : '先看理由，点感兴趣的直接读（自动展开正文）';
+    : '先看理由，点条目进入专注阅读';
 }
 function filterTheme(chip, name){ setRecFilter('theme', name); }
 function filterType(tag, t){ setRecFilter('type', t); }
-function backToGlance(){
-  const gl = $('.glance');
-  if(gl) window.scrollTo({top: Math.max(0, gl.offsetTop - 96), behavior:'smooth'});   /* 96 = sticky bar 预留 */
-}
-/* 速览点击 → 跳转 + 自动展开正文 + 高亮 */
+/* 榜单条目/精选卡点击 → 打开阅读弹层（浏览层 → 阅读层） */
 function gotoArt(i, ev){
   if(ev && (ev.ctrlKey || ev.metaKey || ev.shiftKey)) return; /* 修饰键=原生锚点行为 */
   if(ev) ev.preventDefault();
-  const art = $('#art-' + i);
-  if(!art || art.style.display === 'none') return;
-  openArt(art);
-  art.scrollIntoView({behavior:'smooth', block:'start'});
   $$('#recView .gitem').forEach(g=>g.classList.remove('flash'));
   const g = $('.gitem[data-rank="' + i + '"]');
   if(g) g.classList.add('flash');
-}
-function toggleInline(btn){
-  const li = btn.closest('li');
-  li.classList.toggle('expanded');
-  btn.textContent = li.classList.contains('expanded') ? '📖 收起正文' : '📖 展开正文';
-  if(li.classList.contains('expanded')){
-    const k = li.dataset.key;
-    if(loadHL(k).length) applyHighlights(k);
-  }
-}
-function toggleAllInline(){
-  const lis = $$('#alist > li').filter(li=> $('.inline-read', li));
-  const anyClosed = lis.some(li=>!li.classList.contains('expanded'));
-  lis.forEach(function(li){
-    li.classList.toggle('expanded', anyClosed);
-    const b = $('.ops button', li);
-    if(b && b.textContent.indexOf('正文') >= 0) b.textContent = anyClosed ? '📖 收起正文' : '📖 展开正文';
-    if(anyClosed && loadHL(li.dataset.key).length) applyHighlights(li.dataset.key);
-  });
-  toast(anyClosed ? ('已展开 ' + lis.length + ' 篇') : '已收起');
+  openReader(i);
 }
 function filterAll(){
   const v = $('#accFilter').value;
@@ -1379,6 +1350,7 @@ document.addEventListener('keydown', function(e){
   if(e.key === 'Escape'){
     if(!$('#editor').hidden) closeEditor();
     hideBar(); closeDrawer();
+    if(!$('#reader').hidden) closeReader();          /* Esc 关闭阅读弹层 */
     $$('.dd.open').forEach(function(d){ d.classList.remove('open'); });
   }
   if((e.ctrlKey||e.metaKey) && e.key === 'Enter' && !$('#editor').hidden){ saveEditor(); }
@@ -1402,9 +1374,23 @@ $('#fss').addEventListener('click', function(e){
 
 /* 初始化 */
 document.addEventListener('DOMContentLoaded', function(){
+  /* 全部视图的额外正文并入 storehouse（正文仓库统一，弹层关闭时移回这里） */
+  const shx = $('#storehouse-x');
+  if(shx){
+    const sh = $('#storehouse');
+    $$('#storehouse-x article').forEach(a=>sh.appendChild(a));
+    shx.remove();
+  }
+  /* 全部视图密排条目：点击进入阅读弹层 */
+  const alist = $('#alist');
+  if(alist) alist.addEventListener('click', function(e){
+    const li = e.target.closest('li[data-key]');
+    if(!li || li.dataset.nobody) return;
+    openReader(li.dataset.key);
+  });
   bindScroll();
   restoreView();
-  $$('#recView article[data-key]').forEach(a=>renderPanel(a.dataset.key));
+  $$('article[data-key]').forEach(a=>renderPanel(a.dataset.key));
   renderDrawer('');
   applyAll();
   paintFbAll();
@@ -1500,8 +1486,8 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<body><div id="pbar"></div><div class="wrap">')
     W.append('<div class="hero"><span class="eyebrow">公众号精读</span>'
              f'<h1 class="top">今日推荐 · 可读可批注</h1>'
-             f'<div class="subtop">生成 <b>{esc(gen)}</b> ｜ 正文已内嵌，点「📖 展开正文」直接读；'
-             '<b>选中句子</b>即可划线批注或求解释。</div>'
+             f'<div class="subtop">生成 <b>{esc(gen)}</b> ｜ 点文章进入专注阅读，阅读中<b>选中句子</b>即可划线批注或求解释；'
+             '划线与 👍/👎 会自动同步用于明日推荐。</div>'
              f'<div class="stats">'
              f'<div class="stat s1"><b>{len(arts)}</b><span>今日推荐</span></div>'
              f'<div class="stat s2"><b>{n_total}</b><span>今日更新</span></div>'
@@ -1518,7 +1504,6 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              ' title="划线/反馈自动保存并同步；点击立即全量同步">✓ 已自动同步</button>'
              '</div>'
              '<div class="brow tools">'
-             '<button onclick="toggleAll()" title="批量展开/折叠全部正文">⇅ 展开/折叠</button>'
              '<button onclick="openDrawer()" title="查看和管理所有划线与批注">🖍 划线批注</button>'
              '<span class="sep"></span>'
              '<span class="dd">'
@@ -1567,8 +1552,35 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
             W.append('<div>' + "".join(chips_html) + '</div>')
         W.append('</div>')
 
+    # ---------- 今日精选 Top3（深色视觉锚点，浏览层与阅读层分离后的展示区） ----------
+    t3_colors = ["#4a6cf7", "#0f9e75", "#e0820c"]
+    n_t3 = 0
+    t3_html = []
+    for i, (k, v) in enumerate(arts, 1):
+        if not v.get("content_html"):
+            continue
+        if n_t3 >= 3:
+            break
+        typ, score, reason_txt, stat, hts = calc[k]
+        acc = v.get("account") or ""
+        first = re.sub(r"[^\w\u4e00-\u9fff]", "", acc)[:1] or "读"
+        reason3 = reason_txt or (v.get("digest") or "")[:60]
+        t3_html.append(
+            f'<div class="t3card" onclick="gotoArt({i}, event)" role="button" tabindex="0">'
+            f'<span class="t3cover" style="background:{t3_colors[n_t3 % 3]}">{esc(first)}</span>'
+            f'<b class="t3title">{esc(v.get("title") or k)}</b>'
+            f'<span class="t3meta">{esc(acc)} · {esc(v.get("time") or "")}</span>'
+            f'<span class="t3reason">💡 {esc(reason3)}</span>'
+            f'<span class="t3foot"><span>{esc(stat or "")}</span>' + (f'<b>评分 {score}</b>' if score else '<b></b>') + '</span>'
+            '</div>')
+        n_t3 += 1
+    if t3_html:
+        W.append('<div class="dark-top"><h3>今日精选</h3>'
+                 '<p class="dsub">评分最高的 ' + str(n_t3) + ' 篇 · 点击进入专注阅读</p>'
+                 '<div class="t3row">' + "".join(t3_html) + '</div></div>')
+
     # ---------- 推荐速览（判断层）：理由前置，快速扫读决定读哪篇 ----------
-    W.append('<div class="idx glance"><h3>推荐速览 <span class="ghint">先看理由，点感兴趣的直接读（自动展开正文）</span></h3>')
+    W.append('<div class="idx glance"><h3>推荐榜单 <span class="ghint">先看理由，点条目进入专注阅读</span></h3>')
     for i, (k, v) in enumerate(arts, 1):
         if not v.get("content_html"):
             continue
@@ -1586,6 +1598,8 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
                  f'</span></a>')
     W.append('</div>')
 
+    # ---------- 正文仓库：每篇一个完整 article（阅读弹层打开时整体移入，关闭移回） ----------
+    W.append('<div id="storehouse" hidden>')
     for i, (k, v) in enumerate(arts, 1):
         body = v.get("content_html") or ""
         if not body:
@@ -1612,12 +1626,10 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         elif v.get("digest"):
             W.append(f'<div class="reasons">{esc(v["digest"][:120])}</div>')
         W.append('<div class="acts">'
-                 '<button class="tg" onclick="toggleBody(this)">📖 展开正文</button>'
                  '<button class="hlbtn" onclick="openDrawer()">🖍 批注 <span class="hlcnt">0</span></button>'
                  '<button class="docbtn" onclick="saveDocToIma(this)" title="整篇正文转 markdown 存入 ima 知识库（[存档] 笔记）">☁ 原文入库</button>'
                  '<button class="fb" data-fb="like" onclick="fbMark(this,\'like\')">👍 感兴趣</button>'
                  '<button class="fb" data-fb="dislike" onclick="fbMark(this,\'dislike\')">👎 不感兴趣</button>'
-                 '<button class="tg backidx" onclick="backToGlance(this)" title="平滑滚回推荐速览">↑ 返回速览</button>'
                  '</div>')
         W.append('<div class="read"><div class="paper">')
         W.append(body)
@@ -1629,6 +1641,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         W.append('</div>')   # /read
         W.append('</div>')   # /abody
         W.append('</article>')
+    W.append('</div>')  # /storehouse
     W.append('</div>')  # /recView
 
     # ---------- 全部视图 ----------
@@ -1656,12 +1669,11 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<button onclick="resetFilters()" title="清空全部筛选" style="border:1px solid var(--line);'
              'background:#fff;border-radius:9px;padding:9px 12px;cursor:pointer;font:600 13px/1 inherit;'
              'color:var(--sub)">⟲ 重置</button>'
-             '<button class="tg" style="border:1px solid var(--line);background:#fff;border-radius:9px;'
-             'padding:9px 14px;cursor:pointer;font:600 13px/1 inherit;color:var(--ink-2)" '
-             'onclick="toggleAllInline()">展开/折叠全部正文</button>'
-             f'<span class="cinfo" id="acInfo">共 {n_total} 篇 · {n_full} 篇可读全文</span>'
+             f'<span class="cinfo" id="acInfo">共 {n_total} 篇 · {n_full} 篇可读全文 · 点条目进入专注阅读</span>'
              '</div>')
     W.append('<ul class="alist" id="alist">')
+    rec_seen = set(rec_keys)
+    extras = []          # 全部视图中有正文但不在推荐清单的篇目（article 补入 storehouse）
     for i, a in enumerate(listing, 1):
         k = f'{a.get("account","")}|{a.get("title","")}'
         fv = a.get("_full") or {}
@@ -1677,8 +1689,6 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
             stat_bits.append(esc(atype))
         if a.get("read_num"):
             stat_bits.append(f'阅读 {a["read_num"]}')
-        if a.get("like_num"):
-            stat_bits.append(f'赞 {a["like_num"]}')
         if ascore:
             stat_bits.append(f'评分 {ascore}')
         W.append(f'<li data-acc="{esc(a.get("account",""))}" data-key="{esc(k)}" '
@@ -1686,28 +1696,52 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
                  f'data-time="{esc(a.get("time",""))}" data-type="{esc(atype)}" '
                  f'data-score="{ascore}" data-rn="{arn}" data-lk="{alk}" '
                  f'data-read="{esc(("阅读 "+str(a["read_num"])) if a.get("read_num") else "")}" '
-                 f'data-url="{esc(fv.get("real_url") or "")}">')
+                 f'data-url="{esc(fv.get("real_url") or "")}"'
+                 + (' data-nobody="1"' if not has else '') + '>')
         W.append(f'<span class="at">{esc(a.get("title"))}{star}</span>')
         W.append('<div class="am"><span class="aacc">' + esc(a.get("account", "")) + '</span>'
                  '<span class="sep"></span>' + '<span class="sep"></span>'.join(stat_bits) + '</div>')
-        dg = (a.get("digest") or fv.get("digest") or "").strip()
-        if dg:
-            W.append(f'<p class="dg">{esc(dg[:150])}</p>')
-        W.append('<div class="ops">')
-        if has:
-            W.append('<button onclick="toggleInline(this)">📖 展开正文</button>')
-            W.append('<button onclick="openDrawer()">🖍 批注</button>')
-            W.append('<button class="docbtn" onclick="saveDocToIma(this)" title="整篇正文转 markdown 存入 ima（[存档] 笔记）">☁ 原文入库</button>')
-        else:
+        if not has:
             W.append('<span class="no">正文未取到</span>')
-        W.append('<button class="fb" data-fb="like" onclick="fbMark(this,\'like\')">👍 感兴趣</button>'
-                 '<button class="fb" data-fb="dislike" onclick="fbMark(this,\'dislike\')">👎 不感兴趣</button>')
-        W.append('</div>')
-        if has:
-            W.append('<div class="inline-read"><div class="paper">' + fv["content_html"] + '</div></div>')
         W.append('</li>')
+        if has and k not in rec_seen:
+            rec_seen.add(k)
+            extras.append((k, a, fv, atype, ascore))
     W.append('</ul>')
     W.append('</div>')  # /allView
+
+    # ---------- 额外篇目的正文 article（并入 storehouse，弹层统一承载阅读） ----------
+    W.append('<div id="storehouse-x" hidden>')
+    for j, (k, a, fv, atype, ascore) in enumerate(extras, 1):
+        aid = f'art-x{j}'
+        stat_x = f'阅读 {a.get("read_num")}' if a.get("read_num") else ''
+        rlink_x = fv.get("real_url") or ""
+        W.append(f'<article id="{aid}" data-key="{esc(k)}" '
+                 f'data-account="{esc(a.get("account",""))}" data-title="{esc(a.get("title",""))}" '
+                 f'data-time="{esc(a.get("time",""))}" data-type="{esc(atype)}" '
+                 f'data-read="{esc(stat_x)}" data-url="{esc(rlink_x)}">')
+        W.append('<div class="abody">')
+        W.append(f'<h2>{esc(a.get("title"))}</h2>')
+        dg_x = (a.get("digest") or fv.get("digest") or "").strip()
+        if dg_x:
+            W.append(f'<div class="reasons">{esc(dg_x[:120])}</div>')
+        W.append('<div class="acts">'
+                 '<button class="hlbtn" onclick="openDrawer()">🖍 批注 <span class="hlcnt">0</span></button>'
+                 '<button class="docbtn" onclick="saveDocToIma(this)" title="整篇正文转 markdown 存入 ima 知识库（[存档] 笔记）">☁ 原文入库</button>'
+                 '<button class="fb" data-fb="like" onclick="fbMark(this,\'like\')">👍 感兴趣</button>'
+                 '<button class="fb" data-fb="dislike" onclick="fbMark(this,\'dislike\')">👎 不感兴趣</button>'
+                 '</div>')
+        W.append('<div class="read"><div class="paper">')
+        W.append(fv["content_html"])
+        W.append('</div>')
+        W.append('<div class="hlpanel">'
+                 '<div class="hlhd">🖍 本篇划线批注 <span class="cnt">0</span> 条</div>'
+                 '<div class="hlempty">在正文里选中任意句子，即可划线、写批注或求解释。</div>'
+                 '<ol class="hllist"></ol></div>')
+        W.append('</div>')   # /read
+        W.append('</div>')   # /abody
+        W.append('</article>')
+    W.append('</div>')
 
     if d.get("failed"):
         names = "、".join(esc(f.get("key", "").split("|")[0]) for f in d["failed"])
@@ -1719,8 +1753,20 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
 
     # 浮层组件
     W.append('<div id="selbar" class="selbar" hidden></div>')
-    W.append('<div id="backIdx" title="返回推荐速览">速览</div>')
     W.append('<div id="totop" title="回到顶部">↑</div>')
+    W.append('<div id="reader" hidden>'
+             '<div class="rdtop">'
+             '<button class="rdclose" onclick="closeReader()" title="返回浏览层（Esc 也可关闭)">← 返回</button>'
+             '<div class="rdinfo"><b id="rdTitle"></b><span id="rdMeta"></span></div>'
+             '<span class="rdtools">'
+             '<span class="grp" title="字号"><button onclick="setFontSize(-1)">A−</button>'
+             '<button onclick="setFontSize(1)">A+</button></span>'
+             '<span class="grp" title="正文宽度"><button onclick="setFont(-40)">窄</button>'
+             '<button onclick="setFont(40)">宽</button></span>'
+             '</span>'
+             '</div>'
+             '<div class="rdscroll" id="rdBody"></div>'
+             '</div>')
     W.append('<div id="mask" class="mask" hidden></div>')
     W.append('<div id="editor" class="editor" hidden>'
              '<div class="qh">选中的句子</div>'

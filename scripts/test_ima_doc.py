@@ -23,17 +23,20 @@ def main():
         page = b.new_page()
         page.goto("file:///" + html.replace("\\", "/"))
 
-        # 1. 按钮存在（推荐视图 + 全部视图）
+        # 1. 按钮存在（正文仓库 article 内；浏览层密排列表不再内嵌按钮）
         btn = page.query_selector('#art-1 .docbtn:has-text("☁ 原文入库")')
-        check("推荐卡片有「☁ 原文入库」按钮", btn is not None)
+        check("推荐篇目有「☁ 原文入库」按钮", btn is not None)
+        art_btn_n = page.eval_on_selector_all("#storehouse article .docbtn", "els => els.length")
         li_btn_n = page.eval_on_selector_all("#alist > li .docbtn", "els => els.length")
-        check("全部视图有原文入库按钮", li_btn_n > 50, f"{li_btn_n} 个")
+        check("正文仓库入库按钮 + 浏览层无内嵌按钮", art_btn_n > 50 and li_btn_n == 0,
+              f"article {art_btn_n} 个 / 浏览层 {li_btn_n} 个")
 
-        # 2. 正文先展开（art-1 .paper 必须在 DOM 且有内容）
+        # 2. 打开阅读弹层（art-1 .paper 必须在弹层内且可读）
         page.evaluate("openArt(document.querySelector('#art-1'))")
         time.sleep(0.4)
         paper_len = page.eval_on_selector("#art-1 .paper", "e => e.innerText.length")
-        check("art-1 正文可读", paper_len > 200, f"{paper_len} 字符")
+        reader_open = page.eval_on_selector("#reader", "e => !e.hidden")
+        check("弹层内 art-1 正文可读", paper_len > 200 and reader_open, f"{paper_len} 字符")
 
         # 3. 点「原文入库」
         page.on("dialog", lambda d: d.dismiss())   # 防重 confirm 自动取消

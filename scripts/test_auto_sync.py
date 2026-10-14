@@ -81,7 +81,9 @@ def main():
         n_hl = len(e2[0]["payload"]["items"][0]["highlights"]) if e2 else 0
         check("同篇收敛且内容为最新", len(e2) == 1 and n_hl == 2, f"{len(e2)} 条/{n_hl} 划线")
 
-        # 4. 👍 → 立即自动入队反馈（全量单条）
+        # 4. 👍 → 立即自动入队反馈（全量单条）——fb 按钮在阅读弹层内
+        page.evaluate("openArt(document.querySelector('#art-1'))")
+        time.sleep(0.3)
         page.click('#art-1 .fb[data-fb="like"]')
         time.sleep(1.5)
         fb1 = [e for e in q(page) if e["kind"] == "save_feedback"]
@@ -115,6 +117,8 @@ def main():
         check("服务在线划线自动直发落盘", hit7)
 
         # 8. 👍 在线直发 → feedback.json 落盘 + wx_rank.load_feedback 兼容
+        page.evaluate("openArt(document.querySelector('#art-2'))")
+        time.sleep(0.3)
         page.click('#art-2 .fb[data-fb="like"]')
         time.sleep(2.0)
         ok8 = False
