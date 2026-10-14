@@ -282,7 +282,7 @@ mark.hl.active{background:var(--hl-2);box-shadow:0 0 0 3px rgba(255,214,74,.45)}
 .hllist .ops a.dan{color:var(--red)}
 
 /* ---------- 浮动工具条 ---------- */
-.selbar{position:absolute;z-index:80;background:#22252b;border-radius:11px;padding:6px;
+.selbar{position:absolute;z-index:130;background:#22252b;border-radius:11px;padding:6px;
         display:flex;gap:3px;box-shadow:var(--shadow-lg);
         animation:popIn .16s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{from{opacity:0;transform:scale(.9) translateY(4px)}to{opacity:1;transform:none}}
@@ -294,9 +294,9 @@ mark.hl.active{background:var(--hl-2);box-shadow:0 0 0 3px rgba(255,214,74,.45)}
 .selbar button:hover{background:rgba(255,255,255,.16)}
 
 /* ---------- 编辑器 ---------- */
-.mask{position:fixed;inset:0;background:rgba(22,24,28,.5);backdrop-filter:blur(3px);z-index:85;
+.mask{position:fixed;inset:0;background:rgba(22,24,28,.5);backdrop-filter:blur(3px);z-index:135;
       animation:fadeIn .18s ease}
-.editor{position:fixed;z-index:90;left:50%;top:50%;transform:translate(-50%,-50%);
+.editor{position:fixed;z-index:140;left:50%;top:50%;transform:translate(-50%,-50%);
         width:min(580px,93vw);background:#fff;border-radius:var(--r-lg);
         box-shadow:var(--shadow-lg);padding:20px 22px;overflow:hidden;
         animation:slideUp .22s cubic-bezier(.34,1.3,.64,1)}
@@ -323,7 +323,7 @@ mark.hl.active{background:var(--hl-2);box-shadow:0 0 0 3px rgba(255,214,74,.45)}
 .editor .kshort{font-size:11px;color:var(--sub);margin-right:8px}
 
 /* ---------- 抽屉 ---------- */
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,95vw);background:#fff;z-index:95;
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,95vw);background:#fff;z-index:145;
         box-shadow:-16px 0 48px rgba(0,0,0,.18);transform:translateX(102%);
         transition:transform .3s cubic-bezier(.32,.72,.35,1);display:flex;flex-direction:column}
 .drawer.open{transform:none}
@@ -358,7 +358,7 @@ footer{color:var(--sub);font-size:12.5px;text-align:center;margin-top:34px;line-
 
 .toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);
        background:#22252b;color:#fff;padding:11px 20px;border-radius:11px;font-size:13.5px;
-       opacity:0;transition:all .28s cubic-bezier(.34,1.3,.64,1);pointer-events:none;z-index:99;
+       opacity:0;transition:all .28s cubic-bezier(.34,1.3,.64,1);pointer-events:none;z-index:150;
        max-width:88vw;text-align:center;line-height:1.65;box-shadow:var(--shadow-lg)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -495,7 +495,13 @@ function toast(msg){
   t.textContent = msg; t.classList.add('show');
   clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2200);
 }
-function artByKey(k){ return $$('article[data-key], #alist > li[data-key]').find(a=>a.dataset.key===k); }
+function artByKey(k){
+  const all = $$('article[data-key], #alist > li[data-key]');
+  /* article 承载正文优先：弹层打开时 article 移到文档尾部(#reader 在 allView 之后)，
+     若按文档顺序 find 会让同 key 的 li 抢先——renderPanel/applyHighlights 拿到无正文的 li 全部静默失败 */
+  return all.find(a=>a.dataset.key===k && a.tagName==='ARTICLE')
+      || all.find(a=>a.dataset.key===k);   /* 无正文篇目由 li 兜底 */
+}
 /* 所有承载正文的可批注单元（推荐视图的 article + 全部视图的 li） */
 function allUnits(){ return $$('article[data-key], #alist > li[data-key]'); }
 

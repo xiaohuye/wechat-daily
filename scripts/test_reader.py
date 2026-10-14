@@ -55,6 +55,79 @@ def main():
         fbk = page.evaluate("() => { const a = document.querySelector('#rdBody #art-1'); return !!localStorage.getItem('wxfb::' + a.dataset.key); }")
         check("弹层内反馈按钮工作", fbk)
 
+        # 3.5 弹层内划线链路：选区 → 工具条顶层可见 → 编辑器 → 保存 → mark 高亮
+        #      （回归：#reader z-index 120 曾盖住 selbar(80)/editor(90)，划线时页面无反应）
+        page.evaluate("""() => {
+          const paper = document.querySelector('#rdBody .paper');
+          const w = document.createTreeWalker(paper, NodeFilter.SHOW_TEXT);
+          let t = w.nextNode();
+          while(t && t.nodeValue.trim().length < 40) t = w.nextNode();
+          const rb = document.querySelector('#rdBody');
+          const er = t.parentElement.getBoundingClientRect();
+          const br = rb.getBoundingClientRect();
+          /* .rdscroll 是 scroll-behavior:smooth：scrollTop 赋值是异步动画，mouseup 若在动画中取 rect 会错位
+             —— 测试用 instant 显式覆盖；真实用户滚动稳定后才选中，无此问题 */
+          rb.scrollTo({top: rb.scrollTop + er.top - br.top - br.height/2, behavior: 'instant'});
+        }""")
+        page.wait_for_timeout(200)
+        page.evaluate("""() => {
+          const paper = document.querySelector('#rdBody .paper');
+          const w = document.createTreeWalker(paper, NodeFilter.SHOW_TEXT);
+          let t = w.nextNode();
+          while(t && t.nodeValue.trim().length < 40) t = w.nextNode();
+          const n = Math.min(30, t.nodeValue.trim().length);
+          const r = document.createRange();
+          r.setStart(t, 0); r.setEnd(t, n);
+          const s = window.getSelection();
+          s.removeAllRanges(); s.addRange(r);
+          document.dispatchEvent(new MouseEvent('mouseup', {bubbles:true}));
+        }""")
+        page.wait_for_timeout(300)
+        bar_vis = page.evaluate("""() => {
+          const b = document.querySelector('#selbar');
+          if(!b || b.hidden) return false;
+          const r = b.getBoundingClientRect();
+          const el = document.elementFromPoint(r.left + r.width/2, r.top + r.height/2);
+          return !!el && b.contains(el);   /* 顶层命中=未被弹层盖住 */
+        }""")
+        bar_dbg = page.evaluate("""() => {
+          const b = document.querySelector('#selbar');
+          const r = b.getBoundingClientRect();
+          const cx = r.left + r.width/2, cy = r.top + r.height/2;
+          const el = document.elementFromPoint(cx, cy);
+          return {t: Math.round(r.top), hidden: b.hidden, sc: document.querySelector('#rdBody').scrollTop,
+                  hit: el ? el.tagName + '/in=' + b.contains(el) : 'null'};
+        }""")
+        check("弹层内选中文字工具条顶层可见", bar_vis, str(bar_dbg))
+        page.click("#selbar button[data-a='note']")
+        page.wait_for_timeout(200)
+        ed_vis = page.evaluate("""() => {
+          const e = document.querySelector('#editor');
+          if(!e || e.hidden) return false;
+          const r = e.getBoundingClientRect();
+          const el = document.elementFromPoint(r.left + r.width/2, r.top + r.height/2);
+          return !!el && (e === el || e.contains(el));
+        }""")
+        check("划线编辑器弹出且顶层可见", ed_vis)
+        page.fill("#edNote", "弹层内划线回归批注")
+        page.click("#edSave")
+        page.wait_for_timeout(400)
+        mk_n = page.evaluate("() => document.querySelectorAll('#rdBody .paper mark.hl').length")
+        panel_cnt = page.evaluate("() => document.querySelector('#rdBody .hlpanel .cnt').textContent")
+        check("划线后正文高亮 + 面板计数", mk_n == 1 and panel_cnt == "1", f"mark {mk_n} / 面板 {panel_cnt}")
+        # 点击已有划线 → edit 模式工具条 → 删除
+        page.evaluate("() => document.querySelector('#rdBody .paper mark.hl').click()")
+        page.wait_for_timeout(250)
+        edit_bar = page.evaluate("""() => {
+          const b = document.querySelector('#selbar');
+          return b && !b.hidden && b.dataset.mode === 'edit';
+        }""")
+        check("点击已有划线弹编辑工具条", edit_bar)
+        page.click("#selbar button[data-a='del']")
+        page.wait_for_timeout(300)
+        mk_gone = page.evaluate("() => document.querySelectorAll('#rdBody .paper mark.hl').length")
+        check("工具条删除划线生效", mk_gone == 0, f"mark 剩 {mk_gone} 个")
+
         # 4. 弹层开着换篇：openArt 另一篇 → 旧篇归位 storehouse，rdBody 唯一
         swap = page.evaluate("""() => {
           const cur = document.querySelector('#rdBody article');
@@ -100,7 +173,7 @@ def main():
         # 7. 旧 backIdx 体系已移除 + 清理测试反馈
         nobackidx = page.evaluate("() => !document.querySelector('#backIdx')")
         check("backIdx 悬浮已移除", nobackidx)
-        page.evaluate("() => Object.keys(localStorage).filter(k=>k.indexOf('wxfb::')===0).forEach(k=>localStorage.removeItem(k))")
+        page.evaluate("() => Object.keys(localStorage).filter(k=>k.indexOf('wxfb::')===0||k.indexOf('wxhl::')===0).forEach(k=>localStorage.removeItem(k))")
         b.close()
 
     fails = [r for r in results if not r[1]]
