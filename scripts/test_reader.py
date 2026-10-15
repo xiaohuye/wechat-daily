@@ -115,6 +115,14 @@ def main():
         mk_n = page.evaluate("() => document.querySelectorAll('#rdBody .paper mark.hl').length")
         panel_cnt = page.evaluate("() => document.querySelector('#rdBody .hlpanel .cnt').textContent")
         check("划线后正文高亮 + 面板计数", mk_n == 1 and panel_cnt == "1", f"mark {mk_n} / 面板 {panel_cnt}")
+        # 回归：保存点击的 mouseup 会"点穿"到正文——旧版选区未清 + 无抑制锁，
+        # 10ms 定时器把工具条复活（用户报「保存批注后划线/求解释/复制弹窗关不掉」）
+        page.wait_for_timeout(300)
+        bar_revived = page.evaluate("""() => {
+          const b = document.querySelector('#selbar');
+          return !!(b && !b.hidden);
+        }""")
+        check("保存批注后工具条不复活", not bar_revived, "工具条复活了" if bar_revived else "")
         # 点击已有划线 → edit 模式工具条 → 删除（edit 条逻辑在 mouseup 通道，需真实鼠标）
         mk_pos = page.evaluate("""() => {
           const m = document.querySelector('#rdBody .paper mark.hl');

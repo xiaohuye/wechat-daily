@@ -511,6 +511,7 @@ setTimeout(function(){
 
 const HKEY = 'wxhl::';
 let curSel = null, curHlId = null, curArtKey = null;
+let _barLock = 0;   /* 复活抑制锁：编辑器关闭时刻 +350ms 内 mouseup 定时器不弹任何条 */
 
 const $  = (s,r)=> (r||document).querySelector(s);
 const $$ = (s,r)=> Array.prototype.slice.call((r||document).querySelectorAll(s));
@@ -688,7 +689,8 @@ function openEditor(hlid, artKey, quote){
   $('#mask').hidden = false; $('#editor').hidden = false;
   setTimeout(()=>$('#edNote').focus(), 60);
 }
-function closeEditor(){ $('#mask').hidden = true; $('#editor').hidden = true; curHlId = null; }
+function closeEditor(){ $('#mask').hidden = true; $('#editor').hidden = true; curHlId = null;
+  _barLock = Date.now() + 350;   /* 点穿 mouseup 防复活：mousedown 关编辑器时，同次点击的 mouseup 会落到正文 */ }
 function saveEditor(){
   if(window._diag) window._diag.saves++;
   if($('#editor').hidden) return;   /* 幂等：mousedown+click 双路触发/重复点击只存一次 */
@@ -704,6 +706,8 @@ function saveEditor(){
   saveHL(curArtKey, list);
   applyHighlights(curArtKey);
   closeEditor(); hideBar();
+  const _s = window.getSelection(); if(_s && _s.removeAllRanges) _s.removeAllRanges();   /* 保存完成即结束选区 */
+  curSel = null;
   toast(note ? '已保存划线批注' : '已划线（未写批注）');
 }
 function deleteHl(){
@@ -712,7 +716,10 @@ function deleteHl(){
   const list = loadHL(k).filter(x=>x.id !== curHlId);
   saveHL(k, list);
   applyHighlights(k);
-  closeEditor(); hideBar(); toast('已删除划线');
+  closeEditor(); hideBar();
+  const _s = window.getSelection(); if(_s && _s.removeAllRanges) _s.removeAllRanges();
+  curSel = null;
+  toast('已删除划线');
 }
 
 /* ---------------- 面板 / 抽屉 ---------------- */
@@ -1304,6 +1311,7 @@ function onMouseUp(e){
      "复活"——即用户报的「划线/求解释/复制弹窗一直展示」 */
   if(e && e.target && e.target.closest && e.target.closest('#selbar')) return;
   setTimeout(function(){
+    if(Date.now() < _barLock) return;   /* 复活抑制窗内：编辑器刚被那次点击关掉，点穿 mouseup 不弹任何条 */
     const s = readSel();
     if(s){ if(window._diag) window._diag.sels++; curSel = s; showBar(s.rect, 'new', null); return; }
     /* 无选区：点在已有划线高亮上 → 弹编辑条；否则隐藏。
