@@ -661,6 +661,7 @@ function openEditor(hlid, artKey, quote){
 }
 function closeEditor(){ $('#mask').hidden = true; $('#editor').hidden = true; curHlId = null; }
 function saveEditor(){
+  if(window._diag) window._diag.saves++;
   if($('#editor').hidden) return;   /* 幂等：mousedown+click 双路触发/重复点击只存一次 */
   const note = ($('#edNote').value || '').trim();
   const list = loadHL(curArtKey);
@@ -1268,9 +1269,10 @@ function resetFilters(){
 
 /* ---------------- 事件 ---------------- */
 function onMouseUp(){
+  if(window._diag) window._diag.mups++;
   setTimeout(function(){
     const s = readSel();
-    if(s){ curSel = s; showBar(s.rect, 'new', null); }
+    if(s){ if(window._diag) window._diag.sels++; curSel = s; showBar(s.rect, 'new', null); }
     else if(!$('#selbar').matches(':hover')) hideBar();
   }, 10);
 }
@@ -1278,6 +1280,7 @@ document.addEventListener('mouseup', onMouseUp);
 document.addEventListener('touchend', onMouseUp);
 
 document.addEventListener('click', function(e){
+  if(window._diag) window._diag.clicks++;
   const bar = $('#selbar');
   if(bar && !bar.hidden && bar.contains(e.target)) return;
 
@@ -1354,7 +1357,7 @@ document.addEventListener('click', function(e){
    click 可能被 IME composition 吞掉（第一次点击没反应、弹窗不关、无报错）；
    mousedown 不经过输入法转发且先于 click 发生，双路触发由 saveEditor/deleteHl
    开头的 hidden 幂等检查收敛成一次生效 */
-function edBtn(fn){ return function(e){ e.preventDefault(); fn(); }; }
+function edBtn(fn){ return function(e){ if(window._diag) window._diag.edBtns++; e.preventDefault(); fn(); }; }
 $('#edSave').addEventListener('mousedown', edBtn(saveEditor));
 $('#edCancel').addEventListener('mousedown', edBtn(closeEditor));
 $('#edDel').addEventListener('mousedown', edBtn(deleteHl));
@@ -1390,6 +1393,30 @@ $('#fss').addEventListener('click', function(e){
 });
 
 /* 初始化 */
+/* ---------------- 诊断面板（交互问题排查取证用，定位后移除） ---------------- */
+window._diag = {clicks:0, saves:0, edBtns:0, mups:0, sels:0, errs:0};
+window.onerror = function(msg, src2, line){
+  window._diag.errs++;
+  var d = document.getElementById('_derr');
+  if(!d){ d = document.createElement('div'); d.id = '_derr';
+    d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999;background:#c7250e;color:#fff;font:12px/1.6 monospace;padding:5px 12px;white-space:pre-wrap;word-break:break-all;pointer-events:none';
+    (document.body || document.documentElement).appendChild(d); }
+  d.textContent = 'JS错误#' + window._diag.errs + ': ' + msg + (line ? ' @line ' + line : '');
+  return false;
+};
+setInterval(function(){
+  var el = document.getElementById('_dbar');
+  if(!el){ el = document.createElement('div'); el.id = '_dbar';
+    el.style.cssText = 'position:fixed;right:8px;bottom:8px;z-index:999;background:rgba(38,42,50,.93);color:#8ce99a;font:11px/1.7 Consolas,monospace;padding:6px 10px;border-radius:8px;pointer-events:none;max-width:72vw;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.28)';
+    (document.body || document.documentElement).appendChild(el); }
+  var d = window._diag;
+  var ed = document.getElementById('editor'), mk = document.getElementById('mask'), sb = document.getElementById('selbar');
+  el.textContent = '弹:' + (ed && !ed.hidden ? '开' : '关') + ' 罩:' + (mk && !mk.hidden ? '开' : '关')
+    + ' 条:' + (sb && !sb.hidden ? '开' : '关') + (curSel ? ' 选:有' : ' 选:无')
+    + ' | 点' + d.clicks + ' 存' + d.saves + ' 按下' + d.edBtns + ' 抬' + d.mups + ' 选中' + d.sels
+    + (d.errs ? ' ⚠错' + d.errs : '');
+}, 300);
+
 document.addEventListener('DOMContentLoaded', function(){
   /* 全部视图的额外正文并入 storehouse（正文仓库统一，弹层关闭时移回这里） */
   const shx = $('#storehouse-x');
