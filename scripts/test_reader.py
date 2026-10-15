@@ -115,9 +115,14 @@ def main():
         mk_n = page.evaluate("() => document.querySelectorAll('#rdBody .paper mark.hl').length")
         panel_cnt = page.evaluate("() => document.querySelector('#rdBody .hlpanel .cnt').textContent")
         check("划线后正文高亮 + 面板计数", mk_n == 1 and panel_cnt == "1", f"mark {mk_n} / 面板 {panel_cnt}")
-        # 点击已有划线 → edit 模式工具条 → 删除
-        page.evaluate("() => document.querySelector('#rdBody .paper mark.hl').click()")
-        page.wait_for_timeout(250)
+        # 点击已有划线 → edit 模式工具条 → 删除（edit 条逻辑在 mouseup 通道，需真实鼠标）
+        mk_pos = page.evaluate("""() => {
+          const m = document.querySelector('#rdBody .paper mark.hl');
+          const r = m.getBoundingClientRect();
+          return {x: r.left + 5, y: r.top + 5};
+        }""")
+        page.mouse.click(mk_pos["x"], mk_pos["y"])
+        page.wait_for_timeout(300)
         edit_bar = page.evaluate("""() => {
           const b = document.querySelector('#selbar');
           return b && !b.hidden && b.dataset.mode === 'edit';

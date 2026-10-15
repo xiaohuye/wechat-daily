@@ -1268,12 +1268,28 @@ function resetFilters(){
 }
 
 /* ---------------- 事件 ---------------- */
-function onMouseUp(){
+function onMouseUp(e){
   if(window._diag) window._diag.mups++;
+  /* 工具条自身的 mouseup（点按钮）不触发重弹：click 已把工具条隐藏/打开编辑器，
+     但 10ms 定时器里选区仍在（mousedown preventDefault 保住的），showBar 会把工具条
+     "复活"——即用户报的「划线/求解释/复制弹窗一直展示」 */
+  if(e && e.target && e.target.closest && e.target.closest('#selbar')) return;
   setTimeout(function(){
     const s = readSel();
-    if(s){ if(window._diag) window._diag.sels++; curSel = s; showBar(s.rect, 'new', null); }
-    else if(!$('#selbar').matches(':hover')) hideBar();
+    if(s){ if(window._diag) window._diag.sels++; curSel = s; showBar(s.rect, 'new', null); return; }
+    /* 无选区：点在已有划线高亮上 → 弹编辑条；否则隐藏。
+       此逻辑原在 document click 委托里，与 mouseup 的 10ms 定时器存在
+       showBar/hideBar 时序竞争（真实鼠标下 click 先 showBar、定时器后 hideBar，
+       编辑条弹出即被关）——挪进 mouseup 单通道，一次判定无竞争 */
+    const mk = e && e.target && e.target.closest ? e.target.closest('mark.hl') : null;
+    if(mk){
+      const art = mk.closest('article[data-key]') || mk.closest('#alist > li[data-key]');
+      curSel = null;
+      showBar(mk.getBoundingClientRect(), 'edit', mk.dataset.hlid);
+      curArtKey = art ? art.dataset.key : '';
+      return;
+    }
+    if(!$('#selbar').matches(':hover')) hideBar();
   }, 10);
 }
 document.addEventListener('mouseup', onMouseUp);
@@ -1284,15 +1300,6 @@ document.addEventListener('click', function(e){
   const bar = $('#selbar');
   if(bar && !bar.hidden && bar.contains(e.target)) return;
 
-  const mk = e.target.closest ? e.target.closest('mark.hl') : null;
-  if(mk){
-    const art = mk.closest('article[data-key]') || mk.closest('#alist > li[data-key]');
-    const r = mk.getBoundingClientRect();
-    curSel = null;
-    showBar(r, 'edit', mk.dataset.hlid);
-    curArtKey = art.dataset.key;
-    return;
-  }
   const li = e.target.closest ? e.target.closest('.hllist li') : null;
   if(li){
     const art = li.closest('article[data-key]') || li.closest('#alist > li[data-key]');
