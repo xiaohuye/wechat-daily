@@ -133,13 +133,16 @@ fi
 FULLJSON=$(ls -t data/articles-full-weread-*.json 2>/dev/null | head -1)
 [ -n "$FULLJSON" ] || { echo "未生成正文结果"; exit 2; }
 log "→ $FULLJSON"
+RANKJSON=$(ls -t data/ranked-weread-*.json 2>/dev/null | head -1)
+INSJSON=$(ls -t data/insights-weread-*.json 2>/dev/null | head -1)
+log "→ ${RANKJSON:-（无）} / ${INSJSON:-（无）}"
 
 # ---------- 5/5 生成日报 ----------
 log "=== [5/5] 生成精读版日报 ==="
 if [ "$FULL" = "0" ]; then
-  "$PY" scripts/wx_reader.py --top "$TOP" --full "$FULLJSON" --articles "$ART" || exit 2
+  "$PY" scripts/wx_reader.py --top "$TOP" --full "$FULLJSON" --articles "$ART" --rank "$RANKJSON" --insights "$INSJSON" || exit 2
 else
-  "$PY" scripts/wx_reader.py --top "$FULL" --full "$FULLJSON" --articles "$ART" || exit 2
+  "$PY" scripts/wx_reader.py --top "$FULL" --full "$FULLJSON" --articles "$ART" --rank "$RANKJSON" --insights "$INSJSON" || exit 2
 fi
 
 echo

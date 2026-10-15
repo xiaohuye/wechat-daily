@@ -480,6 +480,35 @@ body.reading{overflow:hidden}
 """
 
 JS = r"""
+/* ---------------- 沙箱安全 localStorage (SafeLS) ----------------
+   WorkBuddy 预览面板等沙箱 iframe（无 allow-same-origin）禁用 localStorage：
+   访问 window.localStorage 属性即抛 SecurityError，页面一加载必炸、保存必失败。
+   统一走 SafeLS：可用时直用；不可用时降级内存 Map——功能保持、数据不持久，
+   并显示顶部黄条提示用户改用浏览器获得完整保存能力。 */
+let _lsOK = null, LS = null;
+const _mem = {};
+function lsProbe(){
+  if(_lsOK === null){
+    try{ LS = window.localStorage; LS.setItem('__ls_probe', '1'); LS.removeItem('__ls_probe'); _lsOK = true; }
+    catch(e){ _lsOK = false; }
+  }
+  return _lsOK;
+}
+function lsGet(k){ if(!lsProbe()) return (k in _mem) ? _mem[k] : null; try{ return LS.getItem(k); }catch(e){ return (k in _mem) ? _mem[k] : null; } }
+function lsSet(k, v){ if(!lsProbe()){ _mem[k] = String(v); return; } try{ LS.setItem(k, v); }catch(e){ _mem[k] = String(v); } }
+function lsDel(k){ if(!lsProbe()){ delete _mem[k]; return; } try{ LS.removeItem(k); }catch(e){ delete _mem[k]; } }
+function lsLen(){ if(!lsProbe()) return Object.keys(_mem).length; try{ return LS.length; }catch(e){ return Object.keys(_mem).length; } }
+function lsKey(i){ if(!lsProbe()) return Object.keys(_mem)[i] || null; try{ return LS.key(i); }catch(e){ return Object.keys(_mem)[i] || null; } }
+/* 沙箱提示（一次性，仅环境受限时显示） */
+setTimeout(function(){
+  if(lsProbe() === false && document.body){
+    const b = document.createElement('div');
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:998;background:#a56a00;color:#fff;font:12px/1.7 sans-serif;padding:5px 12px;pointer-events:none';
+    b.textContent = '⚠ 当前预览面板是沙箱环境，划线/批注/反馈可操作但不会保存。完整功能请用 Chrome/Edge 打开本地 HTML 文件使用。';
+    document.body.appendChild(b);
+  }
+}, 600);
+
 const HKEY = 'wxhl::';
 let curSel = null, curHlId = null, curArtKey = null;
 
@@ -525,7 +554,7 @@ function setFont(delta){
   const cur = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fw')) || 700;
   const next = Math.min(860, Math.max(560, cur + delta));
   document.documentElement.style.setProperty('--fw', next + 'px');
-  localStorage.setItem('wxfw', next);
+  lsSet('wxfw', next);
   toast(delta > 0 ? '正文加宽' : '正文收窄');
 }
 function setFontSize(delta){
@@ -534,22 +563,22 @@ function setFontSize(delta){
     const cur = parseFloat(getComputedStyle(el).getPropertyValue('font-size'));
     el.style.fontSize = Math.min(21, Math.max(14.5, cur + delta)) + 'px';
   });
-  localStorage.setItem('wxfs', parseFloat(getComputedStyle($('.paper') || document.body).getPropertyValue('font-size')));
+  lsSet('wxfs', parseFloat(getComputedStyle($('.paper') || document.body).getPropertyValue('font-size')));
   toast(delta > 0 ? '字号调大' : '字号调小');
 }
 function restoreView(){
-  const fw = localStorage.getItem('wxfw');
+  const fw = lsGet('wxfw');
   if(fw) document.documentElement.style.setProperty('--fw', fw + 'px');
-  const fs = localStorage.getItem('wxfs');
+  const fs = lsGet('wxfs');
   if(fs) $$('.paper').forEach(el=>el.style.fontSize = fs + 'px');
 }
 
 /* ---------------- 存储 ---------------- */
 function loadHL(key){
-  try{ return JSON.parse(localStorage.getItem(HKEY+key) || '[]'); }catch(e){ return []; }
+  try{ return JSON.parse(lsGet(HKEY+key) || '[]'); }catch(e){ return []; }
 }
 function saveHL(key, arr){
-  localStorage.setItem(HKEY+key, JSON.stringify(arr));
+  lsSet(HKEY+key, JSON.stringify(arr));
   renderPanel(key); renderDrawer($('#dsearch') ? $('#dsearch').value : '');
   autoSyncHL(key);   /* 划线有变化 → 自动回灌这一篇（防抖 2s），喂明日推荐，无需手动点按钮 */
 }
@@ -786,13 +815,13 @@ function askExplain(text, akey, start, end){
 /* ---------------- 阅读反馈（迭代推荐算法用） ---------------- */
 /* localStorage key: wxfb::<account|title> -> {mark:'like'|'dislike', ts} */
 function fbKey(k){ return 'wxfb::' + k; }
-function fbGet(k){ try{ return JSON.parse(localStorage.getItem(fbKey(k)) || 'null'); }catch(e){ return null; } }
+function fbGet(k){ try{ return JSON.parse(lsGet(fbKey(k)) || 'null'); }catch(e){ return null; } }
 function fbAll(){
   const out = [];
-  for(let i=0;i<localStorage.length;i++){
-    const k = localStorage.key(i);
+  for(let i=0;i<lsLen();i++){
+    const k = lsKey(i);
     if(k.indexOf('wxfb::')===0){
-      try{ const v = JSON.parse(localStorage.getItem(k));
+      try{ const v = JSON.parse(lsGet(k));
            if(v && v.mark) out.push({key:k.slice(6), account:v.account||'', title:v.title||'', mark:v.mark, ts:v.ts});
       }catch(e){}
     }
@@ -804,12 +833,12 @@ function fbMark(btn, mark){
   const k = unit.dataset.key;
   const cur = fbGet(k);
   if(cur && cur.mark === mark){            // 再点一次 = 取消标记
-    localStorage.removeItem(fbKey(k));
+    lsDel(fbKey(k));
     paintFb(k, null);
     toast('已取消标记');
     autoSyncFb();                          // 取消也同步：反馈全集以页面为准，服务端整体替换
   }else{
-    localStorage.setItem(fbKey(k), JSON.stringify({
+    lsSet(fbKey(k), JSON.stringify({
       mark:mark, ts:Date.now(), account:unit.dataset.account||'', title:unit.dataset.title||''}));
     paintFb(k, mark);
     toast(mark==='like' ? '👍 已标记感兴趣，后续会加权推荐同类' : '👎 已标记不感兴趣，后续会降权');
@@ -835,8 +864,8 @@ function paintFbAll(){ fbAll().forEach(function(f){ paintFb(f.key, f.mark); }); 
    服务被拉起后（run_daily.sh / 手动 / 喊 AI 同步），页面自动探测并冲刷，服务闲置自动退出。 */
 const SYNC = 'http://127.0.0.1:8931';
 const QKEY = 'wxqueue';
-function qLoad(){ try{ return JSON.parse(localStorage.getItem(QKEY) || '[]'); }catch(e){ return []; } }
-function qSave(q){ localStorage.setItem(QKEY, JSON.stringify(q)); badge(); }
+function qLoad(){ try{ return JSON.parse(lsGet(QKEY) || '[]'); }catch(e){ return []; } }
+function qSave(q){ lsSet(QKEY, JSON.stringify(q)); badge(); }
 function qAdd(kind, payload, ded){
   const sig = kind + '|' + JSON.stringify(payload);
   const q = qLoad();
@@ -872,11 +901,11 @@ function qMarkDone(entry){
   const p = entry.payload || {};
   if(entry.kind === 'save'){
     (p.items || []).forEach(function(it){
-      localStorage.setItem('wximsaved::' + it.account + '|' + it.title,
+      lsSet('wximsaved::' + it.account + '|' + it.title,
         JSON.stringify({cnt: (it.highlights||[]).length, ts: Date.now()}));
     });
   } else if(entry.kind === 'save_doc'){
-    localStorage.setItem('wximsaved_doc::' + p.account + '|' + p.title, '1');
+    lsSet('wximsaved_doc::' + p.account + '|' + p.title, '1');
   }
 }
 function flushQueue(silent){
@@ -995,7 +1024,7 @@ function saveToIma(){
   collect().forEach(function(o){
     const k = 'wximsaved::' + o.art.dataset.key;
     const cnt = o.list.length;
-    const saved = (function(){ try{ return JSON.parse(localStorage.getItem(k) || 'null'); }catch(e){ return null; } })();
+    const saved = (function(){ try{ return JSON.parse(lsGet(k) || 'null'); }catch(e){ return null; } })();
     if(saved && saved.cnt === cnt){ return; }
     items.push({
       title: o.art.dataset.title, account: o.art.dataset.account,
@@ -1019,7 +1048,7 @@ function realSave(items){
     body: JSON.stringify({items: items})
   }).then(function(r){ return r.json(); }).then(function(d){
     items.forEach(function(it){
-      localStorage.setItem('wximsaved::' + it.account + '|' + it.title,
+      lsSet('wximsaved::' + it.account + '|' + it.title,
         JSON.stringify({cnt: (it.highlights||[]).length, ts: Date.now()}));
     });
     if(d.fail){ toast('入库 ' + d.ok + ' 篇，失败 ' + d.fail + ' 篇：' + (d.errors[0]||'').slice(0,60)); }
@@ -1050,9 +1079,9 @@ function htmlToMd(root){
 function saveDocToIma(btn){
   const unit = btn.closest('article[data-key], #alist > li[data-key]'); if(!unit) return;
   const k = 'wximsaved_doc::' + unit.dataset.key;
-  if(localStorage.getItem(k)){
+  if(lsGet(k)){
     if(!confirm('这篇原文已入库过，再存一篇？')) return;
-    localStorage.removeItem(k);
+    lsDel(k);
   }
   const paper = $('.paper', unit);
   if(!paper){ toast('本篇正文不可用'); return; }
@@ -1075,9 +1104,9 @@ function realSaveDoc(btn, k, payload){
     body: JSON.stringify(payload)
   }).then(function(r){ return r.json(); }).then(function(d){
     btn.disabled = false;
-    if(d.ok){ localStorage.setItem(k, '1'); toast('✓ 原文已存入 ima（[存档] 笔记）'); }
+    if(d.ok){ lsSet(k, '1'); toast('✓ 原文已存入 ima（[存档] 笔记）'); }
     else if(d.done && d.done.length && String(d.done[0]).indexOf('跳过') >= 0){
-      localStorage.setItem(k, '1'); toast('原文已入库过（服务端去重）');
+      lsSet(k, '1'); toast('原文已入库过（服务端去重）');
     }else{
       toast('入库失败：' + ((d.errors && d.errors[0]) || '').slice(0, 50));
     }
@@ -1191,7 +1220,7 @@ function setView(v){
   document.body.classList.toggle('mode-all', all);
   $('#tabRec').classList.toggle('on', !all);
   $('#tabAll').classList.toggle('on', all);
-  localStorage.setItem('wxview', v);
+  lsSet('wxview', v);
   window.scrollTo({top:0, behavior:'smooth'});
   if(all){ renderDrawer($('#dsearch') ? $('#dsearch').value : ''); }
   else{ applyAll(); renderDrawer($('#dsearch') ? $('#dsearch').value : ''); }
@@ -1447,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', function(){
   paintFbAll();
   badge();                 /* 徽章初始状态：有历史暂存队列则显示「N 条待同步」 */
   startQueueWatcher();
-  const v = localStorage.getItem('wxview');
+  const v = lsGet('wxview');
   if(v === 'all') setView('all');
 });
 """
