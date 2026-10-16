@@ -87,12 +87,12 @@ def main():
           document.dispatchEvent(new MouseEvent('mouseup', {bubbles:true}));
         }""")
         pg.wait_for_timeout(400)
-        bar = frame.evaluate("() => { const b = document.querySelector('#selbar'); return b && !b.hidden; }")
+        bar = frame.evaluate("() => { const b = document.querySelector('#selbar'); return b && (!b.hidden && getComputedStyle(b).display !== 'none'); }")
         check("沙箱内划线工具条弹出", bar)
         if bar:
             frame.click("#selbar button[data-a='note']")
             pg.wait_for_timeout(300)
-            ed = frame.evaluate("() => { const e = document.querySelector('#editor'); return e && !e.hidden; }")
+            ed = frame.evaluate("() => { const e = document.querySelector('#editor'); return e && (!e.hidden && getComputedStyle(e).display !== 'none'); }")
             check("沙箱内编辑器弹出", ed)
             frame.fill("#edNote", "沙箱环境批注")
             frame.click("#edSave")

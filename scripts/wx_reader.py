@@ -53,6 +53,9 @@ CSS = """
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+/* 全局防御: 任何带 display:flex/grid 的浮层类都会压过 UA 的 [hidden]{display:none}，
+   导致 hidden 属性失效（selbar 曾中招: 逻辑隐藏、视觉永显）——!important 一票否决 */
+[hidden]{display:none !important}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 var(--ff);
      -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 

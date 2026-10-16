@@ -120,7 +120,7 @@ def main():
         page.wait_for_timeout(300)
         bar_revived = page.evaluate("""() => {
           const b = document.querySelector('#selbar');
-          return !!(b && !b.hidden);
+          return !!(b && (!b.hidden && getComputedStyle(b).display !== 'none'));
         }""")
         check("保存批注后工具条不复活", not bar_revived, "工具条复活了" if bar_revived else "")
         # 点击已有划线 → edit 模式工具条 → 删除（edit 条逻辑在 mouseup 通道，需真实鼠标）
@@ -133,7 +133,7 @@ def main():
         page.wait_for_timeout(300)
         edit_bar = page.evaluate("""() => {
           const b = document.querySelector('#selbar');
-          return b && !b.hidden && b.dataset.mode === 'edit';
+          return b && (!b.hidden && getComputedStyle(b).display !== 'none') && b.dataset.mode === 'edit';
         }""")
         check("点击已有划线弹编辑工具条", edit_bar)
         page.click("#selbar button[data-a='del']")
@@ -157,14 +157,14 @@ def main():
           document.dispatchEvent(new MouseEvent('mouseup', {bubbles:true}));
         }""")
         page.wait_for_timeout(300)
-        bar_shown = page.evaluate("() => { const b = document.querySelector('#selbar'); return b && !b.hidden; }")
+        bar_shown = page.evaluate("() => { const b = document.querySelector('#selbar'); return b && (!b.hidden && getComputedStyle(b).display !== 'none'); }")
         if bar_shown:
             page.evaluate("() => closeReader()")
             page.wait_for_timeout(300)
             residual = page.evaluate("""() => {
               const b = document.querySelector('#selbar');
               const s = window.getSelection();
-              return { bar: !!(b && !b.hidden), sel: !!(s && !s.isCollapsed && s.rangeCount) };
+              return { bar: !!(b && (!b.hidden && getComputedStyle(b).display !== 'none')), sel: !!(s && !s.isCollapsed && s.rangeCount) };
             }""")
             check("返回首页后工具条不残留且选区已清", not residual["bar"] and not residual["sel"],
                   f"条残={residual['bar']} 选残={residual['sel']}")
