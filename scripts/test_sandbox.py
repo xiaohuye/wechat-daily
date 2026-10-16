@@ -61,11 +61,19 @@ def main():
           return !!document.querySelector('#rdBody .paper');
         }""")
         check("沙箱内打开阅读弹层", opened)
+        pg.wait_for_timeout(500)   # 等弹层布局稳定：立即取 rect 会拿到中间态，滚动错位→选区落视口外→readSel 视口校验拦下（旧版无校验时此处是“视口外弹条”假绿）
+        # 滚动到目标节点居中(readSel 有视口校验: 选区不可见不弹条——直接 scrollTo 300 会把首节点留在视口外)
         frame.evaluate("""() => {
+          const paper = document.querySelector('#rdBody .paper');
+          const w = document.createTreeWalker(paper, NodeFilter.SHOW_TEXT);
+          let t = w.nextNode();
+          while(t && t.nodeValue.trim().length < 40) t = w.nextNode();
           const rb = document.querySelector('#rdBody');
-          rb.scrollTo({top: 300, behavior: 'instant'});
+          const er = t.parentElement.getBoundingClientRect();
+          const br = rb.getBoundingClientRect();
+          rb.scrollTo({top: rb.scrollTop + er.top - br.top - br.height/2, behavior: 'instant'});
         }""")
-        pg.wait_for_timeout(300)
+        pg.wait_for_timeout(250)
         frame.evaluate("""() => {
           const paper = document.querySelector('#rdBody .paper');
           const w = document.createTreeWalker(paper, NodeFilter.SHOW_TEXT);

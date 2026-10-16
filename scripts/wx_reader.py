@@ -656,11 +656,26 @@ function readSel(){
   const text = root.textContent.slice(s, e).trim();
   if(text.length < 2 || text.length > 1200) return null;
   const art = root.closest('article[data-key]') || root.closest('#alist > li[data-key]');
-  return {key: art.dataset.key, start:s, end:e, text:text, rect:r.getBoundingClientRect()};
+  const rect = r.getBoundingClientRect();
+  /* 视口校验：弹层关闭后 article 移回 storehouse(hidden)，残留选区的 rect 全为 0
+     ——幽灵选区不该触发工具条复活（用户报「返回首页后弹窗还在、关不掉」）。
+     正常选区必然在视口内；不可见的选区一律视为无效 */
+  if(rect.height < 1 || rect.width < 1 || rect.bottom < 0 || rect.top > window.innerHeight) return null;
+  return {key: art.dataset.key, start:s, end:e, text:text, rect:rect};
 }
 
 /* ---------------- 浮动工具条 ---------------- */
+/* 弹条事件日志：复现类问题一图定案。window._barLog 最近 12 条，F12 可查；
+   诊断版右下角状态条滚动展示 */
+window._barLog = [];
+function barLog(t){
+  try{
+    window._barLog.unshift(new Date().toISOString().slice(11,23) + ' ' + t);
+    if(window._barLog.length > 12) window._barLog.length = 12;
+  }catch(e){}
+}
 function showBar(rect, mode, hlid){
+  barLog('show:' + mode);
   const bar = $('#selbar');
   bar.innerHTML = (mode === 'edit')
     ? '<button data-a="note">✏️ 编辑批注</button><button data-a="ask">💡 解释</button><button data-a="del">🗑 删除划线</button>'
@@ -676,7 +691,7 @@ function showBar(rect, mode, hlid){
   bar.style.left = x + 'px'; bar.style.top = y + 'px';
   bar.classList.toggle('flip', flip);
 }
-function hideBar(){ const b = $('#selbar'); if(b) b.hidden = true; }
+function hideBar(){ const b = $('#selbar'); if(b && !b.hidden){ barLog('hide'); b.hidden = true; } }
 
 /* ---------------- 批注编辑器 ---------------- */
 function openEditor(hlid, artKey, quote){
@@ -1211,12 +1226,19 @@ function openReader(n){
   $('#reader').hidden = false;
   document.body.classList.add('reading');
   $('#rdBody').scrollTop = 0;
+  closeEditor(); hideBar();   /* 换篇/新开弹层：旧篇的浮层与选区一并收尾，防跨篇残留 */
 }
 function closeReader(){
   const art = $('#rdBody article');
   if(art){ $('#storehouse').appendChild(art); }
   $('#reader').hidden = true;
   document.body.classList.remove('reading');
+  /* 返回浏览层即收尾全部浮层：工具条是 body 上的 fixed 元素，不随弹层隐藏——
+     不主动关会跨界面残留（用户报「返回首页后弹窗还在」）；残留选区指向
+     storehouse(hidden) 内的文章，是 showBar 复活的弹药库，一并清除 */
+  closeEditor(); hideBar();
+  const _s = window.getSelection(); if(_s && _s.removeAllRanges) _s.removeAllRanges();
+  curSel = null;
 }
 /* 兼容旧调用入口（测试/外部 evaluate）：接收 DOM article */
 function openArt(art){ if(art && art.dataset){ openReader(art.dataset.key); } }
@@ -1455,10 +1477,12 @@ setInterval(function(){
     (document.body || document.documentElement).appendChild(el); }
   var d = window._diag;
   var ed = document.getElementById('editor'), mk = document.getElementById('mask'), sb = document.getElementById('selbar');
+  el.style.whiteSpace = 'pre-line';
   el.textContent = '弹:' + (ed && !ed.hidden ? '开' : '关') + ' 罩:' + (mk && !mk.hidden ? '开' : '关')
     + ' 条:' + (sb && !sb.hidden ? '开' : '关') + (curSel ? ' 选:有' : ' 选:无')
     + ' | 点' + d.clicks + ' 存' + d.saves + ' 按下' + d.edBtns + ' 抬' + d.mups + ' 选中' + d.sels
-    + (d.errs ? ' ⚠错' + d.errs : '');
+    + (d.errs ? ' ⚠错' + d.errs : '')
+    + '\n— 弹条日志(新→旧) —\n' + ((window._barLog || []).slice(0, 6).join('\n') || '(无)');
 }, 300);
 
 document.addEventListener('DOMContentLoaded', function(){

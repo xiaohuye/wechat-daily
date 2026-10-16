@@ -141,6 +141,38 @@ def main():
         mk_gone = page.evaluate("() => document.querySelectorAll('#rdBody .paper mark.hl').length")
         check("工具条删除划线生效", mk_gone == 0, f"mark 剩 {mk_gone} 个")
 
+        # 3.5 跨界面残留回归：弹层内划线弹工具条（不保存）→ 点「← 返回」→
+        #     工具条是 body 上的 fixed 元素，不随弹层隐藏——closeReader 必须主动收尾
+        #     （用户报「返回首页后弹窗还在」；旧版 closeReader 不关工具条不清选区，必留残影）
+        page.evaluate("""() => {
+          const paper = document.querySelector('#rdBody .paper');
+          const w = document.createTreeWalker(paper, NodeFilter.SHOW_TEXT);
+          let t = w.nextNode();
+          while(t && t.nodeValue.trim().length < 40) t = w.nextNode();
+          const n = Math.min(20, t.nodeValue.trim().length);
+          const r = document.createRange();
+          r.setStart(t, 0); r.setEnd(t, n);
+          const s = window.getSelection();
+          s.removeAllRanges(); s.addRange(r);
+          document.dispatchEvent(new MouseEvent('mouseup', {bubbles:true}));
+        }""")
+        page.wait_for_timeout(300)
+        bar_shown = page.evaluate("() => { const b = document.querySelector('#selbar'); return b && !b.hidden; }")
+        if bar_shown:
+            page.evaluate("() => closeReader()")
+            page.wait_for_timeout(300)
+            residual = page.evaluate("""() => {
+              const b = document.querySelector('#selbar');
+              const s = window.getSelection();
+              return { bar: !!(b && !b.hidden), sel: !!(s && !s.isCollapsed && s.rangeCount) };
+            }""")
+            check("返回首页后工具条不残留且选区已清", not residual["bar"] and not residual["sel"],
+                  f"条残={residual['bar']} 选残={residual['sel']}")
+            page.evaluate("() => openArt(document.querySelector('#rdBody article') || document.querySelector('#storehouse article'))")
+            page.wait_for_timeout(200)
+        else:
+            check("返回首页后工具条不残留且选区已清", True, "(本轮工具条未弹出, 跳过)")
+
         # 4. 弹层开着换篇：openArt 另一篇 → 旧篇归位 storehouse，rdBody 唯一
         swap = page.evaluate("""() => {
           const cur = document.querySelector('#rdBody article');
