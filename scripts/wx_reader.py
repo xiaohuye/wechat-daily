@@ -507,7 +507,7 @@ setTimeout(function(){
   if(lsProbe() === false && document.body){
     const b = document.createElement('div');
     b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:998;background:#a56a00;color:#fff;font:12px/1.7 sans-serif;padding:5px 12px;pointer-events:none';
-    b.textContent = '⚠ 当前预览面板是沙箱环境，划线/批注/反馈可操作但不会保存。完整功能请用 Chrome/Edge 打开本地 HTML 文件使用。';
+    b.textContent = '⚠ 沙箱预览：划线/批注暂存于本页，页面关闭前喊「保存批注」即可同步落盘；完整自动保存请用 Chrome/Edge 打开本地文件。';
     document.body.appendChild(b);
   }
 }, 600);
