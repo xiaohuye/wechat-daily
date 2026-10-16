@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
 """沙箱环境专项测试：模拟 WorkBuddy 预览面板（sandboxed iframe, 无 allow-same-origin）。
-验证: 1) 无 JS 错误  2) 沙箱黄条提示出现  3) 划线/批注/保存链路内存降级可用  4) 内存数据不持久(刷新即失)
+验证: 1) 无 JS 错误  2) 无沙箱提示条(黄条已按需求移除)  3) 划线/批注/保存链路内存降级可用  4) 内存数据不持久(刷新即失)
      5) 诊断版红条不出现
 """
-import http.server, socketserver, threading, functools, pathlib, urllib.parse
+import http.server, socketserver, threading, functools, pathlib, urllib.parse, os
 from playwright.sync_api import sync_playwright
+
+CHROME = None
+for _p in (r"C:\Users\Administrator\AppData\Local\ms-playwright\chromium-1228\chrome-win64\chrome.exe",
+           r"C:\Users\Administrator\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe"):
+    if os.path.exists(_p):
+        CHROME = _p
+        break
 
 OUT = pathlib.Path(r"E:\wokrbudy\wechat-daily\output")
 PORT = 8950
@@ -24,7 +31,7 @@ def main():
         return "http://127.0.0.1:%d/%s" % (PORT, urllib.parse.quote(fname))
 
     with sync_playwright() as p:
-        b = p.chromium.launch(headless=True)
+        b = p.chromium.launch(headless=True, executable_path=CHROME)
 
         # ---------- Case A: 正式版在沙箱 iframe ----------
         pg = b.new_page(viewport={"width": 1000, "height": 900})
@@ -44,12 +51,7 @@ def main():
         except Exception:
             pass
 
-        # A1: 沙箱黄条提示出现 (style.background 归一化为 rgb)
-        yellow = frame.evaluate("""() => {
-          const els = Array.from(document.querySelectorAll('div'));
-          return els.some(d => (d.style.background||'').indexOf('165, 106, 0') >= 0);
-        }""")
-        check("沙箱环境黄条提示出现", yellow)
+        # A1: (黄条提示已按用户要求移除——沙箱行为本身不变)
         # A2: 无 JS 错误(加载后 2s 内)
         check("沙箱环境无 pageerror", len(page_errors) == 0, str(page_errors[:2]))
         check("沙箱环境无 console error", len([e for e in console_errs if "favicon" not in e]) == 0, str(console_errs[:2]))

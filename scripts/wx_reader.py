@@ -502,15 +502,6 @@ function lsSet(k, v){ if(!lsProbe()){ _mem[k] = String(v); return; } try{ LS.set
 function lsDel(k){ if(!lsProbe()){ delete _mem[k]; return; } try{ LS.removeItem(k); }catch(e){ delete _mem[k]; } }
 function lsLen(){ if(!lsProbe()) return Object.keys(_mem).length; try{ return LS.length; }catch(e){ return Object.keys(_mem).length; } }
 function lsKey(i){ if(!lsProbe()) return Object.keys(_mem)[i] || null; try{ return LS.key(i); }catch(e){ return Object.keys(_mem)[i] || null; } }
-/* 沙箱提示（一次性，仅环境受限时显示） */
-setTimeout(function(){
-  if(lsProbe() === false && document.body){
-    const b = document.createElement('div');
-    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:998;background:#a56a00;color:#fff;font:12px/1.7 sans-serif;padding:5px 12px;pointer-events:none';
-    b.textContent = '⚠ 沙箱预览：划线/批注暂存于本页，页面关闭前喊「保存批注」即可同步落盘；完整自动保存请用 Chrome/Edge 打开本地文件。';
-    document.body.appendChild(b);
-  }
-}, 600);
 
 const HKEY = 'wxhl::';
 let curSel = null, curHlId = null, curArtKey = null;
@@ -1613,7 +1604,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<div class="brow nav">'
              '<span class="viewtabs">'
              f'<button id="tabRec" class="on" onclick="setView(\'rec\')">⭐ 推荐精读<span class="n">{len(arts)}</span></button>'
-             f'<button id="tabAll" onclick="setView(\'all\')">📚 全部更新<span class="n">{n_total}</span></button>'
+             f'<button id="tabAll" onclick="setView(\'all\')">📚 全部更新<span class="n">{n_full}</span></button>'
              '</span>'
              '<button id="syncBadge" class="badge" onclick="syncAllNow()"'
              ' title="划线/反馈自动保存并同步；点击立即全量同步">✓ 已自动同步</button>'
@@ -1784,7 +1775,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<button onclick="resetFilters()" title="清空全部筛选" style="border:1px solid var(--line);'
              'background:#fff;border-radius:9px;padding:9px 12px;cursor:pointer;font:600 13px/1 inherit;'
              'color:var(--sub)">⟲ 重置</button>'
-             f'<span class="cinfo" id="acInfo">共 {n_total} 篇 · {n_full} 篇可读全文 · 点条目进入专注阅读</span>'
+             f'<span class="cinfo" id="acInfo">共 {n_full} 篇' + (f'（{n_total - n_full} 篇未取到正文已略过）' if n_total > n_full else '') + ' · 点条目进入专注阅读</span>'
              '</div>')
     W.append('<ul class="alist" id="alist">')
     rec_seen = set(rec_keys)
@@ -1793,6 +1784,8 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         k = f'{a.get("account","")}|{a.get("title","")}'
         fv = a.get("_full") or {}
         has = bool(fv.get("content_html"))
+        if not has:
+            continue   # 未取到正文: 不进清单(展示也读不了, 无意义)
         star = ' ⭐' if k in rec_keys else ''
         am = meta.get(k, {}) or {}
         atype = am.get("_type", "")
