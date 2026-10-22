@@ -55,9 +55,14 @@
 
 ```bash
 cd E:/wokrbudy/wechat-daily
-bash scripts/run_daily.sh                    # 默认：1 天窗口 / 推荐 30 篇 / 抓 25 篇正文
-DAYS=3 TOP=30 FULL=20 bash scripts/run_daily.sh
+bash scripts/run_daily.sh                    # 默认：1 天窗口 / 推荐 30 篇 / 抓【全部更新】正文
+FULL=25 bash scripts/run_daily.sh            # 只抓推荐前 25 篇正文（更快，其余仅标题+摘要）
+DAYS=3 TOP=30 bash scripts/run_daily.sh
 ```
+
+> 默认 `FULL=0`（全量）：日报「全部更新」列表里每篇都会尝试抓正文。
+> 抓不到文字正文的（图片型 / SVG 交互排版）会保留标题 + 摘要 + 原文链接，不再丢弃。
+> 借助 `--reuse`，首次全量约 2 分钟，之后每天仅需十几秒补抓增量。
 
 ## 快速使用（分步）
 
@@ -164,6 +169,7 @@ wechat-daily/
 │   ├─ wx_report.py        备用：纯清单日报（无正文）
 │   ├─ wx_classify.py      ② 分类画像
 │   └─ wx_fetch.py         备用：wechat2rss 抓取
+├─ docs/      复盘文档（如「推荐数与全部更新数相同」根因分析）
 ├─ data/      抓取 / 排序 / insights / 正文 JSON + weread_profile（登录态）
 └─ output/    公众号关注画像.html / 公众号日报-精读版-*.html
 ```

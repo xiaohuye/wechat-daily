@@ -37,6 +37,23 @@ def latest(pattern):
     return fs[-1] if fs else None
 
 
+def _pick_thumb(u):
+    """规范化缩略图 URL：mmbiz 图片取小尺寸版本，其它原样返回。
+
+    wx_fmt 参数控制格式/尺寸；换成 jpeg+小尺寸可显著减小体积。
+    """
+    u = (u or "").strip()
+    if not u:
+        return ""
+    if not u.startswith("http"):
+        return ""
+    # 微信图片：清掉 suffix，改用小尺寸 jpeg（列表缩略图够用）
+    if "mmbiz.qpic.cn" in u or "mmbiz.qlogo.cn" in u:
+        base = u.split("?")[0]
+        return base + "?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1"
+    return u
+
+
 CSS = """
 :root{
   --bg:#f6f6f8; --card:#ffffff; --paper:#fdfdfc; --paper-line:#eceae4;
@@ -407,7 +424,7 @@ article .acts .docbtn{padding:9px 14px;font-size:13px}
      padding:12px 14px;transition:all .18s;box-shadow:var(--shadow-sm);cursor:pointer;
      display:flex;flex-direction:column;gap:5px}
 .alist li:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:#dfe6f5}
-.alist li.nobody{cursor:default;opacity:.6}
+.alist li.nobody{cursor:default}
 .alist li.nobody:hover{transform:none;box-shadow:var(--shadow-sm)}
 .alist .at{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.45;
      display:block;text-decoration:none;
@@ -416,6 +433,20 @@ article .acts .docbtn{padding:9px 14px;font-size:13px}
 .alist .am .aacc{font-weight:700;color:var(--ink-2)}
 .alist .am .sep{width:3px;height:3px;border-radius:50%;background:var(--line-2)}
 .alist .am .no{color:#b0b5bd}
+/* 无正文条目（图片型/SVG 型文章）：保留展示，给出摘要与原图，点原文链接可跳转 */
+.alist li.nobody{opacity:1}
+.alist li.nobody .at{color:var(--ink-2)}
+.alist .nbody{display:flex;gap:9px;align-items:flex-start;margin-top:2px}
+.alist .nbody .thumb{flex:0 0 58px;width:58px;height:58px;border-radius:7px;object-fit:cover;
+     border:1px solid var(--line);background:#f4f6fa}
+.alist .nbody .nx{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.alist .ndigest{font-size:11.5px;color:var(--sub);line-height:1.5;
+     display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.alist .ntag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;
+     color:#8a6d1f;background:#fdf3d8;border:1px solid #f0e0b0;border-radius:6px;
+     padding:2px 7px;align-self:flex-start}
+.alist .nlink{font-size:11px;color:#4a6cf7;text-decoration:none;font-weight:600;align-self:flex-start}
+.alist .nlink:hover{text-decoration:underline}
 /* ---------- 右下角悬浮按钮组 ---------- */
 #totop{position:fixed;right:26px;bottom:86px;z-index:90;width:44px;height:44px;border-radius:13px;
      display:none;align-items:center;justify-content:center;cursor:pointer;
@@ -1512,6 +1543,11 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
     d = json.load(open(full_file, encoding="utf-8"))
     allmap = d.get("articles", {})           # 全量（含正文的）
     arts = list(allmap.items())[:top]        # 推荐区（前 top 篇）
+    # 无文字正文条目（图片型/SVG 型）：列表降级展示时补 url/摘要/封面
+    unread = {}
+    for u in d.get("unreadable", []) or []:
+        if u.get("key"):
+            unread[u["key"]] = u
 
     meta = {}
     if rank_file and os.path.exists(rank_file):
@@ -1604,7 +1640,7 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<div class="brow nav">'
              '<span class="viewtabs">'
              f'<button id="tabRec" class="on" onclick="setView(\'rec\')">⭐ 推荐精读<span class="n">{len(arts)}</span></button>'
-             f'<button id="tabAll" onclick="setView(\'all\')">📚 全部更新<span class="n">{n_full}</span></button>'
+             f'<button id="tabAll" onclick="setView(\'all\')">📚 全部更新<span class="n">{n_total}</span></button>'
              '</span>'
              '<button id="syncBadge" class="badge" onclick="syncAllNow()"'
              ' title="划线/反馈自动保存并同步；点击立即全量同步">✓ 已自动同步</button>'
@@ -1775,7 +1811,10 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
              '<button onclick="resetFilters()" title="清空全部筛选" style="border:1px solid var(--line);'
              'background:#fff;border-radius:9px;padding:9px 12px;cursor:pointer;font:600 13px/1 inherit;'
              'color:var(--sub)">⟲ 重置</button>'
-             f'<span class="cinfo" id="acInfo">共 {n_full} 篇' + (f'（{n_total - n_full} 篇未取到正文已略过）' if n_total > n_full else '') + ' · 点条目进入专注阅读</span>'
+             f'<span class="cinfo" id="acInfo">共 {n_total} 篇'
+             + (f'（{n_full} 篇含全文可精读 · {n_total - n_full} 篇为图片/交互型，仅标题与摘要）'
+                if n_total > n_full else '')
+             + ' · 点条目进入专注阅读</span>'
              '</div>')
     W.append('<ul class="alist" id="alist">')
     rec_seen = set(rec_keys)
@@ -1784,8 +1823,6 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         k = f'{a.get("account","")}|{a.get("title","")}'
         fv = a.get("_full") or {}
         has = bool(fv.get("content_html"))
-        if not has:
-            continue   # 未取到正文: 不进清单(展示也读不了, 无意义)
         star = ' ⭐' if k in rec_keys else ''
         am = meta.get(k, {}) or {}
         atype = am.get("_type", "")
@@ -1810,7 +1847,26 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
         W.append('<div class="am"><span class="aacc">' + esc(a.get("account", "")) + '</span>'
                  '<span class="sep"></span>' + '<span class="sep"></span>'.join(stat_bits) + '</div>')
         if not has:
-            W.append('<span class="no">正文未取到</span>')
+            # 无文字正文条目：给出摘要 + 原图 + 原文链接，尽量不丢信息
+            nu = unread.get(k, {})
+            dg = (a.get("digest") or nu.get("digest") or "").strip()
+            thumb = _pick_thumb(nu.get("cover") or a.get("cover") or "")
+            url = (nu.get("real_url") or fv.get("real_url") or a.get("url") or "").strip()
+            why = nu.get("reason") or "未抓正文"
+            W.append('<div class="nbody">')
+            if thumb:
+                W.append(f'<img class="thumb" src="{esc(thumb)}" alt="" loading="lazy" '
+                         f'onerror="this.style.display=\'none\'">')
+            W.append('<div class="nx">')
+            W.append(f'<span class="ntag">🖼 {esc(why)} · 无文字正文</span>')
+            if dg:
+                W.append(f'<span class="ndigest">{esc(dg[:220])}</span>')
+            if url:
+                W.append(f'<a class="nlink" href="{esc(url)}" target="_blank" rel="noopener" '
+                         f'onclick="event.stopPropagation()">↗ 打开公众号原文</a>')
+            else:
+                W.append('<span class="ndigest" style="color:#b0b5bd">原链接未取到</span>')
+            W.append('</div></div>')
         W.append('</li>')
         if has and k not in rec_seen:
             rec_seen.add(k)
@@ -1853,10 +1909,13 @@ def build(full_file, rank_file, top, insights_file=None, articles_file=None):
 
     if d.get("failed"):
         names = "、".join(esc(f.get("key", "").split("|")[0]) for f in d["failed"])
-        W.append('<div class="idx"><h3>未取到正文 · 微信读书侧原文不可读</h3>'
+        W.append('<div class="idx"><h3>无文字正文 · 已保留标题/摘要/原文链接</h3>'
                  '<p style="margin:0 0 8px;font-size:13px;color:var(--sub)">'
-                 '这些条目经核实：微信读书自己的阅读页同样「加载失败」——多为作者已删除 / 平台下架，'
-                 '或本就不是标准图文（活动预约贴、裂变海报等短内容），并非抓取故障。</p>'
+                 '这些篇目在「全部更新」里以卡片形式保留（摘要 + 原图 + 原文链接），不会丢失。'
+                 '它们没有可内嵌的文字正文，原因是：'
+                 '<b>图片型文章</b>（正文即图片，微信侧返回分享模板 common_share）、'
+                 '<b>纯 SVG 交互排版</b>（正文由 SVG 构成，无独立文本层），或作者已删除/平台下架。'
+                 '并非抓取故障 —— 已实测重试、换接口、直连原文三条路均无法获得文字正文。</p>'
                  f'<p style="margin:0">{names}</p></div>')
 
     # 浮层组件

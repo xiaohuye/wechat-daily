@@ -164,15 +164,23 @@ def main():
     args = ap.parse_args()
 
     reused = {}
+    reused_unreadable = {}
     if args.reuse:
         prev = sorted(glob.glob(os.path.join(DATA, "articles-full-weread-*.json")))
         for f in prev:
             try:
-                reused.update(json.load(open(f, encoding="utf-8")).get("articles", {}))
+                dprev = json.load(open(f, encoding="utf-8"))
+                reused.update(dprev.get("articles", {}))
+                # 无正文记录同样累积复用，避免每天重复抓取已知不可读的文章
+                for u in dprev.get("unreadable", []) or []:
+                    if u.get("key"):
+                        reused_unreadable[u["key"]] = u
             except Exception:
                 pass
         if reused:
             print(f"复用已有正文 {len(reused)} 篇")
+        if reused_unreadable:
+            print(f"复用已知无正文记录 {len(reused_unreadable)} 篇")
 
     if args.ids:
         items = json.load(open(args.ids, encoding="utf-8"))
@@ -198,12 +206,16 @@ def main():
         print(f"源: {os.path.basename(src)} → 取前 {len(items)} 篇")
 
     # 复用：过滤掉已抓过的
-    out, failed = {}, []
+    out, failed, unreadable = {}, [], []
     todo = []
     for a in items:
         k = f"{a.get('account','')}|{a.get('title','')}"
         if args.reuse and k in reused and reused[k].get("content_html"):
             out[k] = reused[k]
+        elif args.reuse and k in reused_unreadable:
+            # 已知无文字正文：直接沿用上次记录（含原文链接/摘要），不再重复抓
+            unreadable.append(reused_unreadable[k])
+            failed.append({"key": k, "error": "正文为空(复用)"})
         else:
             todo.append(a)
     if args.reuse and out:
@@ -234,11 +246,31 @@ def main():
                 print(f"[{i:3}/{len(items)}] {a.get('account')}: 失败 {err}", flush=True)
                 continue
             body, imgs = extract_body(r["html"])
-            if not body or len(body) < 200:
-                failed.append({"key": key, "error": "正文为空"})
-                print(f"[{i:3}/{len(items)}] {a.get('account')}: 正文为空({len(body or '')})", flush=True)
-                continue
             m = meta_of(r["html"])
+            if not body or len(body) < 200:
+                # 无文字正文（图片型文章走 common_share 分享模板 / 纯 SVG 交互排版）。
+                # 仍尽量榨取可用信息：原文链接、摘要、模板类型，供日报列表降级展示。
+                page_mid = ""
+                pm = re.search(r'PAGE_MID\s*=\s*"([^"]+)"', r["html"])
+                if pm:
+                    page_mid = pm.group(1)
+                unreadable.append({
+                    "key": key, "account": a.get("account", ""), "title": a.get("title", ""),
+                    "time": a.get("time"), "ts": a.get("ts"),
+                    "read_num": a.get("read_num"), "like_num": a.get("like_num"),
+                    "real_url": m["real_url"] or a.get("url", ""),
+                    "digest": a.get("digest") or m["desc"],
+                    "cover": a.get("cover", ""),
+                    "page_mid": page_mid,
+                    "reason": ("图片型分享页" if "common_share" in page_mid else
+                               "SVG交互排版" if len(body or "") < 200 else "正文为空"),
+                    "text_len": len(re.sub(r"<[^>]+>", "", body or "")),
+                })
+                failed.append({"key": key, "error": "正文为空"})
+                print(f"[{i:3}/{len(items)}] {a.get('account')}: 正文为空({len(body or '')}) "
+                      f"-> 记入 unreadable（url={bool(m['real_url'])}）", flush=True)
+                time.sleep(args.sleep)
+                continue
             out[key] = {
                 "account": a.get("account", ""), "title": a.get("title", ""),
                 "ts": a.get("ts"), "time": a.get("time"),
@@ -257,10 +289,15 @@ def main():
     stamp = datetime.datetime.now(TZ).strftime("%Y-%m-%d-%H%M")
     outf = os.path.join(DATA, f"articles-full-weread-{stamp}.json")
     json.dump({"generated_at": datetime.datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S"),
-               "count": len(out), "failed": failed, "articles": out},
+               "count": len(out), "failed": failed,
+               "unreadable": unreadable, "articles": out},
               open(outf, "w", encoding="utf-8"), ensure_ascii=False)
     tot = sum(v["text_len"] for v in out.values())
-    print(f"\n成功 {len(out)} 篇（失败 {len(failed)}），正文合计 {tot:,} 字符，耗时 {time.time()-t0:.0f}s")
+    print(f"\n成功 {len(out)} 篇（失败 {len(failed)}，其中 {len(unreadable)} 篇为无文字正文的图片/交互型）"
+          f"，正文合计 {tot:,} 字符，耗时 {time.time()-t0:.0f}s")
+    if unreadable:
+        got = sum(1 for u in unreadable if u.get("real_url"))
+        print(f"  无正文条目已记录原文链接 {got}/{len(unreadable)} 条（供日报降级展示）")
     print("已存:", outf)
 
 

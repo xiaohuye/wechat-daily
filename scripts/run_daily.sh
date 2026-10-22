@@ -3,9 +3,13 @@
 # 抓取 → 排序 → 分析 → 抓正文 → 生成精读版日报（正文内嵌，免跳转）
 #
 # 用法：
-#   bash scripts/run_daily.sh                    # 默认：最近 1 天，推荐 30 篇，抓前 25 篇正文
-#   FULL=0 TOP=30 bash scripts/run_daily.sh      # 全量：抓「今日全部更新」的正文（推荐+其它）
-#   DAYS=3 TOP=30 FULL=20 bash scripts/run_daily.sh
+#   bash scripts/run_daily.sh                    # 默认：最近 1 天，推荐 30 篇，抓【全部更新】正文
+#   FULL=25 bash scripts/run_daily.sh            # 只抓推荐前 25 篇正文（更快，其余仅标题+摘要）
+#   FULL=0 TOP=30 bash scripts/run_daily.sh      # 同默认：全量抓取（推荐 + 其它全部更新）
+#   DAYS=3 TOP=30 bash scripts/run_daily.sh
+#
+# 说明：默认 FULL=0（全量）时，日报「全部更新」列表里的每篇都会尝试抓正文；
+#       抓不到文字正文的（图片型 / SVG 交互排版）会在列表中保留标题+摘要+原文链接，不再丢弃。
 #
 # 退出码：
 #   0  成功
@@ -17,7 +21,7 @@ cd "$(dirname "$0")/.."
 PY="C:/Users/Administrator/.workbuddy/binaries/python/envs/default/Scripts/python.exe"
 DAYS="${DAYS:-1}"
 TOP="${TOP:-30}"
-FULL="${FULL:-25}"
+FULL="${FULL:-0}"
 
 log(){ echo "[$(date '+%H:%M:%S')] $*"; }
 
