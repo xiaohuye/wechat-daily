@@ -39,7 +39,7 @@ def find_exe():
     for p in EXE_CANDIDATES:
         if os.path.exists(p):
             return p
-    raise SystemExit("未找到 Chromium 可执行文件")
+    return None  # 无候选命中时回退 playwright 默认浏览器（跨平台：Linux/云主机用 playwright install chromium 装的）
 
 
 def clean_title(t):

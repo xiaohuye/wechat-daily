@@ -18,7 +18,14 @@
 set -u
 cd "$(dirname "$0")/.."
 
-PY="C:/Users/Administrator/.workbuddy/binaries/python/envs/default/Scripts/python.exe"
+# Python 解释器自适应：显式 PY 环境变量 > 本机 WorkBuddy 专用解释器 > python3 > python
+# （本机行为不变；Linux/云主机自动落到 python3）
+if [ -n "${PY:-}" ]; then :
+elif [ -x "C:/Users/Administrator/.workbuddy/binaries/python/envs/default/Scripts/python.exe" ]; then
+  PY="C:/Users/Administrator/.workbuddy/binaries/python/envs/default/Scripts/python.exe"
+elif command -v python3 >/dev/null 2>&1; then PY=python3
+else PY=python
+fi
 DAYS="${DAYS:-1}"
 TOP="${TOP:-30}"
 FULL="${FULL:-0}"
@@ -44,8 +51,8 @@ for c in (r"C:\Users\Administrator\AppData\Local\ms-playwright\chromium-1228\chr
           r"C:\Users\Administrator\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe"):
     if os.path.exists(c):
         EXE = c; break
-if not EXE or not os.path.isdir(PROFILE):
-    sys.exit(1)   # 从未登录过
+if not os.path.isdir(PROFILE):
+    sys.exit(1)   # 从未登录过（EXE 为 None 时 executable_path=None 合法，走 playwright 默认浏览器）
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/149.0 Safari/537.36")
 JS = """async () => {
@@ -101,6 +108,8 @@ log "→ $ART"
 log "=== [2/5] 推荐排序 ==="
 
 # ---------- 先拉起 ima 同步服务：页面挂着的用户，昨天的划线/反馈在排序前自动冲刷落盘 ----------
+# 云端部署（无本地浏览器页面）设 SKIP_IMA_SYNC=1 跳过，省 25s
+if [ "${SKIP_IMA_SYNC:-0}" != "1" ]; then
 if "$PY" -c "import socket;s=socket.socket();s.settimeout(1);raise SystemExit(0 if s.connect_ex(('127.0.0.1',8931))==0 else 1)" 2>/dev/null; then
   log "ima 同步服务已在运行 (127.0.0.1:8931)"
 else
@@ -110,6 +119,7 @@ else
 fi
 log "--- 等待 25s 冲刷窗口（页面 watcher 15s 轮询 + 发送）---"
 sleep 25
+fi
 
 # ---------- 3/3 排序（先学习划线关键词，再打分） ----------
 log "--- 划线关键词学习 + 排序推荐 ---"
